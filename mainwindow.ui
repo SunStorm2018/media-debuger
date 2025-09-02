@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuBasic_Info">
+    <property name="title">
+     <string>Basic Info</string>
+    </property>
+    <addaction name="actionVersion"/>
+    <addaction name="actionBuildconf"/>
+    <addaction name="actionFormats"/>
+    <addaction name="actionMuxers"/>
+    <addaction name="actionDemuxers"/>
+    <addaction name="actionDevices"/>
+    <addaction name="actionCodecs"/>
+    <addaction name="actionDecoders"/>
+    <addaction name="actionEncoders"/>
+    <addaction name="actionBsfs"/>
+    <addaction name="actionProtocols"/>
+    <addaction name="actionFilters"/>
+    <addaction name="actionPixfmts"/>
+    <addaction name="actionLayouts"/>
+    <addaction name="actionSamplefmts"/>
+    <addaction name="actionColors"/>
+   </widget>
+   <addaction name="menuBasic_Info"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionVersion">
+   <property name="text">
+    <string>Version</string>
+   </property>
+  </action>
+  <action name="actionBuildconf">
+   <property name="text">
+    <string>Buildconf</string>
+   </property>
+  </action>
+  <action name="actionFormats">
+   <property name="text">
+    <string>Formats</string>
+   </property>
+  </action>
+  <action name="actionMuxers">
+   <property name="text">
+    <string>Muxers</string>
+   </property>
+  </action>
+  <action name="actionDemuxers">
+   <property name="text">
+    <string>Demuxers</string>
+   </property>
+  </action>
+  <action name="actionDevices">
+   <property name="text">
+    <string>Devices</string>
+   </property>
+  </action>
+  <action name="actionCodecs">
+   <property name="text">
+    <string>Codecs</string>
+   </property>
+  </action>
+  <action name="actionDecoders">
+   <property name="text">
+    <string>Decoders</string>
+   </property>
+  </action>
+  <action name="actionEncoders">
+   <property name="text">
+    <string>Encoders</string>
+   </property>
+  </action>
+  <action name="actionBsfs">
+   <property name="text">
+    <string>Bsfs</string>
+   </property>
+  </action>
+  <action name="actionProtocols">
+   <property name="text">
+    <string>Protocols</string>
+   </property>
+  </action>
+  <action name="actionFilters">
+   <property name="text">
+    <string>Filters</string>
+   </property>
+  </action>
+  <action name="actionPixfmts">
+   <property name="text">
+    <string>Pixfmts</string>
+   </property>
+  </action>
+  <action name="actionLayouts">
+   <property name="text">
+    <string>Layouts</string>
+   </property>
+  </action>
+  <action name="actionSamplefmts">
+   <property name="text">
+    <string>SampleFmts</string>
+   </property>
+  </action>
+  <action name="actionColors">
+   <property name="text">
+    <string>Colors</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
