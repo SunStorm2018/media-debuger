@@ -9,30 +9,40 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    Common/zffprobe.cpp \
-    Common/zwindowhelper.cpp \
-    Widgets/infowidgets.cpp \
+    common/common.cpp \
+    common/zffprobe.cpp \
+    common/zwindowhelper.cpp \
+    widgets/globalconfingwg.cpp \
+    widgets/infowidgets.cpp \
     main.cpp \
     mainwindow.cpp \
-    Common/zprocess.cpp \
+    common/zprocess.cpp \
+    widgets/jsonformatwg.cpp \
     zcodecflagparser.cpp
 
 HEADERS += \
-    Common/zffprobe.h \
-    Common/zwindowhelper.h \
-    Widgets/infowidgets.h \
+    common/common.h \
+    common/zffprobe.h \
+    common/zwindowhelper.h \
+    widgets/globalconfingwg.h \
+    widgets/infowidgets.h \
     mainwindow.h \
-    Common/zprocess.h \
+    common/zprocess.h \
+    widgets/jsonformatwg.h \
     zcodecflagparser.h
 
 FORMS += \
-    Widgets/infowidgets.ui \
-    mainwindow.ui
+    widgets/globalconfingwg.ui \
+    widgets/infowidgets.ui \
+    mainwindow.ui \
+    widgets/jsonformatwg.ui
 
 TRANSLATIONS += \
     MediaDebuger_zh_CN.ts
 CONFIG += lrelease
 CONFIG += embed_translations
+
+include(third_part/QJsonModel/QJsonModel.pri)
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -40,4 +50,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    Resources/resources.qrc
+    resources/resources.qrc

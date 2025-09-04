@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    setWindowTitle("FFprobe Viewer");
+
     ZWindowHelper::centerToCurrentScreen(this);
     // ZFfprobe probe;
 
@@ -36,7 +38,13 @@ MainWindow::~MainWindow()
 {
     delete ui;
 
-    for (auto it : m_infowindows) {
+    for (auto it : m_basiclInfowindows) {
+        if (it) {
+            delete it;
+        }
+    }
+
+    for (auto it : m_mediaInfowindows) {
         if (it) {
             delete it;
         }
@@ -45,24 +53,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::InitConnectation()
 {
-    connect(ui->menuBasic_Info, &QMenu::triggered, [=](QAction *action){
-        if (!action) {
-            return;
-        }
-
-        QString function = action->objectName().replace("action", "get");
-        QString retVal;
-        QMetaObject::invokeMethod(&m_probe, function.toUtf8(), Qt::DirectConnection,
-                                  Q_RETURN_ARG(QString, retVal));
-
-        PopInfoWindow(action->objectName().replace("action", "Detail Info : "), retVal, action->objectName().replace("action", ""));
-    });
+    connect(ui->menuFile, &QMenu::triggered, this, &MainWindow::slotMenuFileTriggered);
+    connect(ui->menuBasic_Info, &QMenu::triggered, this, &MainWindow::slotMenuBasic_InfoTriggered);
+    connect(ui->menuMedia_Info, &QMenu::triggered, this, &MainWindow::slotMenuMedia_InfoTriggered);
+    connect(ui->menuConfig, &QMenu::triggered, this, &MainWindow::slotMenuConfigTriggered);
 }
 
-void MainWindow::PopInfoWindow(QString title, const QString &info, const QString& format_key)
+void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QString& format_key)
 {
     InfoWidgets *infoWindow = new InfoWidgets;
-    m_infowindows.append(infoWindow);
+    m_basiclInfowindows.append(infoWindow);
 
     infoWindow->setWindowTitle(title);
     infoWindow->show();
@@ -71,4 +71,113 @@ void MainWindow::PopInfoWindow(QString title, const QString &info, const QString
 
     qDebug() << title << info;
 
+}
+
+void MainWindow::PopMediaInfoWindow(QString title, const QString &info, const QString &format_key)
+{
+    JsonFormatWG *mediaInfoWindow = new JsonFormatWG;
+    m_mediaInfowindows.append(mediaInfoWindow);
+
+    mediaInfoWindow->setWindowTitle(title);
+    mediaInfoWindow->show();
+    ZWindowHelper::centerToParent(mediaInfoWindow);
+    mediaInfoWindow->loadJson(info.toUtf8());
+
+    qDebug() << title << info;
+}
+
+void MainWindow::slotMenuBasic_InfoTriggered(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+
+    QString function = action->objectName().replace("action", "get");
+    QString retVal;
+    QMetaObject::invokeMethod(&m_probe, function.toUtf8(), Qt::DirectConnection,
+                              Q_RETURN_ARG(QString, retVal));
+
+    PopBasicInfoWindow(action->objectName().replace("action", "Detail Info : "), retVal, action->objectName().replace("action", ""));
+}
+
+void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+
+    QString function = action->objectName().replace("action", "-show_").toLower();
+
+    if (QStringList{
+            SHOW_FORMAT, SHOW_STREAMS, SHOW_CHAPTERS,
+            SHOW_FRAMES, SHOW_PACKETS,
+            SHOW_PROGRAMS,
+            SHOW_VERSIONS, SHOW_PROGRAM_VERSION, SHOW_LIBRARY_VERSIONS,
+            SHOW_PIXEL_FORMATS
+        }.contains(function)) {
+
+        QString fileName = Common::instance()->getConfigValue(CURRENTFILE).toString();
+        if (!fileName.isEmpty()) {
+            QString formats = m_probe.getMediaInfoJsonFormat(function, fileName);
+            PopMediaInfoWindow(action->objectName().replace("action", "Detail Info : "), formats);
+        }
+    }
+
+}
+
+void MainWindow::slotMenuFileTriggered(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+
+    if (ui->actionOpen == action) {
+        QString fileName = QFileDialog::getOpenFileName(
+            nullptr,
+            "Open File",
+            QDir::homePath(),
+            "All Files (*.*)"
+            );
+
+        if (!fileName.isEmpty()) {
+            qDebug() << "Selected file:" << fileName;
+            Common::instance()->setConfigValue(CURRENTFILE, fileName);
+        }
+
+        return;
+    }
+
+    if (ui->actionOpen == action) {
+        QStringList fileNames = QFileDialog::getOpenFileNames(
+            nullptr,
+            "Select Files",
+            QDir::homePath(),
+            "All Files (*.*);;Text Files (*.txt);;Image Files (*.png *.jpg *.bmp)"
+            );
+
+        if (!fileNames.isEmpty()) {
+            for (const QString &fileName : fileNames) {
+                qDebug() << "Selected file:" << fileName;
+            }
+
+            Common::instance()->setConfigValue(CURRENTFILES, fileNames);
+        }
+
+        return;
+    }
+}
+
+void MainWindow::slotMenuConfigTriggered(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+
+    GlobalConfingWG *configWg = new GlobalConfingWG;
+    configWg->setWindowModality(Qt::ApplicationModal);
+    configWg->setAttribute(Qt::WA_ShowModal, true);
+    configWg->setCurrentTab(action->text());
+    configWg->setAttribute(Qt::WA_DeleteOnClose);
+
+    configWg->show();
 }

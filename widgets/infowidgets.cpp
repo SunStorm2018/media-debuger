@@ -93,14 +93,14 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
         data_tb.append(QStringList{tr("Build"), rawStringLines.at(1)});
 
         for (int i = 2; i < rawStringLines.size(); ++i) {
-            QStringList tmp = rawStringLines.at(i).split(" ", QString::SplitBehavior::SkipEmptyParts);
+            QStringList tmp = rawStringLines.at(i).split(" ", QString::SkipEmptyParts);
             if (tmp.size() > 0 && tmp.at(0).contains("configuration"))
                 tmp.takeFirst();
 
             QStringList tb_of_line;
             if (rawStringLines.at(i).contains("=")){
                 for (auto it : tmp) {
-                    QStringList keyParts = it.split("=", QString::SplitBehavior::SkipEmptyParts);
+                    QStringList keyParts = it.split("=", QString::SkipEmptyParts);
                     tb_of_line.clear();
                     if (keyParts.size() == 2) {
                         tb_of_line << keyParts[0].replace("--", "").trimmed() << keyParts.at(1).trimmed();
@@ -138,13 +138,13 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
 
             // header
             QString head_code = "";
-            auto tmp_headers = parts.at(0).split("\n", QString::SplitBehavior::SkipEmptyParts);
+            auto tmp_headers = parts.at(0).split("\n", QString::SkipEmptyParts);
             for (auto it : tmp_headers) {
                 if (it.contains(":"))
                     continue;
 
                 if (it.contains("=")) {
-                    QStringList tmp = it.split("=", QString::SplitBehavior::SkipEmptyParts);
+                    QStringList tmp = it.split("=", QString::SkipEmptyParts);
                     if (tmp.size() >= 2) {
                         headers.append("[" +tmp[0].replace(".", "").trimmed() + "]" + tmp.at(1).trimmed());
                         head_code.append(tmp[0].replace(".", "").trimmed());
@@ -164,11 +164,11 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
             qDebug() << "header size:" << headers.size() << "head_code: " << head_code;
 
             // content
-            auto tmp_content = parts.at(1).split("\n", QString::SplitBehavior::SkipEmptyParts);
+            auto tmp_content = parts.at(1).split("\n", QString::SkipEmptyParts);
             for (auto it : tmp_content) {
                 QStringList tb_of_line;
 
-                QStringList tmp = it.split(" ", QString::SplitBehavior::SkipEmptyParts);
+                QStringList tmp = it.split(" ", QString::SkipEmptyParts);
                 if (tmp.size() < 3){
                     continue;
                 }
@@ -210,7 +210,7 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
                 rawStringLines.at(i).contains("DESCRIPTION", Qt::CaseInsensitive)) {
                 continue;
             }
-            QStringList tmp = rawStringLines.at(i).split(" ", QString::SplitBehavior::SkipEmptyParts);
+            QStringList tmp = rawStringLines.at(i).split(" ", QString::SkipEmptyParts);
             if (tmp.size() >= 2) {
                 QStringList tb_of_line{tmp.at(0).trimmed()};
                 tmp.removeFirst();

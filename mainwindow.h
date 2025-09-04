@@ -4,10 +4,16 @@
 #include <QMainWindow>
 #include <QDebug>
 #include <QScreen>
+#include <QFileDialog>
 
-#include <Common/zffprobe.h>
-#include <Common/zwindowhelper.h>
-#include <Widgets/infowidgets.h>
+
+#include <common/zffprobe.h>
+#include <common/zwindowhelper.h>
+#include <common/common.h>
+
+#include <widgets/infowidgets.h>
+#include <widgets/jsonformatwg.h>
+#include <widgets/globalconfingwg.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -25,13 +31,21 @@ public:
 
 private:
     void InitConnectation();
-    void PopInfoWindow(QString title, const QString &info, const QString &format_key);
+    void PopBasicInfoWindow(QString title, const QString &info, const QString &format_key);
+    void PopMediaInfoWindow(QString title, const QString &info, const QString &format_key = "");
+
+private slots:
+    void slotMenuBasic_InfoTriggered(QAction *action);
+    void slotMenuMedia_InfoTriggered(QAction *action);
+    void slotMenuFileTriggered(QAction *action);
+    void slotMenuConfigTriggered(QAction *action);
 
 private:
     Ui::MainWindow *ui;
 
     ZFfprobe m_probe;
 
-    QList<QWidget *> m_infowindows;
+    QList<QWidget *> m_basiclInfowindows;
+     QList<QWidget *> m_mediaInfowindows;
 };
 #endif // MAINWINDOW_H

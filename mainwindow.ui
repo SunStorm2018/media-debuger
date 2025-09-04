@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>915</width>
+    <height>593</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>27</height>
+     <width>915</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuBasic_Info">
@@ -29,6 +29,7 @@
     </property>
     <addaction name="actionVersion"/>
     <addaction name="actionBuildconf"/>
+    <addaction name="separator"/>
     <addaction name="actionFormats"/>
     <addaction name="actionMuxers"/>
     <addaction name="actionDemuxers"/>
@@ -44,7 +45,54 @@
     <addaction name="actionSamplefmts"/>
     <addaction name="actionColors"/>
    </widget>
+   <widget class="QMenu" name="menuMedia_Info">
+    <property name="title">
+     <string>Media Info</string>
+    </property>
+    <addaction name="actionStreams"/>
+    <addaction name="actionFormat"/>
+    <addaction name="separator"/>
+    <addaction name="actionFrames"/>
+    <addaction name="actionPackets"/>
+    <addaction name="separator"/>
+    <addaction name="actionChapters"/>
+    <addaction name="actionCount_Frames"/>
+    <addaction name="actionCount_Packets"/>
+    <addaction name="actionShow_Entries"/>
+    <addaction name="separator"/>
+    <addaction name="actionVersions"/>
+    <addaction name="actionProgram_Version"/>
+    <addaction name="actionLibrary_Versions"/>
+    <addaction name="separator"/>
+    <addaction name="actionPixel_Formats"/>
+   </widget>
+   <widget class="QMenu" name="menuConfig">
+    <property name="title">
+     <string>Config</string>
+    </property>
+    <addaction name="actionGenral"/>
+    <addaction name="actionFFprobe"/>
+   </widget>
+   <widget class="QMenu" name="menuPlay">
+    <property name="title">
+     <string>Play</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionOpen_Files"/>
+    <addaction name="actionOpen_Folder"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport"/>
+   </widget>
+   <addaction name="menuFile"/>
    <addaction name="menuBasic_Info"/>
+   <addaction name="menuMedia_Info"/>
+   <addaction name="menuConfig"/>
+   <addaction name="menuPlay"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionVersion">
@@ -125,6 +173,147 @@
   <action name="actionColors">
    <property name="text">
     <string>Colors</string>
+   </property>
+  </action>
+  <action name="actionProgramVersion">
+   <property name="text">
+    <string>ProgramVersion</string>
+   </property>
+  </action>
+  <action name="actionLibraryVersions">
+   <property name="text">
+    <string>LibraryVersions</string>
+   </property>
+  </action>
+  <action name="actionFrame">
+   <property name="text">
+    <string>Video Frame</string>
+   </property>
+  </action>
+  <action name="actionFrames">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Frames</string>
+   </property>
+  </action>
+  <action name="actionPackets">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Packets</string>
+   </property>
+  </action>
+  <action name="actionChapters">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Chapters</string>
+   </property>
+  </action>
+  <action name="actionFormat">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Format</string>
+   </property>
+  </action>
+  <action name="actionCount_Frames">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Count Frames</string>
+   </property>
+  </action>
+  <action name="actionCount_Packets">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Count Packets</string>
+   </property>
+  </action>
+  <action name="actionShow_Entries">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Entries</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionOpen_Folder">
+   <property name="text">
+    <string>Open Folder</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export</string>
+   </property>
+  </action>
+  <action name="actionOpen_Files">
+   <property name="text">
+    <string>Open Files</string>
+   </property>
+  </action>
+  <action name="actionStreams">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Streams</string>
+   </property>
+  </action>
+  <action name="actionProgram_Version">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Program Version</string>
+   </property>
+  </action>
+  <action name="actionLibrary_Versions">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Library Versions</string>
+   </property>
+  </action>
+  <action name="actionVersions">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Versions</string>
+   </property>
+  </action>
+  <action name="actionPixel_Formats">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pixel Formats</string>
+   </property>
+  </action>
+  <action name="actionGenral">
+   <property name="text">
+    <string>General</string>
+   </property>
+  </action>
+  <action name="actionFFprobe">
+   <property name="text">
+    <string>FFprobe</string>
    </property>
   </action>
  </widget>

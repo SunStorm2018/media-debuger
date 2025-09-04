@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>InfoWidgets</class>
- <widget class="QWidget" name="InfoWidgets">
+ <class>GlobalConfingWG</class>
+ <widget class="QWidget" name="GlobalConfingWG">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>928</width>
-    <height>562</height>
+    <width>721</width>
+    <height>519</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,9 +18,6 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLineEdit" name="search_le">
-       <property name="placeholderText">
-        <string>Input seach Text</string>
-       </property>
        <property name="clearButtonEnabled">
         <bool>true</bool>
        </property>
@@ -28,51 +25,45 @@
      </item>
      <item>
       <widget class="QPushButton" name="search_btn">
-       <property name="text">
-        <string>Search</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="expand_raw_btn">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="maximumSize">
         <size>
          <width>30</width>
-         <height>16777215</height>
+         <height>30</height>
         </size>
        </property>
        <property name="styleSheet">
         <string notr="true"> QPushButton {
-    
-	image: url(:/128x128/arrow-right.png);
- }
-
- QPushButton:checked {
-	image: url(:/128x128/arrow-down.png);
- }
-</string>
+	image: url(:/128x128/search.png);
+ }</string>
        </property>
        <property name="text">
         <string/>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QTableWidget" name="detail_tb"/>
-   </item>
-   <item>
-    <widget class="QPlainTextEdit" name="detail_raw_pte"/>
+    <widget class="QTabWidget" name="config_tab_wg">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="genreral_tab">
+      <attribute name="title">
+       <string>General</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QTableWidget" name="general_config_tb"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="ffprobe_tab">
+      <attribute name="title">
+       <string>FFprobe</string>
+      </attribute>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>

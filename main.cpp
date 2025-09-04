@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <common/common.h>
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +18,15 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
+    // Get the singleton instance
+    Common* common = Common::instance();
+
+    // Initialize if not already initialized
+    if (!common->isInitialized()) {
+        common->initialize();
+    }
+
     MainWindow w;
     w.show();
     return a.exec();

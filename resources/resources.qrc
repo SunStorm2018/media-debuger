@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>128x128/arrow-down.png</file>
         <file>128x128/arrow-right.png</file>
+        <file>128x128/search.png</file>
     </qresource>
 </RCC>
