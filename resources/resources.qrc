@@ -3,5 +3,6 @@
         <file>128x128/arrow-down.png</file>
         <file>128x128/arrow-right.png</file>
         <file>128x128/search.png</file>
+        <file>128x128/layers.png</file>
     </qresource>
 </RCC>

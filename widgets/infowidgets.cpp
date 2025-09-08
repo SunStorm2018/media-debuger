@@ -296,3 +296,9 @@ void InfoWidgets::on_search_le_editingFinished()
     emit ui->search_btn->clicked();
 }
 
+
+void InfoWidgets::on_header_btn_clicked()
+{
+
+}
+

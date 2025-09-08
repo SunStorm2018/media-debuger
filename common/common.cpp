@@ -45,13 +45,13 @@ void Common::destroy()
 
 void Common::setConfigValue(const QString& key, const QVariant& value)
 {
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
     settings.setValue(key, value);
 }
 
 QVariant Common::getConfigValue(const QString& key, const QVariant& defaultValue) const
 {
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
     return settings.value(key, defaultValue);
 }
 
@@ -60,8 +60,6 @@ void Common::initialize()
     if (m_initialized) {
         return;
     }
-
-    qDebug() << "Common singleton initialized";
     m_initialized = true;
 }
 

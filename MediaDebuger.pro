@@ -11,6 +11,7 @@ CONFIG += c++17
 SOURCES += \
     common/common.cpp \
     common/zffprobe.cpp \
+    common/zlogger.cpp \
     common/zwindowhelper.cpp \
     widgets/globalconfingwg.cpp \
     widgets/infowidgets.cpp \
@@ -18,24 +19,28 @@ SOURCES += \
     mainwindow.cpp \
     common/zprocess.cpp \
     widgets/jsonformatwg.cpp \
+    widgets/tbheadereditor.cpp \
     zcodecflagparser.cpp
 
 HEADERS += \
     common/common.h \
     common/zffprobe.h \
+    common/zlogger.h \
     common/zwindowhelper.h \
     widgets/globalconfingwg.h \
     widgets/infowidgets.h \
     mainwindow.h \
     common/zprocess.h \
     widgets/jsonformatwg.h \
+    widgets/tbheadereditor.h \
     zcodecflagparser.h
 
 FORMS += \
     widgets/globalconfingwg.ui \
     widgets/infowidgets.ui \
     mainwindow.ui \
-    widgets/jsonformatwg.ui
+    widgets/jsonformatwg.ui \
+    widgets/tbheadereditor.ui
 
 TRANSLATIONS += \
     MediaDebuger_zh_CN.ts

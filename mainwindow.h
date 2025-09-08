@@ -6,7 +6,6 @@
 #include <QScreen>
 #include <QFileDialog>
 
-
 #include <common/zffprobe.h>
 #include <common/zwindowhelper.h>
 #include <common/common.h>

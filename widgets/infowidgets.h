@@ -26,6 +26,8 @@ private slots:
 
     void on_search_le_editingFinished();
 
+    void on_header_btn_clicked();
+
 private:
     void init_header_detail_tb(const QStringList &headers);
 

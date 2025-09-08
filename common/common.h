@@ -11,6 +11,64 @@
 #define CURRENTFILES "currentFiles"
 #define CURRENTDir "currentDir"
 
+#define ORGANIZATION_NAME "MediaTools"
+#define APPLICATION_NAME "DebuggerPro"
+#define APPLICATION_VERSION "1.0.0"
+
+// config
+/**
+ * @brief 日志配置相关的宏定义和默认值
+ */
+namespace LoggerConfig {
+constexpr auto LOG_GROUP = "LogSettings";
+
+// 配置键名
+constexpr auto ENABLED_KEY = "enabled";
+constexpr auto LEVEL_KEY = "logLevel";
+constexpr auto DIRECTORY_KEY = "logDirectory";
+constexpr auto MAX_FILE_SIZE_KEY = "maxFileSizeMB";
+constexpr auto MAX_FILES_KEY = "maxFiles";
+constexpr auto CAPTURE_QT_MESSAGES_KEY = "captureQtMessages";
+constexpr auto FILE_NAME_PATTERN_KEY = "fileNamePattern";
+constexpr auto LOG_FORMAT_KEY = "logFormat";
+
+// 默认值
+constexpr bool DEFAULT_ENABLED = true;
+constexpr int DEFAULT_LOG_LEVEL = 1; // INFO level
+constexpr auto DEFAULT_DIRECTORY = "logs";
+constexpr int DEFAULT_MAX_FILE_SIZE = 10; // MB
+constexpr int DEFAULT_MAX_FILES = 7;
+constexpr bool DEFAULT_CAPTURE_QT_MESSAGES = true;
+constexpr auto DEFAULT_FILE_NAME_PATTERN = "app_%1.log"; // %1 will be replaced by date
+constexpr auto DEFAULT_LOG_FORMAT = "[%{time yyyy-MM-dd hh:mm:ss.zzz}] [%{type}] [%{file}:%{line}] %{message}";
+
+/**
+ * @brief 日志级别枚举对应的字符串
+ */
+static QString logLevelToString(int level) {
+    switch (level) {
+    case 0: return "DEBUG";
+    case 1: return "INFO";
+    case 2: return "WARNING";
+    case 3: return "ERROR";
+    case 4: return "FATAL";
+    default: return "INFO";
+    }
+}
+
+/**
+ * @brief 字符串对应的日志级别枚举值
+ */
+static int stringToLogLevel(const QString& levelStr) {
+    if (levelStr == "DEBUG") return 0;
+    if (levelStr == "INFO") return 1;
+    if (levelStr == "WARNING") return 2;
+    if (levelStr == "ERROR") return 3;
+    if (levelStr == "FATAL") return 4;
+    return 1; // Default to INFO
+}
+} // namespace LoggerConfig
+
 class Common
 {
     // Q_OBJECT
