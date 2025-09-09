@@ -463,43 +463,31 @@ QString ZLogger::extractModuleFromPath(const char *file) const
 #include <QCoreApplication>
 #include <QDebug>
 
-void testFunction()
-{
-    qDebug() << "This is a debug message from Qt";
-    qInfo() << "This is an info message from Qt";
-    qWarning() << "This is a warning message from Qt";
-    qCritical() << "This is a critical message from Qt";
-}
-
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-
-    // 初始化日志系统（自动安装Qt消息处理器）
-    ZLogger::instance()->initialize("logs", 5, 10);
-
-    // 设置最低日志级别
-    ZLogger::instance()->setMinLevel(LogLevel::INFO);
 
     // 使用宏记录自定义日志
     LOG_INFO("Main", "Application started");
     LOG_DEBUG("Main", "This debug message won't be logged due to level setting");
 
     // 测试Qt系统消息捕获
-    testFunction();
+    qDebug() << "This is a debug message from Qt";
+    qInfo() << "This is an info message from Qt";
+    qWarning() << "This is a warning message from Qt";
+    qCritical() << "This is a critical message from Qt";
 
     // 也可以手动记录日志
-    Logger::instance()->warning("Network", "Connection timeout");
-    Logger::instance()->error("Database", "Failed to connect to database");
-
+    ZLogger::instance()->warning("Network", "Connection timeout");
+    ZLogger::instance()->error("Database", "Failed to connect to database");
     // 临时禁用Qt消息捕获
-    Logger::instance()->setCaptureQtMessages(false);
+    ZLogger::instance()->setCaptureQtMessages(false);
     qDebug() << "This message will only go to console";
-    Logger::instance()->setCaptureQtMessages(true);
+    ZLogger::instance()->setCaptureQtMessages(true);
 
     // 程序退出时自动清理
     QObject::connect(&a, &QCoreApplication::aboutToQuit, [] {
-        Logger::instance()->shutdown();
+        ZLogger::instance()->shutdown();
     });
 
     return a.exec();

@@ -54,13 +54,16 @@ void InfoWidgets::init_header_detail_tb(const QStringList &headers)
         ui->detail_tb->horizontalHeader()->setSectionResizeMode(headers.size() - 1, QHeaderView::Stretch);
     }
 
-    ui->detail_raw_pte->appendPlainText(headers.join(" "));
+    if (m_headers.isEmpty()) {
+        m_headers = headers;
+    }
 }
 
 void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb)
 {
     ui->detail_tb->setRowCount(0);
 
+    ui->detail_raw_pte->clear();
     for (int row = 0; row < data_tb.size(); ++row) {
         ui->detail_tb->insertRow(row);
 
@@ -72,7 +75,10 @@ void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb)
             ui->detail_tb->setItem(row, col, item);
         }
 
-        ui->detail_raw_pte->appendPlainText(data_tb.at(row).join(" "));
+        ui->detail_raw_pte->appendPlainText(data_tb.at(row).join("="));
+    }
+    if (m_data_tb.isEmpty()) {
+        m_data_tb = data_tb;
     }
 }
 

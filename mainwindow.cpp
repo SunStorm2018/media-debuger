@@ -128,6 +128,8 @@ void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
         if (!fileName.isEmpty()) {
             QString formats = m_probe.getMediaInfoJsonFormat(function, fileName);
             PopMediaInfoWindow(action->objectName().replace("action", "Detail Info : "), formats);
+        } else {
+            qWarning() << CURRENTFILE << "is empty, please retray";
         }
 
         return;
@@ -152,7 +154,11 @@ void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
         if (!fileName.isEmpty()) {
             QString formats = m_probe.getMediaInfoJsonFormat(tmpFunction, fileName);
             PopMediaInfoWindow(action->objectName().replace("action", "Detail Info : "), formats, "table");
+        } else {
+            qWarning() << CURRENTFILE << fileName  << "is empty, please retray";
         }
+
+        return;
     }
 }
 
