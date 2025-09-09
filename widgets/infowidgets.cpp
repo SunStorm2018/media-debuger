@@ -10,6 +10,8 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     ui->setupUi(this);
     ui->detail_raw_pte->setVisible(false);
 
+    model = new MediaInfoTabelModel;
+
     ui->detail_tb->horizontalHeader()->setSectionsMovable(true);
     ui->detail_tb->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -28,40 +30,36 @@ InfoWidgets::~InfoWidgets()
 void InfoWidgets::on_search_btn_clicked()
 {
     if (ui->search_le->text().isEmpty()){
-        if (ui->detail_tb->rowCount() < m_data_tb.size()){
+        if (m_match_tb.size() < m_data_tb.size()){
             update_data_detail_tb(m_data_tb);
         }
         return;
     }
 
-    QList<QStringList> match_tb;
+    m_match_tb.clear();
     for (auto line : m_data_tb) {
         for (auto it : line) {
             if (it.contains(ui->search_le->text().trimmed(), Qt::CaseInsensitive)){
-                match_tb.append(line);
+                m_match_tb.append(line);
                 break;
             }
         }
     }
 
-    update_data_detail_tb(match_tb);
+    update_data_detail_tb(m_match_tb);
 }
 
 void InfoWidgets::clear_detail_tb()
 {
-    ui->detail_tb->clear();
+    model->setRow(0);
 }
 
-void InfoWidgets::init_header_detail_tb(const QStringList &headers)
+void InfoWidgets::init_header_detail_tb(const QStringList &headers, QString format_join)
 {
-    ui->detail_tb->setColumnCount(headers.size());
-
-    ui->detail_tb->setHorizontalHeaderLabels(headers);
+    model->setColumn(headers.count());
+    model->setTableHeader(&m_headers);
 
     ui->detail_tb->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    if (headers.size() > 0) {
-        ui->detail_tb->horizontalHeader()->setSectionResizeMode(headers.size() - 1, QHeaderView::Stretch);
-    }
 
     if (m_headers.isEmpty()) {
         m_headers = headers;
@@ -71,28 +69,35 @@ void InfoWidgets::init_header_detail_tb(const QStringList &headers)
     if (settings.contains(this->objectName())) {
         QByteArray columnOrder = settings.value(this->objectName()).toByteArray();
         ui->detail_tb->horizontalHeader()->restoreState(columnOrder);
-    }}
-
-void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb)
-{
-    ui->detail_tb->setRowCount(0);
+    }
 
     ui->detail_raw_pte->clear();
-    for (int row = 0; row < data_tb.size(); ++row) {
-        ui->detail_tb->insertRow(row);
+    ui->detail_raw_pte->appendPlainText(m_headers.join(format_join));
+}
 
-        const auto& rowData = data_tb.at(row);
-
-        for (int col = 0; col < rowData.size(); ++col) {
-            QTableWidgetItem *item = new QTableWidgetItem(rowData[col]);
-            item->setTextAlignment(Qt::AlignCenter);
-            ui->detail_tb->setItem(row, col, item);
-        }
-
-        ui->detail_raw_pte->appendPlainText(data_tb.at(row).join("="));
-    }
+void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb, QString format_join)
+{
+    model->setRow(data_tb.count());
     if (m_data_tb.isEmpty()) {
+        m_match_tb = data_tb;
+    }
+
+    if (m_data_tb.size() >= data_tb.size()) {
+        model->setTableData(const_cast<QList<QStringList>*>(&data_tb));
+    } else {
         m_data_tb = data_tb;
+        model->setTableData(const_cast<QList<QStringList>*>(&m_data_tb));
+    }
+
+    ui->detail_tb->setModel(model);
+    ui->detail_tb->setShowGrid(true);
+
+    if (m_headers.size() > 0 && ui->detail_tb->horizontalHeader()) {
+        ui->detail_tb->horizontalHeader()->setSectionResizeMode(m_headers.size() - 1, QHeaderView::Stretch);
+    }
+    ui->detail_raw_pte->clear();
+    for (auto it : data_tb) {
+        ui->detail_raw_pte->appendPlainText(it.join(format_join));
     }
 }
 

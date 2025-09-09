@@ -93,9 +93,6 @@ bool ZLogger::initialize(const QString& logDir, quint64 maxSize, int maxFiles, b
 
 void ZLogger::write(LogLevel level, const QString& module, const QString& message)
 {
-    if (level < m_minLevel || !m_initialized) {
-        return;
-    }
 
     QMutexLocker locker(&m_mutex);
 
@@ -110,23 +107,26 @@ void ZLogger::write(LogLevel level, const QString& module, const QString& messag
     // 格式化日志消息
     QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
     QString levelStr = levelToString(level);
-    QString logMessage = QString("[%1] [%2] [%3] %4\n")
-                             .arg(timestamp)
-                             .arg(levelStr)
-                             .arg(module)
-                             .arg(message);
+    QString logMsg = QString("[%1] [%2] [%3] %4\n")
+                         .arg(timestamp)
+                         .arg(levelStr)
+                         .arg(module)
+                         .arg(message);
+
+    emit logMessage(logMsg);
+
+    if (level < m_minLevel || !m_initialized) {
+        return;
+    }
 
     // 写入文件
-    *m_textStream << logMessage;
+    *m_textStream << logMsg;
     m_textStream->flush();
 
 // 同时输出到控制台（在调试模式下）
 #ifdef QT_DEBUG
-    qDebug().noquote() << logMessage.trimmed();
+    qDebug().noquote() << logMsg.trimmed();
 #endif
-
-    // 发送信号（可用于UI显示）
-    // emit logMessage(logMessage);
 }
 
 void ZLogger::qtMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)

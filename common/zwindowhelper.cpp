@@ -2,7 +2,7 @@
 
 ZWindowHelper::ZWindowHelper() {}
 
-void ZWindowHelper::centerToPrimaryScreen(QWidget *widget)
+void ZWindowHelper::centerToPrimaryScreen(QWidget *widget, bool dialog)
 {
     if (!widget) return;
 
@@ -16,9 +16,13 @@ void ZWindowHelper::centerToPrimaryScreen(QWidget *widget)
     int y = (screenGeometry.height() - windowSize.height()) / 2;
 
     widget->move(screenGeometry.x() + x, screenGeometry.y() + y);
+    if (dialog) {
+        widget->setWindowModality(Qt::ApplicationModal);
+        widget->setAttribute(Qt::WA_ShowModal, true);
+    }
 }
 
-void ZWindowHelper::centerToCurrentScreen(QWidget* widget)
+void ZWindowHelper::centerToCurrentScreen(QWidget* widget, bool dialog)
 {
     if (!widget) return;
 
@@ -36,9 +40,13 @@ void ZWindowHelper::centerToCurrentScreen(QWidget* widget)
     int y = screenGeometry.y() + (screenGeometry.height() - windowSize.height()) / 2;
 
     widget->move(x, y);
+    if (dialog) {
+        widget->setWindowModality(Qt::ApplicationModal);
+        widget->setAttribute(Qt::WA_ShowModal, true);
+    }
 }
 
-void ZWindowHelper::centerToParent(QWidget* widget)
+void ZWindowHelper::centerToParent(QWidget* widget, bool dialog)
 {
     if (!widget) return;
 
@@ -55,4 +63,8 @@ void ZWindowHelper::centerToParent(QWidget* widget)
     int y = parentCenter.y() - windowSize.height() / 2;
 
     widget->move(x, y);
+    if (dialog) {
+        widget->setWindowModality(Qt::ApplicationModal);
+        widget->setAttribute(Qt::WA_ShowModal, true);
+    }
 }

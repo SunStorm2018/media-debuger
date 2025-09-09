@@ -7,29 +7,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    m_logWg = new LogWG;
+
     setWindowTitle("FFprobe Viewer");
 
     ZWindowHelper::centerToCurrentScreen(this);
-    // ZFfprobe probe;
-
-    // qDebug() << "=== FFprobe Information ===";
-    // qDebug() << "Version:" << probe.getVersion();
-    // qDebug() << "\nBuild Configuration:" << probe.getBuildconf();
-    // qDebug() << "\nFormats:" << probe.getFormats();
-    // qDebug() << "\nMuxers:" << probe.getMuxers();
-    // qDebug() << "\nDemuxers:" << probe.getDemuxers();
-    // qDebug() << "\nDevices:" << probe.getDevices();
-    // qDebug() << "\nCodecs:" << probe.getCodecs();
-    // qDebug() << "\nDecoders:" << probe.getDecoders();
-    // qDebug() << "\nEncoders:" << probe.getEncoders();
-    // qDebug() << "\nBitstream Filters:" << probe.getBsfs();
-    // qDebug() << "\nProtocols:" << probe.getProtocols();
-    // qDebug() << "\nFilters:" << probe.getFilters();
-    // qDebug() << "\nPixel Formats:" << probe.getPixfmts();
-    // qDebug() << "\nChannel Layouts:" << probe.getLayouts();
-    // qDebug() << "\nSample Formats:" << probe.getSamplefmts();
-    // qDebug() << "\nColors:" << probe.getColors();
-    // qDebug() << "===========================";
+    setAttribute(Qt::WA_QuitOnClose, true);
 
     InitConnectation();
 }
@@ -57,6 +40,9 @@ void MainWindow::InitConnectation()
     connect(ui->menuBasic_Info, &QMenu::triggered, this, &MainWindow::slotMenuBasic_InfoTriggered);
     connect(ui->menuMedia_Info, &QMenu::triggered, this, &MainWindow::slotMenuMedia_InfoTriggered);
     connect(ui->menuConfig, &QMenu::triggered, this, &MainWindow::slotMenuConfigTriggered);
+    connect(ui->menuHelp, &QMenu::triggered, this, &MainWindow::slotMenuHelpTriggered);
+
+    connect(ZLogger::instance(), &ZLogger::logMessage, m_logWg, &LogWG::outLog);
 }
 
 void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QString& format_key)
@@ -212,10 +198,18 @@ void MainWindow::slotMenuConfigTriggered(QAction *action)
     }
 
     GlobalConfingWG *configWg = new GlobalConfingWG;
-    configWg->setWindowModality(Qt::ApplicationModal);
-    configWg->setAttribute(Qt::WA_ShowModal, true);
+    ZWindowHelper::centerToParent(configWg, true);
     configWg->setCurrentTab(action->text());
-    configWg->setAttribute(Qt::WA_DeleteOnClose);
-
     configWg->show();
+}
+
+void MainWindow::slotMenuHelpTriggered(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+    if (ui->actionLog == action) {
+        ZWindowHelper::centerToParent(m_logWg, true);
+        m_logWg->show();
+    }
 }

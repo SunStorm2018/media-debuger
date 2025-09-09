@@ -6,8 +6,8 @@ TabelFormatWG::TabelFormatWG(QWidget *parent)
     , ui(new Ui::TabelFormatWG)
 {
     ui->setupUi(this);
-    model = new MediaInfoTabelModel;
-    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_tableFormatWg = new InfoWidgets(this);
+    ui->verticalLayout->addWidget(m_tableFormatWg);
 }
 
 TabelFormatWG::~TabelFormatWG()
@@ -19,8 +19,8 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
 {
     qDebug() << "here table";
 
-    m_header.clear();
-    m_table.clear();
+    m_headers.clear();
+    m_data_tb.clear();
 
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(json, &parseError);
@@ -142,32 +142,24 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
                                 frameObj["media_type"].toString() : "default";
 
         // 动态调整列顺序
-        if (m_header.isEmpty() || mediaType != currentMediaType) {
-            m_header = headerTemplates.value(mediaType, headerTemplates["default"]);
+        if (m_headers.isEmpty() || mediaType != currentMediaType) {
+            m_headers = headerTemplates.value(mediaType, headerTemplates["default"]);
             currentMediaType = mediaType;
         }
 
         // 提取行数据
         QStringList rowData;
-        for (const QString &column : m_header) {
+        for (const QString &column : m_headers) {
             rowData.append(frameObj.contains(column) ?
                                toString(frameObj[column]) : "");
         }
-        m_table.append(rowData);
+        m_data_tb.append(rowData);
     }
 
-    qDebug() << "Parsed" << m_table.size() << "frames with" << m_header.size() << "columns";
+    qDebug() << "Parsed" << m_data_tb.size() << "frames with" << m_headers.size() << "columns";
 
-    model->setColumn(m_header.count());
-    model->setRow(m_table.count());
-
-    model->setTableData(&m_table);
-    model->setTableHeader(&m_header);
-
-    ui->tableView->setModel(model);
-    ui->tableView->setShowGrid(true);
-
-    ui->tableView->horizontalHeader()->setSectionsMovable(true);
+    m_tableFormatWg->init_header_detail_tb(m_headers);
+    m_tableFormatWg->update_data_detail_tb(m_data_tb);
 
     return true;
 }

@@ -40,7 +40,7 @@ void GlobalConfingWG::loadGeneralConfig()
     }
 
     generalCfgWg->init_header_detail_tb(headers);
-    generalCfgWg->update_data_detail_tb(data);
+    generalCfgWg->update_data_detail_tb(data, "=");
 
     ui->genreral_tab_layout->addWidget(generalCfgWg);
 }

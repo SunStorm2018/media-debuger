@@ -9,11 +9,13 @@
 #include <common/zffprobe.h>
 #include <common/zwindowhelper.h>
 #include <common/common.h>
+#include <common/zlogger.h>
 
 #include <widgets/infowidgets.h>
 #include <widgets/jsonformatwg.h>
 #include <widgets/globalconfingwg.h>
 #include <widgets/tabelformatwg.h>
+#include <widgets/logwg.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -39,13 +41,15 @@ private slots:
     void slotMenuMedia_InfoTriggered(QAction *action);
     void slotMenuFileTriggered(QAction *action);
     void slotMenuConfigTriggered(QAction *action);
+    void slotMenuHelpTriggered(QAction *action);
 
 private:
     Ui::MainWindow *ui;
 
     ZFfprobe m_probe;
+    LogWG *m_logWg;
 
     QList<QWidget *> m_basiclInfowindows;
-     QList<QWidget *> m_mediaInfowindows;
+    QList<QWidget *> m_mediaInfowindows;
 };
 #endif // MAINWINDOW_H
