@@ -2,7 +2,7 @@
 #include "ui_jsonformatwg.h"
 
 JsonFormatWG::JsonFormatWG(QWidget *parent)
-    : QWidget(parent)
+    : BaseFormatWG(parent)
     , ui(new Ui::JsonFormatWG)
 {
     ui->setupUi(this);

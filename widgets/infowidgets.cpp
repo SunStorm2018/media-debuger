@@ -53,6 +53,8 @@ void InfoWidgets::init_header_detail_tb(const QStringList &headers)
     if (headers.size() > 0) {
         ui->detail_tb->horizontalHeader()->setSectionResizeMode(headers.size() - 1, QHeaderView::Stretch);
     }
+
+    ui->detail_raw_pte->appendPlainText(headers.join(" "));
 }
 
 void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb)
@@ -69,6 +71,8 @@ void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb)
             item->setTextAlignment(Qt::AlignCenter);
             ui->detail_tb->setItem(row, col, item);
         }
+
+        ui->detail_raw_pte->appendPlainText(data_tb.at(row).join(" "));
     }
 }
 
@@ -198,6 +202,8 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
                 data_tb.append(tb_of_line);
             }
         }
+
+        return;
     }
 
     // -colors -sample_fmts -layouts
@@ -218,6 +224,8 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
                 data_tb.append(tb_of_line);
             }
         }
+
+        return;
     }
 
     // -protocols
@@ -256,6 +264,8 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
 
             data_tb.append(tmpRow);
         }
+
+        return;
     }
 
     // -bsfs -buildconf
@@ -265,6 +275,12 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
         for (int i = 1; i < rawStringLines.size(); i++) {
             data_tb.append(QStringList{rawStringLines.at(i).trimmed()});
         }
+
+        return;
+    }
+
+    if (format_key == "") {
+
     }
 }
 
@@ -274,8 +290,6 @@ void InfoWidgets::init_detail_tb(const QString &data, const QString& format_key)
 
     init_header_detail_tb(m_headers);
     update_data_detail_tb(m_data_tb);
-
-    ui->detail_raw_pte->setPlainText(data);
 }
 
 void InfoWidgets::on_expand_raw_btn_clicked(bool checked)

@@ -13,6 +13,8 @@ SOURCES += \
     common/zffprobe.cpp \
     common/zlogger.cpp \
     common/zwindowhelper.cpp \
+    model/mediainfotabelmodel.cpp \
+    widgets/baseformatwg.cpp \
     widgets/globalconfingwg.cpp \
     widgets/infowidgets.cpp \
     main.cpp \
@@ -20,6 +22,8 @@ SOURCES += \
     common/zprocess.cpp \
     widgets/jsonformatwg.cpp \
     widgets/tbheadereditor.cpp \
+    widgets/logwg.cpp \
+    widgets/tabelformatwg.cpp \
     zcodecflagparser.cpp
 
 HEADERS += \
@@ -27,12 +31,16 @@ HEADERS += \
     common/zffprobe.h \
     common/zlogger.h \
     common/zwindowhelper.h \
+    model/mediainfotabelmodel.h \
+    widgets/baseformatwg.h \
     widgets/globalconfingwg.h \
     widgets/infowidgets.h \
     mainwindow.h \
     common/zprocess.h \
     widgets/jsonformatwg.h \
     widgets/tbheadereditor.h \
+    widgets/logwg.h \
+    widgets/tabelformatwg.h \
     zcodecflagparser.h
 
 FORMS += \
@@ -40,7 +48,9 @@ FORMS += \
     widgets/infowidgets.ui \
     mainwindow.ui \
     widgets/jsonformatwg.ui \
-    widgets/tbheadereditor.ui
+    widgets/tbheadereditor.ui \
+    widgets/logwg.ui \
+    widgets/tabelformatwg.ui
 
 TRANSLATIONS += \
     MediaDebuger_zh_CN.ts

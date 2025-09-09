@@ -1,4 +1,5 @@
 #include "zffprobe.h"
+#include "qdebug.h"
 
 ZFfprobe::ZFfprobe(QObject *parent)
     : QObject{parent}
@@ -94,8 +95,9 @@ QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& 
     process.start(FFPROBE, QStringList() << HIDEBANNER <<
                                LOGLEVEL << QUIET <<
                                OF << JSON <<
-                               command
+                               command.split(" ", QString::SkipEmptyParts)
                                          << fileName);
+    qDebug() << process.arguments();
     process.waitForFinished();
     return process.readAll();
 }
@@ -104,6 +106,7 @@ QString ZFfprobe::getFFprobeCommandOutput(const QString &command, const QStringL
 {
     QProcess process;
     process.start(FFPROBE, QStringList() << command << HIDEBANNER << otherParms);
+    qDebug() << process.arguments();
     process.waitForFinished();
     return process.readAll();
 }

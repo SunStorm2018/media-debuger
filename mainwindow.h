@@ -13,6 +13,7 @@
 #include <widgets/infowidgets.h>
 #include <widgets/jsonformatwg.h>
 #include <widgets/globalconfingwg.h>
+#include <widgets/tabelformatwg.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -31,7 +32,7 @@ public:
 private:
     void InitConnectation();
     void PopBasicInfoWindow(QString title, const QString &info, const QString &format_key);
-    void PopMediaInfoWindow(QString title, const QString &info, const QString &format_key = "");
+    void PopMediaInfoWindow(QString title, const QString &info, const QString &format_key = "json");
 
 private slots:
     void slotMenuBasic_InfoTriggered(QAction *action);

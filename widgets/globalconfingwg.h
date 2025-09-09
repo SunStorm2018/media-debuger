@@ -6,6 +6,8 @@
 #include <QCoreApplication>
 #include <QDebug>
 
+#include <widgets/infowidgets.h>
+
 namespace Ui {
 class GlobalConfingWG;
 }
@@ -22,6 +24,8 @@ public:
 
 private:
     Ui::GlobalConfingWG *ui;
+
+    InfoWidgets *generalCfgWg;
 
 private:
     void loadGeneralConfig();

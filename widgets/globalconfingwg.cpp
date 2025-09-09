@@ -6,6 +6,8 @@ GlobalConfingWG::GlobalConfingWG(QWidget *parent)
     , ui(new Ui::GlobalConfingWG)
 {
     ui->setupUi(this);
+    generalCfgWg = new InfoWidgets(this);
+
     setWindowTitle("Config");
     loadGeneralConfig();
 }
@@ -28,23 +30,17 @@ void GlobalConfingWG::setCurrentTab(const QString &tabName)
 void GlobalConfingWG::loadGeneralConfig()
 {
     QStringList headers{"Key", "Value"};
-    ui->general_config_tb->setColumnCount(2);
-    ui->general_config_tb->setHorizontalHeaderLabels(headers);
-    ui->general_config_tb->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    ui->general_config_tb->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-
+    QList<QStringList> data;
 
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-    QStringList allKeys = settings.allKeys();
-    ui->general_config_tb->setRowCount(allKeys.size());
-    for (int row = 0; row < allKeys.size(); ++row) {
-        QString key = allKeys.at(row);
+    for (int row = 0; row < settings.allKeys().size(); ++row) {
+        QString key = settings.allKeys().at(row);
         QVariant value = settings.value(key);
-
-        QTableWidgetItem *keyItem = new QTableWidgetItem(key);
-        ui->general_config_tb->setItem(row, 0, keyItem);
-
-        QTableWidgetItem *valueItem = new QTableWidgetItem(value.toString());
-        ui->general_config_tb->setItem(row, 1, valueItem);
+        data << QStringList{key, value.toString()};
     }
+
+    generalCfgWg->init_header_detail_tb(headers);
+    generalCfgWg->update_data_detail_tb(data);
+
+    ui->genreral_tab_layout->addWidget(generalCfgWg);
 }

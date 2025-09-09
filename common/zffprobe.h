@@ -123,6 +123,12 @@
 #define FLAT "flat"
 #define CSV "csv"
 
+// program
+#define SHOW_FRAMES_VIDEO "-show_frames_video"       // show frames info of video
+#define SHOW_FRAMES_AUDIO "-show_frames_audio"       // show frames info of audio
+#define SHOW_PACKETS_VIDEO "-show_packets_video"       // show packets info of video
+#define SHOW_PACKETS_AUDIO "-show_packets_audio"       // show packets info of audio
+
 #define EXECUTE_FFPROBE_COMMAND(command) \
 []() -> QByteArray { \
         QProcess process; \

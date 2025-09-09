@@ -15,35 +15,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLineEdit" name="search_le">
-       <property name="clearButtonEnabled">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="search_btn">
-       <property name="maximumSize">
-        <size>
-         <width>30</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"> QPushButton {
-	image: url(:/128x128/search.png);
- }</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
     <widget class="QTabWidget" name="config_tab_wg">
      <property name="currentIndex">
       <number>0</number>
@@ -52,11 +23,7 @@
       <attribute name="title">
        <string>General</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QTableWidget" name="general_config_tb"/>
-       </item>
-      </layout>
+      <layout class="QVBoxLayout" name="genreral_tab_layout"/>
      </widget>
      <widget class="QWidget" name="ffprobe_tab">
       <attribute name="title">

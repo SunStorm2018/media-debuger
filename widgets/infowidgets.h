@@ -18,6 +18,10 @@ public:
 public slots:
     void init_detail_tb(const QString& data, const QString &format_key);
 
+    void init_header_detail_tb(const QStringList &headers);
+
+    void update_data_detail_tb(const QList<QStringList> &data_tb);
+
     void clear_detail_tb();
 private slots:
     void on_search_btn_clicked();
@@ -29,10 +33,6 @@ private slots:
     void on_header_btn_clicked();
 
 private:
-    void init_header_detail_tb(const QStringList &headers);
-
-    void update_data_detail_tb(const QList<QStringList> &data_tb);
-
     void format_data(const QString& data, QList<QStringList> &data_tb, QStringList &headers, QString format_key);
 
 private:

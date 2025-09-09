@@ -75,15 +75,23 @@ void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QS
 
 void MainWindow::PopMediaInfoWindow(QString title, const QString &info, const QString &format_key)
 {
-    JsonFormatWG *mediaInfoWindow = new JsonFormatWG;
-    m_mediaInfowindows.append(mediaInfoWindow);
+    BaseFormatWG *mediaInfoWindow = nullptr;
+    if (format_key == "json") {
+        mediaInfoWindow = new JsonFormatWG;
+    } else if (format_key == "table") {
+        mediaInfoWindow = new TabelFormatWG;
+    }
 
+    if (mediaInfoWindow == nullptr)
+        return;
+
+    m_mediaInfowindows.append(mediaInfoWindow);
     mediaInfoWindow->setWindowTitle(title);
     mediaInfoWindow->show();
     ZWindowHelper::centerToParent(mediaInfoWindow);
     mediaInfoWindow->loadJson(info.toUtf8());
 
-    qDebug() << title << info;
+    qDebug() << title << info.size();
 }
 
 void MainWindow::slotMenuBasic_InfoTriggered(QAction *action)
@@ -114,15 +122,38 @@ void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
             SHOW_PROGRAMS,
             SHOW_VERSIONS, SHOW_PROGRAM_VERSION, SHOW_LIBRARY_VERSIONS,
             SHOW_PIXEL_FORMATS
-        }.contains(function)) {
-
+        }.contains(function))
+    {
         QString fileName = Common::instance()->getConfigValue(CURRENTFILE).toString();
         if (!fileName.isEmpty()) {
             QString formats = m_probe.getMediaInfoJsonFormat(function, fileName);
             PopMediaInfoWindow(action->objectName().replace("action", "Detail Info : "), formats);
         }
+
+        return;
     }
 
+    if (QStringList{
+            SHOW_FRAMES, SHOW_PACKETS,
+            SHOW_FRAMES_VIDEO, SHOW_FRAMES_AUDIO,
+            SHOW_PACKETS_VIDEO, SHOW_PACKETS_AUDIO
+        }.contains(function))
+    {
+        QString tmpFunction = function;
+        if (function.contains("audio",Qt::CaseInsensitive)){
+            tmpFunction = tmpFunction.replace("_audio", "", Qt::CaseInsensitive);
+            tmpFunction += tr(" %1 a:0").arg(SELECT_STREAMS);
+        }
+        if (function.contains("video",Qt::CaseInsensitive)){
+            tmpFunction = tmpFunction.replace("_video", "", Qt::CaseInsensitive);
+            tmpFunction += tr(" %1 v:0").arg(SELECT_STREAMS);
+        }
+        QString fileName = Common::instance()->getConfigValue(CURRENTFILE).toString();
+        if (!fileName.isEmpty()) {
+            QString formats = m_probe.getMediaInfoJsonFormat(tmpFunction, fileName);
+            PopMediaInfoWindow(action->objectName().replace("action", "Detail Info : "), formats, "table");
+        }
+    }
 }
 
 void MainWindow::slotMenuFileTriggered(QAction *action)

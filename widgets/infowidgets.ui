@@ -28,8 +28,11 @@
      </item>
      <item>
       <widget class="QPushButton" name="search_btn">
+       <property name="styleSheet">
+        <string notr="true">image: url(:/128x128/search.png);</string>
+       </property>
        <property name="text">
-        <string>Search</string>
+        <string/>
        </property>
       </widget>
      </item>

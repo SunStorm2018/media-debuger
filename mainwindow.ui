@@ -162,7 +162,7 @@
      <x>0</x>
      <y>0</y>
      <width>915</width>
-     <height>23</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuBasic_Info">
@@ -191,11 +191,25 @@
     <property name="title">
      <string>Media Info</string>
     </property>
+    <widget class="QMenu" name="menuFrames">
+     <property name="title">
+      <string>Frames</string>
+     </property>
+     <addaction name="actionFrames_Video"/>
+     <addaction name="actionFrames_Audio"/>
+    </widget>
+    <widget class="QMenu" name="menuPackets">
+     <property name="title">
+      <string>Packets</string>
+     </property>
+     <addaction name="actionPackets_Video"/>
+     <addaction name="actionPackets_Audio"/>
+    </widget>
     <addaction name="actionStreams"/>
     <addaction name="actionFormat"/>
     <addaction name="separator"/>
-    <addaction name="actionFrames"/>
-    <addaction name="actionPackets"/>
+    <addaction name="menuFrames"/>
+    <addaction name="menuPackets"/>
     <addaction name="separator"/>
     <addaction name="actionChapters"/>
     <addaction name="actionCount_Frames"/>
@@ -214,6 +228,8 @@
     </property>
     <addaction name="actionGenral"/>
     <addaction name="actionFFprobe"/>
+    <addaction name="separator"/>
+    <addaction name="actionLog"/>
    </widget>
    <widget class="QMenu" name="menuPlay">
     <property name="title">
@@ -230,11 +246,17 @@
     <addaction name="separator"/>
     <addaction name="actionExport"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBasic_Info"/>
    <addaction name="menuMedia_Info"/>
-   <addaction name="menuConfig"/>
    <addaction name="menuPlay"/>
+   <addaction name="menuConfig"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionVersion">
@@ -330,22 +352,6 @@
   <action name="actionFrame">
    <property name="text">
     <string>Video Frame</string>
-   </property>
-  </action>
-  <action name="actionFrames">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Frames</string>
-   </property>
-  </action>
-  <action name="actionPackets">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Packets</string>
    </property>
   </action>
   <action name="actionChapters">
@@ -456,6 +462,31 @@
   <action name="actionFFprobe">
    <property name="text">
     <string>FFprobe</string>
+   </property>
+  </action>
+  <action name="actionFrames_Video">
+   <property name="text">
+    <string>Video</string>
+   </property>
+  </action>
+  <action name="actionFrames_Audio">
+   <property name="text">
+    <string>Audio</string>
+   </property>
+  </action>
+  <action name="actionPackets_Video">
+   <property name="text">
+    <string>Video</string>
+   </property>
+  </action>
+  <action name="actionPackets_Audio">
+   <property name="text">
+    <string>Audio</string>
+   </property>
+  </action>
+  <action name="actionLog">
+   <property name="text">
+    <string>Log</string>
    </property>
   </action>
  </widget>
