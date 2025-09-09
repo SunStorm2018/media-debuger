@@ -9,10 +9,19 @@ InfoWidgets::InfoWidgets(QWidget *parent)
 {
     ui->setupUi(this);
     ui->detail_raw_pte->setVisible(false);
+
+    ui->detail_tb->horizontalHeader()->setSectionsMovable(true);
+    ui->detail_tb->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(ui->detail_tb->horizontalHeader(), &QHeaderView::customContextMenuRequested,
+            this, &InfoWidgets::onHeaderContextMenuRequested);
 }
 
 InfoWidgets::~InfoWidgets()
 {
+    QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+    settings.setValue(this->objectName(), ui->detail_tb->horizontalHeader()->saveState());
+    settings.sync();
     delete ui;
 }
 
@@ -57,7 +66,12 @@ void InfoWidgets::init_header_detail_tb(const QStringList &headers)
     if (m_headers.isEmpty()) {
         m_headers = headers;
     }
-}
+
+    QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+    if (settings.contains(this->objectName())) {
+        QByteArray columnOrder = settings.value(this->objectName()).toByteArray();
+        ui->detail_tb->horizontalHeader()->restoreState(columnOrder);
+    }}
 
 void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb)
 {
@@ -310,15 +324,73 @@ void InfoWidgets::on_expand_raw_btn_clicked(bool checked)
     ui->detail_raw_pte->setVisible(checked);
 }
 
-
 void InfoWidgets::on_search_le_editingFinished()
 {
     emit ui->search_btn->clicked();
 }
 
-
-void InfoWidgets::on_header_btn_clicked()
+void InfoWidgets::onHeaderContextMenuRequested(const QPoint &pos)
 {
+    QHeaderView *header = ui->detail_tb->horizontalHeader();
+    QAbstractItemModel *model = ui->detail_tb->model();
 
+    if (!model) return;
+
+    QMenu menu(this);
+    m_actionToColumnMap.clear();
+
+    QAction *showAllAction = menu.addAction("Show All");
+    QAction *hideAllAction = menu.addAction("Hide All");
+    menu.addSeparator();
+
+    connect(showAllAction, &QAction::triggered, this, &InfoWidgets::showAllColumns);
+    connect(hideAllAction, &QAction::triggered, this, &InfoWidgets::hideAllColumns);
+
+    for (int logicalIndex = 0; logicalIndex < header->count(); ++logicalIndex) {
+        QString columnName = model->headerData(logicalIndex, Qt::Horizontal).toString();
+        if (columnName.isEmpty()) {
+            columnName = QString("Column %1").arg(logicalIndex + 1);
+        }
+
+        QAction *columnAction = menu.addAction(columnName);
+        columnAction->setCheckable(true);
+        columnAction->setChecked(!header->isSectionHidden(logicalIndex));
+
+        m_actionToColumnMap[columnAction] = logicalIndex;
+
+        connect(columnAction, &QAction::triggered, this, &InfoWidgets::toggleColumnVisibility);
+    }
+
+    menu.exec(header->mapToGlobal(pos));
 }
 
+void InfoWidgets::toggleColumnVisibility()
+{
+    QAction *action = qobject_cast<QAction*>(sender());
+    if (!action || !m_actionToColumnMap.contains(action)) return;
+
+    int logicalIndex = m_actionToColumnMap[action];
+    QHeaderView *header = ui->detail_tb->horizontalHeader();
+
+    if (action->isChecked()) {
+        header->showSection(logicalIndex);
+    } else {
+        header->hideSection(logicalIndex);
+    }
+}
+
+void InfoWidgets::showAllColumns()
+{
+    QHeaderView *header = ui->detail_tb->horizontalHeader();
+    for (int i = 0; i < header->count(); ++i) {
+        header->showSection(i);
+    }
+}
+
+void InfoWidgets::hideAllColumns()
+{
+    QHeaderView *header = ui->detail_tb->horizontalHeader();
+    for (int i = 0; i < header->count(); ++i) {
+        header->hideSection(i);
+    }
+}

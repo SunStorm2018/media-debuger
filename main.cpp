@@ -11,7 +11,7 @@
  * @brief loggConfig
  * 日志配置
  */
-void loggConfig();
+void loggConfig(const QApplication& app);
 
 int main(int argc, char *argv[])
 {
@@ -21,29 +21,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    loggConfig();
-
-    // 使用宏记录自定义日志
-    LOG_INFO("Main", "Application started");
-    LOG_DEBUG("Main", "This debug message won't be logged due to level setting");
-
-    // 测试Qt系统消息捕获
-    qDebug() << "This is a debug message from Qt";
-    qInfo() << "This is an info message from Qt";
-    qWarning() << "This is a warning message from Qt";
-    qCritical() << "This is a critical message from Qt";
-
-    // 也可以手动记录日志
-    ZLogger::instance()->warning("Network", "Connection timeout");
-    ZLogger::instance()->error("Database", "Failed to connect to database");
-    // 临时禁用Qt消息捕获
-    ZLogger::instance()->setCaptureQtMessages(false);
-    qDebug() << "This message will only go to console";
-    ZLogger::instance()->setCaptureQtMessages(true);
-
-    QObject::connect(&app, &QCoreApplication::aboutToQuit, [] {
-        ZLogger::instance()->shutdown();
-    });
+    loggConfig(app);
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
@@ -68,7 +46,7 @@ int main(int argc, char *argv[])
     return app.exec();
 }
 
-void loggConfig() {
+void loggConfig(const QApplication &app) {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
     ZLogger::instance()->loadConfig(settings);
     ZLogger::instance()->setConfigValue(LoggerConfig::DIRECTORY_KEY, "app_logs");
@@ -85,4 +63,8 @@ void loggConfig() {
 
     ZLogger::instance()->saveConfig(settings);
     settings.sync();
+
+    QObject::connect(&app, &QCoreApplication::aboutToQuit, [] {
+        ZLogger::instance()->shutdown();
+    });
 }

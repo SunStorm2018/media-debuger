@@ -21,7 +21,6 @@ SOURCES += \
     mainwindow.cpp \
     common/zprocess.cpp \
     widgets/jsonformatwg.cpp \
-    widgets/tbheadereditor.cpp \
     widgets/logwg.cpp \
     widgets/tabelformatwg.cpp \
     zcodecflagparser.cpp
@@ -38,7 +37,6 @@ HEADERS += \
     mainwindow.h \
     common/zprocess.h \
     widgets/jsonformatwg.h \
-    widgets/tbheadereditor.h \
     widgets/logwg.h \
     widgets/tabelformatwg.h \
     zcodecflagparser.h
@@ -48,7 +46,6 @@ FORMS += \
     widgets/infowidgets.ui \
     mainwindow.ui \
     widgets/jsonformatwg.ui \
-    widgets/tbheadereditor.ui \
     widgets/logwg.ui \
     widgets/tabelformatwg.ui
 

@@ -62,6 +62,7 @@ void MainWindow::InitConnectation()
 void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QString& format_key)
 {
     InfoWidgets *infoWindow = new InfoWidgets;
+    infoWindow->setObjectName(title.replace(" ", "") + "Wg");
     m_basiclInfowindows.append(infoWindow);
 
     infoWindow->setWindowTitle(title);

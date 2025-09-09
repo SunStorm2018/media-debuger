@@ -167,6 +167,8 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
     ui->tableView->setModel(model);
     ui->tableView->setShowGrid(true);
 
+    ui->tableView->horizontalHeader()->setSectionsMovable(true);
+
     return true;
 }
 

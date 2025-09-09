@@ -2,6 +2,10 @@
 #define INFOWIDGETS_H
 
 #include <QWidget>
+#include <QAction>
+#include <QMenu>
+
+#include <common/common.h>
 
 namespace Ui {
 class InfoWidgets;
@@ -30,7 +34,13 @@ private slots:
 
     void on_search_le_editingFinished();
 
-    void on_header_btn_clicked();
+    void onHeaderContextMenuRequested(const QPoint &pos);
+
+    void toggleColumnVisibility();
+
+    void showAllColumns();
+
+    void hideAllColumns();
 
 private:
     void format_data(const QString& data, QList<QStringList> &data_tb, QStringList &headers, QString format_key);
@@ -39,7 +49,10 @@ private:
     Ui::InfoWidgets *ui;
 
     QStringList m_headers;
+
     QList<QStringList> m_data_tb;
+
+    QHash<QAction*, int> m_actionToColumnMap;
 };
 
 #endif // INFOWIDGETS_H
