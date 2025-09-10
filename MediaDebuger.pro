@@ -15,6 +15,7 @@ SOURCES += \
     common/zwindowhelper.cpp \
     model/mediainfotabelmodel.cpp \
     widgets/baseformatwg.cpp \
+    widgets/fileswg.cpp \
     widgets/globalconfingwg.cpp \
     widgets/infowidgets.cpp \
     main.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
     common/zprocess.cpp \
     widgets/jsonformatwg.cpp \
     widgets/logwg.cpp \
+    widgets/playerwg.cpp \
     widgets/tabelformatwg.cpp \
     zcodecflagparser.cpp
 
@@ -32,21 +34,25 @@ HEADERS += \
     common/zwindowhelper.h \
     model/mediainfotabelmodel.h \
     widgets/baseformatwg.h \
+    widgets/fileswg.h \
     widgets/globalconfingwg.h \
     widgets/infowidgets.h \
     mainwindow.h \
     common/zprocess.h \
     widgets/jsonformatwg.h \
     widgets/logwg.h \
+    widgets/playerwg.h \
     widgets/tabelformatwg.h \
     zcodecflagparser.h
 
 FORMS += \
+    widgets/fileswg.ui \
     widgets/globalconfingwg.ui \
     widgets/infowidgets.ui \
     mainwindow.ui \
     widgets/jsonformatwg.ui \
     widgets/logwg.ui \
+    widgets/playerwg.ui \
     widgets/tabelformatwg.ui
 
 TRANSLATIONS += \

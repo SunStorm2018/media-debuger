@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>915</width>
-    <height>593</height>
+    <width>800</width>
+    <height>522</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>915</width>
-     <height>27</height>
+     <width>800</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuBasic_Info">
@@ -94,6 +94,7 @@
     <property name="title">
      <string>Play</string>
     </property>
+    <addaction name="actionplayer"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -104,6 +105,7 @@
     <addaction name="actionOpen_Folder"/>
     <addaction name="separator"/>
     <addaction name="actionExport"/>
+    <addaction name="actionFiles"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -353,6 +355,16 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionplayer">
+   <property name="text">
+    <string>player</string>
+   </property>
+  </action>
+  <action name="actionFiles">
+   <property name="text">
+    <string>Files</string>
    </property>
   </action>
  </widget>

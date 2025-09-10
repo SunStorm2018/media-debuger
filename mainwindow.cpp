@@ -7,31 +7,26 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    m_logWg = new LogWG;
-
     setWindowTitle("FFprobe Viewer");
 
     ZWindowHelper::centerToCurrentScreen(this);
     setAttribute(Qt::WA_QuitOnClose, true);
 
     InitConnectation();
+
+    // 创建DockWidget布局
+    createDockWidgets();
+
+    // 恢复布局设置
+    restoreLayoutSettings();
+
+    // 设置窗口标题
+    setWindowTitle(APPLICATION_NAME);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-
-    for (auto it : m_basiclInfowindows) {
-        if (it) {
-            delete it;
-        }
-    }
-
-    for (auto it : m_mediaInfowindows) {
-        if (it) {
-            delete it;
-        }
-    }
 }
 
 void MainWindow::InitConnectation()
@@ -41,15 +36,16 @@ void MainWindow::InitConnectation()
     connect(ui->menuMedia_Info, &QMenu::triggered, this, &MainWindow::slotMenuMedia_InfoTriggered);
     connect(ui->menuConfig, &QMenu::triggered, this, &MainWindow::slotMenuConfigTriggered);
     connect(ui->menuHelp, &QMenu::triggered, this, &MainWindow::slotMenuHelpTriggered);
+    connect(ui->menuPlay, &QMenu::triggered, this, &MainWindow::slotMenuPlayTriggered);
 
-    connect(ZLogger::instance(), &ZLogger::logMessage, m_logWg, &LogWG::outLog);
+    connect(ZLogger::instance(), &ZLogger::logMessage, &m_logWG, &LogWG::outLog);
 }
 
 void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QString& format_key)
 {
     InfoWidgets *infoWindow = new InfoWidgets;
     infoWindow->setObjectName(title.replace(" ", "") + "Wg");
-    m_basiclInfowindows.append(infoWindow);
+    infoWindow->setAttribute(Qt::WA_DeleteOnClose);
 
     infoWindow->setWindowTitle(title);
     infoWindow->show();
@@ -72,14 +68,74 @@ void MainWindow::PopMediaInfoWindow(QString title, const QString &info, const QS
     if (mediaInfoWindow == nullptr)
         return;
 
-    m_mediaInfowindows.append(mediaInfoWindow);
     mediaInfoWindow->setWindowTitle(title);
+    mediaInfoWindow->setAttribute(Qt::WA_DeleteOnClose);
     mediaInfoWindow->show();
     ZWindowHelper::centerToParent(mediaInfoWindow);
     mediaInfoWindow->loadJson(info.toUtf8());
 
     qDebug() << title << info.size();
 }
+
+void MainWindow::createDockWidgets()
+{
+    // 创建FilesWG的DockWidget（左边）
+    m_filesWGDock = new QDockWidget(tr("Files"), this);
+    m_filesWGDock->setObjectName("FilesDock");
+    m_filesWGDock->setWidget(&m_filesWG);
+    addDockWidget(Qt::LeftDockWidgetArea, m_filesWGDock);
+
+    // 创建LogWG的DockWidget（底部）
+    m_logWGDock = new QDockWidget(tr("Logs"), this);
+    m_logWGDock->setObjectName("LogsDock");
+    m_logWGDock->setWidget(&m_logWG);
+    addDockWidget(Qt::BottomDockWidgetArea, m_logWGDock);
+
+    // 设置PlayerWG为中心部件（占用剩余空间）
+    m_playerWGDock = new QDockWidget(tr("Player"), this);
+    m_playerWGDock->setObjectName("PlayerDock");
+    m_playerWGDock->setWidget(&m_playerWG);
+    addDockWidget(Qt::RightDockWidgetArea, m_playerWGDock);
+
+    // 设置dock小部件的大小
+    m_filesWGDock->setMinimumWidth(200);
+    m_logWGDock->setMinimumHeight(150);
+    m_playerWGDock->setMinimumWidth(300);
+}
+
+void MainWindow::saveLayoutSettings()
+{
+    QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+
+    // 保存窗口几何尺寸
+    settings.setValue(GEOMETRY_KEY, saveGeometry());
+
+    // 保存Dock布局状态
+    settings.setValue(STATE_KEY, saveState());
+
+    qInfo() << "Window layout settings saved";
+}
+
+void MainWindow::restoreLayoutSettings()
+{
+    QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+
+    // 恢复窗口几何尺寸
+    if (settings.contains(GEOMETRY_KEY)) {
+        restoreGeometry(settings.value(GEOMETRY_KEY).toByteArray());
+    }
+
+    // 恢复Dock布局状态
+    if (settings.contains(STATE_KEY)) {
+        restoreState(settings.value(STATE_KEY).toByteArray());
+        qInfo() << "Window layout restored from settings";
+    } else {
+        // 首次运行的默认布局
+        resize(1200, 800);
+        qInfo() << "Using default window layout";
+    }
+}
+
 
 void MainWindow::slotMenuBasic_InfoTriggered(QAction *action)
 {
@@ -189,6 +245,12 @@ void MainWindow::slotMenuFileTriggered(QAction *action)
 
         return;
     }
+
+    if (ui->actionFiles == action) {
+        m_filesWGDock->show();
+        m_filesWGDock->raise();
+        return;
+    }
 }
 
 void MainWindow::slotMenuConfigTriggered(QAction *action)
@@ -201,7 +263,7 @@ void MainWindow::slotMenuConfigTriggered(QAction *action)
     ZWindowHelper::centerToParent(configWg, true);
     configWg->setCurrentTab(action->text());
     configWg->show();
-}
+    }
 
 void MainWindow::slotMenuHelpTriggered(QAction *action)
 {
@@ -209,7 +271,38 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
         return;
     }
     if (ui->actionLog == action) {
-        ZWindowHelper::centerToParent(m_logWg, true);
-        m_logWg->show();
+        m_logWGDock->show();
+        m_logWGDock->raise();
     }
+}
+
+if (ui->actionAbout == action) {
+    QMessageBox::about(this,
+        tr("About MediaDebuger"),
+        tr("MediaDebuger\n\n"
+           "A powerful media file analysis tool that provides:\n"
+           "- Detailed media information display\n"
+           "- Multiple format views (JSON, Table)\n"
+           "- Real-time logging\n"
+           "- Customizable layout\n\n"
+           "Version 1.0"));
+}
+
+void MainWindow::slotMenuPlayTriggered(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+
+    if (ui->actionplayer == action) {
+        m_playerWGDock->show();
+        m_playerWGDock->raise();
+        return;
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    saveLayoutSettings();
+    QMainWindow::closeEvent(event);
 }

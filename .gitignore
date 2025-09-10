@@ -1,0 +1,27 @@
+# Build directories
+build/
+*.pro.user
+*.qmake.stash
+
+# Compiled files
+*.o
+*.moc
+*.moc_*
+*.cpp
+*.obj
+
+# Qt Creator files
+*.autosave
+
+# Debug files
+debug/
+release/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
