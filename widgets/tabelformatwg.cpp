@@ -100,13 +100,20 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
     QHash<QString, QStringList> headerTemplates;
 
     auto buildHeader = [&](const QStringList& specificFields) {
-        QStringList header = categories.common;
+        QStringList header;
+        // Add common fields that exist in data
+        for (const QString &field : categories.common) {
+            if (categories.allFields.contains(field)) {
+                header.append(field);
+            }
+        }
+        // Add specific fields that exist in data
         for (const QString &field : specificFields) {
             if (categories.allFields.contains(field)) {
                 header.append(field);
             }
         }
-        // Add other fields
+        // Add remaining fields in sorted order
         QSet<QString> otherFields = categories.allFields;
         for (const QString &field : header) {
             otherFields.remove(field);
@@ -143,7 +150,13 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
 
         // Dynamically adjust column order
         if (m_headers.isEmpty() || mediaType != currentMediaType) {
-            m_headers = headerTemplates.value(mediaType, headerTemplates["default"]);
+            if (headerTemplates.contains(mediaType)) {
+                m_headers = headerTemplates[mediaType];
+            } else if (headerTemplates.contains("default")) {
+                m_headers = headerTemplates["default"];
+            } else {
+                m_headers = categories.common + categories.allFields.values();
+            }
             currentMediaType = mediaType;
         }
 
@@ -158,8 +171,8 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
 
     qDebug() << "Parsed" << m_data_tb.size() << "frames with" << m_headers.size() << "columns";
 
-    m_tableFormatWg->init_header_detail_tb(m_headers);
-    m_tableFormatWg->update_data_detail_tb(m_data_tb);
+    m_tableFormatWg->init_header_detail_tb(m_headers, ", ");
+    m_tableFormatWg->update_data_detail_tb(m_data_tb, ", ");
 
     return true;
 }

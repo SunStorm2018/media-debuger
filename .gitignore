@@ -7,7 +7,6 @@ build/
 *.o
 *.moc
 *.moc_*
-*.cpp
 *.obj
 
 # Qt Creator files

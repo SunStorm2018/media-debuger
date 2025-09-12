@@ -321,13 +321,6 @@ void InfoWidgets::init_detail_tb(const QString &data, const QString& format_key)
 
 void InfoWidgets::on_expand_raw_btn_clicked(bool checked)
 {
-    QIcon icon;
-    if (checked) {
-        icon = (QIcon::fromTheme(QString::fromUtf8("QIcon::ThemeIcon::GoNext")));
-    } else {
-        icon = (QIcon::fromTheme(QString::fromUtf8("QIcon::ThemeIcon::GoDown")));
-    }
-    ui->expand_raw_btn->setIcon(icon);
     ui->detail_raw_pte->setVisible(checked);
 }
 
