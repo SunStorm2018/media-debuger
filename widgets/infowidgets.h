@@ -7,6 +7,7 @@
 
 #include <common/common.h>
 #include <model/mediainfotabelmodel.h>
+#include <common/tableheadermanager.h>
 
 namespace Ui {
 class InfoWidgets;
@@ -28,20 +29,13 @@ public slots:
     void update_data_detail_tb(const QList<QStringList> &data_tb, QString format_join = "");
 
     void clear_detail_tb();
+
 private slots:
     void on_search_btn_clicked();
 
     void on_expand_raw_btn_clicked(bool checked);
 
     void on_search_le_editingFinished();
-
-    void onHeaderContextMenuRequested(const QPoint &pos);
-
-    void toggleColumnVisibility();
-
-    void showAllColumns();
-
-    void hideAllColumns();
 
 private:
     void format_data(const QString& data, QList<QStringList> &data_tb, QStringList &headers, QString format_key);
@@ -55,8 +49,9 @@ private:
     QList<QStringList> m_match_tb;
 
     MediaInfoTabelModel *model;
+    TableHeaderManager *m_headerManager;
 
-    QHash<QAction*, int> m_actionToColumnMap;
 };
+
 
 #endif // INFOWIDGETS_H

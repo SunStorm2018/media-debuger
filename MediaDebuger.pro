@@ -10,9 +10,11 @@ CONFIG += c++17
 
 SOURCES += \
     common/common.cpp \
+    common/tableheadermanager.cpp \
     common/zffprobe.cpp \
     common/zlogger.cpp \
     common/zwindowhelper.cpp \
+    model/logmodel.cpp \
     model/mediainfotabelmodel.cpp \
     widgets/baseformatwg.cpp \
     widgets/fileswg.cpp \
@@ -29,9 +31,11 @@ SOURCES += \
 
 HEADERS += \
     common/common.h \
+    common/tableheadermanager.h \
     common/zffprobe.h \
     common/zlogger.h \
     common/zwindowhelper.h \
+    model/logmodel.h \
     model/mediainfotabelmodel.h \
     widgets/baseformatwg.h \
     widgets/fileswg.h \

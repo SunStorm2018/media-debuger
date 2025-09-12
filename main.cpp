@@ -9,7 +9,7 @@
 
 /**
  * @brief loggConfig
- * 日志配置
+ * Log configuration
  */
 void loggConfig(const QApplication& app);
 

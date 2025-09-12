@@ -17,12 +17,12 @@
 
 // config
 /**
- * @brief 日志配置相关的宏定义和默认值
+ * @brief Macro definitions and default values for log configuration
  */
 namespace LoggerConfig {
 constexpr auto LOG_GROUP = "LogSettings";
 
-// 配置键名
+// Configuration key names
 constexpr auto ENABLED_KEY = "enabled";
 constexpr auto LEVEL_KEY = "logLevel";
 constexpr auto DIRECTORY_KEY = "logDirectory";
@@ -32,7 +32,7 @@ constexpr auto CAPTURE_QT_MESSAGES_KEY = "captureQtMessages";
 constexpr auto FILE_NAME_PATTERN_KEY = "fileNamePattern";
 constexpr auto LOG_FORMAT_KEY = "logFormat";
 
-// 默认值
+// Default values
 constexpr bool DEFAULT_ENABLED = true;
 constexpr int DEFAULT_LOG_LEVEL = 1; // INFO level
 constexpr auto DEFAULT_DIRECTORY = "logs";
@@ -43,7 +43,7 @@ constexpr auto DEFAULT_FILE_NAME_PATTERN = "app_%1.log"; // %1 will be replaced 
 constexpr auto DEFAULT_LOG_FORMAT = "[%{time yyyy-MM-dd hh:mm:ss.zzz}] [%{type}] [%{file}:%{line}] %{message}";
 
 /**
- * @brief 日志级别枚举对应的字符串
+ * @brief String representation of log level enum
  */
 static QString logLevelToString(int level) {
     switch (level) {
@@ -57,7 +57,7 @@ static QString logLevelToString(int level) {
 }
 
 /**
- * @brief 字符串对应的日志级别枚举值
+ * @brief Log level enum value from string
  */
 static int stringToLogLevel(const QString& levelStr) {
     if (levelStr == "DEBUG") return 0;

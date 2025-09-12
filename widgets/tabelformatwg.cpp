@@ -57,7 +57,7 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
         return true;
     }
 
-    // 字段分类
+    // Field classification
     struct FieldCategory {
         QStringList common;
         QStringList video;
@@ -66,27 +66,27 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
     };
 
     FieldCategory categories = {
-        // 通用字段
+        // Common fields
         {
             "media_type", "stream_index", "key_frame", "pkt_pts", "pkt_pts_time",
             "pkt_dts", "pkt_dts_time", "best_effort_timestamp", "best_effort_timestamp_time",
             "pkt_duration", "pkt_duration_time", "pkt_pos", "pkt_size"
         },
-        // 视频特定字段
+        // Video-specific fields
         {
             "width", "height", "pix_fmt", "sample_aspect_ratio", "pict_type",
             "coded_picture_number", "display_picture_number", "interlaced_frame",
             "top_field_first", "repeat_pict", "chroma_location"
         },
-        // 音频特定字段
+        // Audio-specific fields
         {
             "sample_fmt", "nb_samples", "channels", "channel_layout"
         },
-        // 所有字段集合
+        // All fields set
         {}
     };
 
-    // 收集所有字段
+    // Collect all fields
     for (const QJsonValue &frameValue : framesArray) {
         if (frameValue.isObject()) {
             QJsonObject obj = frameValue.toObject();
@@ -96,7 +96,7 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
         }
     }
 
-    // 构建每种媒体类型的优化列顺序
+    // Build optimized column order for each media type
     QHash<QString, QStringList> headerTemplates;
 
     auto buildHeader = [&](const QStringList& specificFields) {
@@ -106,7 +106,7 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
                 header.append(field);
             }
         }
-        // 添加其他字段
+        // Add other fields
         QSet<QString> otherFields = categories.allFields;
         for (const QString &field : header) {
             otherFields.remove(field);
@@ -121,7 +121,7 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
     headerTemplates["audio"] = buildHeader(categories.audio);
     headerTemplates["default"] = buildHeader({});
 
-    // 值转换器
+    // Value converter
     auto toString = [](const QJsonValue &val) -> QString {
         if (val.isNull()) return "null";
         if (val.isBool()) return val.toBool() ? "true" : "false";
@@ -132,7 +132,7 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
         return val.toString();
     };
 
-    // 解析数据
+    // Parse data
     QString currentMediaType;
     for (const QJsonValue &frameValue : framesArray) {
         if (!frameValue.isObject()) continue;
@@ -141,13 +141,13 @@ bool TabelFormatWG::loadJson(const QByteArray &json)
         QString mediaType = frameObj.contains("media_type") ?
                                 frameObj["media_type"].toString() : "default";
 
-        // 动态调整列顺序
+        // Dynamically adjust column order
         if (m_headers.isEmpty() || mediaType != currentMediaType) {
             m_headers = headerTemplates.value(mediaType, headerTemplates["default"]);
             currentMediaType = mediaType;
         }
 
-        // 提取行数据
+        // Extract row data
         QStringList rowData;
         for (const QString &column : m_headers) {
             rowData.append(frameObj.contains(column) ?

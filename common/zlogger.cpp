@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QRegularExpression>
 
-// 初始化静态成员
+// Initialize static members
 ZLogger* ZLogger::m_instance = nullptr;
 QtMessageHandler ZLogger::m_oldHandler = nullptr;
 
@@ -11,13 +11,13 @@ ZLogger::ZLogger(QObject *parent)
     : QObject(parent)
     , m_logFile(nullptr)
     , m_textStream(nullptr)
-    , m_maxFileSize(10 * 1024 * 1024) // 默认10MB
-    , m_maxFiles(7)                   // 默认保留7个文件
-    , m_minLevel(LogLevel::LOG_DEBUG)     // 默认记录所有级别
+    , m_maxFileSize(10 * 1024 * 1024) // Default 10MB
+    , m_maxFiles(7)                   // Default keep 7 files
+    , m_minLevel(LogLevel::LOG_DEBUG)     // Default log all levels
     , m_initialized(false)
     , m_captureQtMessages(true)
 {
-    // 初始化默认配置
+    // Initialize default configuration
     m_config[LoggerConfig::ENABLED_KEY] = LoggerConfig::DEFAULT_ENABLED;
     m_config[LoggerConfig::LEVEL_KEY] = LoggerConfig::DEFAULT_LOG_LEVEL;
     m_config[LoggerConfig::DIRECTORY_KEY] = LoggerConfig::DEFAULT_DIRECTORY;
@@ -52,11 +52,11 @@ bool ZLogger::initialize(const QString& logDir, quint64 maxSize, int maxFiles, b
     }
 
     m_logDir = logDir;
-    m_maxFileSize = maxSize * 1024 * 1024; // 转换为字节
+    m_maxFileSize = maxSize * 1024 * 1024; // Convert to bytes
     m_maxFiles = maxFiles;
     m_captureQtMessages = installMessageHandler;
 
-    // 创建日志目录
+    // Create log directory
     QDir dir(m_logDir);
     if (!dir.exists()) {
         if (!dir.mkpath(".")) {
@@ -65,7 +65,7 @@ bool ZLogger::initialize(const QString& logDir, quint64 maxSize, int maxFiles, b
         }
     }
 
-    // 打开日志文件
+    // Open log file
     QString fileName = getCurrentLogFileName();
     m_logFile = new QFile(fileName);
 
@@ -80,12 +80,12 @@ bool ZLogger::initialize(const QString& logDir, quint64 maxSize, int maxFiles, b
     m_textStream->setCodec("UTF-8");
     m_initialized = true;
 
-    // 安装Qt消息处理器
+    // Install Qt message handler
     if (m_captureQtMessages) {
         m_oldHandler = qInstallMessageHandler(qtMessageHandler);
     }
 
-    // 清理旧文件
+    // Clean up old files
     cleanupOldFiles();
 
     return true;
@@ -96,7 +96,7 @@ void ZLogger::write(LogLevel level, const QString& module, const QString& messag
 
     QMutexLocker locker(&m_mutex);
 
-    // 检查是否需要滚动文件
+    // Check if file needs to be rolled over
     if (needRollover()) {
         if (!rolloverLogFile()) {
             qWarning() << "Failed to rollover log file";
@@ -104,10 +104,10 @@ void ZLogger::write(LogLevel level, const QString& module, const QString& messag
         }
     }
 
-    // 格式化日志消息
+    // Format log message
     QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
     QString levelStr = levelToString(level);
-    QString logMsg = QString("[%1] [%2] [%3] %4\n")
+    QString logMsg = QString("[%1] [%2] [%3] %4")
                          .arg(timestamp)
                          .arg(levelStr)
                          .arg(module)
@@ -119,11 +119,11 @@ void ZLogger::write(LogLevel level, const QString& module, const QString& messag
         return;
     }
 
-    // 写入文件
-    *m_textStream << logMsg;
+    // Write to file
+    *m_textStream << logMsg << "\n";
     m_textStream->flush();
 
-// 同时输出到控制台（在调试模式下）
+// Also output to console in debug mode
 #ifdef QT_DEBUG
     qDebug().noquote() << logMsg.trimmed();
 #endif
@@ -134,23 +134,23 @@ void ZLogger::qtMessageHandler(QtMsgType type, const QMessageLogContext &context
     ZLogger* logger = instance();
 
     if (!logger->m_captureQtMessages) {
-        // 如果禁用捕获，调用原有的处理器
+        // If capture is disabled, call original handler
         if (m_oldHandler) {
             m_oldHandler(type, context, msg);
         }
         return;
     }
 
-    // 转换消息级别
+    // Convert message level
     LogLevel level = logger->qtMsgTypeToLogLevel(type);
 
-    // 提取模块名（从文件路径中获取）
+    // Extract module name from file path
     QString module = logger->extractModuleFromPath(context.file);
 
-    // 格式化Qt消息
+    // Format Qt message
     QString formattedMsg;
     if (context.file && context.line && context.function) {
-        formattedMsg = QString("%1 (File: %2, Line: %3, Function: %4)")
+        formattedMsg = QString("%1 [File] %2 [Line] %3 [Fun] %4")
         .arg(msg)
             .arg(context.file)
             .arg(context.line)
@@ -159,10 +159,10 @@ void ZLogger::qtMessageHandler(QtMsgType type, const QMessageLogContext &context
         formattedMsg = msg;
     }
 
-    // 写入日志
+    // Write log
     logger->write(level, module, formattedMsg);
 
-    // 调用原有的消息处理器（输出到控制台）
+    // Call original message handler to output to console
     if (m_oldHandler) {
         m_oldHandler(type, context, msg);
     }
@@ -223,7 +223,7 @@ void ZLogger::shutdown()
 {
     QMutexLocker locker(&m_mutex);
 
-    // 恢复原有的消息处理器
+    // Restore original message handler
     if (m_captureQtMessages && m_oldHandler) {
         qInstallMessageHandler(m_oldHandler);
         m_oldHandler = nullptr;
@@ -292,11 +292,11 @@ void ZLogger::loadConfig(QSettings &settings)
 
     settings.endGroup();
 
-    // 更新日志级别
+    // Update log level
     int level = m_config[LoggerConfig::LEVEL_KEY].toInt();
     setMinLevel(static_cast<LogLevel>(level));
 
-    // 更新Qt消息捕获设置
+    // Update Qt message capture setting
     m_captureQtMessages = m_config[LoggerConfig::CAPTURE_QT_MESSAGES_KEY].toBool();
 }
 
@@ -332,7 +332,7 @@ bool ZLogger::initializeWithConfig()
     int maxFiles = m_config[LoggerConfig::MAX_FILES_KEY].toInt();
     bool captureQtMsg = m_config[LoggerConfig::CAPTURE_QT_MESSAGES_KEY].toBool();
 
-    // 设置日志格式
+    // Set log format
     QString logFormat = m_config[LoggerConfig::LOG_FORMAT_KEY].toString();
     qSetMessagePattern(logFormat);
 
@@ -350,7 +350,7 @@ void ZLogger::setConfigValue(const QString& key, const QVariant& value)
     QMutexLocker locker(&m_mutex);
     m_config[key] = value;
 
-    // 特殊处理某些配置项的实时更新
+    // Special handling for real-time updates of certain config items
     if (key == LoggerConfig::LEVEL_KEY) {
         int level = value.toInt();
         setMinLevel(static_cast<LogLevel>(level));
@@ -384,7 +384,7 @@ bool ZLogger::needRollover() const
         return false;
     }
 
-    // 检查文件大小是否超过限制
+    // Check if file size exceeds limit
     return m_logFile->size() >= m_maxFileSize;
 }
 
@@ -402,14 +402,14 @@ bool ZLogger::rolloverLogFile()
         m_logFile = nullptr;
     }
 
-    // 重命名当前文件（添加时间戳）
+    // Rename current file with timestamp
     QString oldFileName = getCurrentLogFileName();
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
     QString newFileName = QDir(m_logDir).filePath(QString("app_%1_%2.log").arg(QDateTime::currentDateTime().toString("yyyyMMdd")).arg(timestamp));
 
     QFile::rename(oldFileName, newFileName);
 
-    // 创建新文件
+    // Create new file
     m_logFile = new QFile(oldFileName);
     if (!m_logFile->open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
         delete m_logFile;
@@ -420,7 +420,7 @@ bool ZLogger::rolloverLogFile()
     m_textStream = new QTextStream(m_logFile);
     m_textStream->setCodec("UTF-8");
 
-    // 清理旧文件
+    // Clean up old files
     cleanupOldFiles();
 
     return true;
@@ -445,12 +445,22 @@ QString ZLogger::extractModuleFromPath(const char *file) const
     }
 
     QString filePath = QString::fromUtf8(file);
+    
+     int colonIndex = filePath.lastIndexOf(':');
+    if (colonIndex != -1) {
+        QString afterColon = filePath.mid(colonIndex + 1);
+        bool isLineNumber = false;
+        afterColon.toInt(&isLineNumber);
+        if (isLineNumber) {
+            filePath = filePath.left(colonIndex);
+        }
+    }
 
-    // 从文件路径中提取文件名（不含扩展名）
+    // Extract filename (without extension) from file path
     QFileInfo fileInfo(filePath);
     QString fileName = fileInfo.baseName();
 
-    // 如果文件名太长，截断
+    // If filename is too long, truncate
     if (fileName.length() > 20) {
         fileName = fileName.left(20) + "...";
     }
@@ -467,25 +477,25 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    // 使用宏记录自定义日志
+    // Use macro to record custom log
     LOG_INFO("Main", "Application started");
     LOG_DEBUG("Main", "This debug message won't be logged due to level setting");
 
-    // 测试Qt系统消息捕获
+    // Test Qt system message capture
     qDebug() << "This is a debug message from Qt";
     qInfo() << "This is an info message from Qt";
     qWarning() << "This is a warning message from Qt";
     qCritical() << "This is a critical message from Qt";
 
-    // 也可以手动记录日志
+    // Can also manually record logs
     ZLogger::instance()->warning("Network", "Connection timeout");
     ZLogger::instance()->error("Database", "Failed to connect to database");
-    // 临时禁用Qt消息捕获
+    // Temporarily disable Qt message capture
     ZLogger::instance()->setCaptureQtMessages(false);
     qDebug() << "This message will only go to console";
     ZLogger::instance()->setCaptureQtMessages(true);
 
-    // 程序退出时自动清理
+    // Automatic cleanup on program exit
     QObject::connect(&a, &QCoreApplication::aboutToQuit, [] {
         ZLogger::instance()->shutdown();
     });

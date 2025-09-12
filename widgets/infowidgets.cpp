@@ -13,17 +13,20 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     model = new MediaInfoTabelModel;
 
     ui->detail_tb->horizontalHeader()->setSectionsMovable(true);
-    ui->detail_tb->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    connect(ui->detail_tb->horizontalHeader(), &QHeaderView::customContextMenuRequested,
-            this, &InfoWidgets::onHeaderContextMenuRequested);
+    ui->detail_tb->verticalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    ui->detail_tb->verticalHeader()->setDefaultSectionSize(25);
+    ui->detail_tb->verticalHeader()->setVisible(true);
+    ui->detail_tb->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    
+    m_headerManager = new TableHeaderManager(ui->detail_tb->horizontalHeader(), ui->detail_tb->verticalHeader(), this);
+    m_headerManager->setObjectName(this->objectName());
+    m_headerManager->setTotalCountVisible(true);
+    m_headerManager->restoreState();
 }
 
 InfoWidgets::~InfoWidgets()
 {
-    QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-    settings.setValue(this->objectName(), ui->detail_tb->horizontalHeader()->saveState());
-    settings.sync();
+    delete m_headerManager;
     delete ui;
 }
 
@@ -65,11 +68,7 @@ void InfoWidgets::init_header_detail_tb(const QStringList &headers, QString form
         m_headers = headers;
     }
 
-    QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-    if (settings.contains(this->objectName())) {
-        QByteArray columnOrder = settings.value(this->objectName()).toByteArray();
-        ui->detail_tb->horizontalHeader()->restoreState(columnOrder);
-    }
+    m_headerManager->restoreState();
 
     ui->detail_raw_pte->clear();
     ui->detail_raw_pte->appendPlainText(m_headers.join(format_join));
@@ -91,6 +90,9 @@ void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb, QStri
 
     ui->detail_tb->setModel(model);
     ui->detail_tb->setShowGrid(true);
+    
+    // Update total count
+    m_headerManager->updateTotalCount(data_tb.count());
 
     if (m_headers.size() > 0 && ui->detail_tb->horizontalHeader()) {
         ui->detail_tb->horizontalHeader()->setSectionResizeMode(m_headers.size() - 1, QHeaderView::Stretch);
@@ -334,68 +336,3 @@ void InfoWidgets::on_search_le_editingFinished()
     emit ui->search_btn->clicked();
 }
 
-void InfoWidgets::onHeaderContextMenuRequested(const QPoint &pos)
-{
-    QHeaderView *header = ui->detail_tb->horizontalHeader();
-    QAbstractItemModel *model = ui->detail_tb->model();
-
-    if (!model) return;
-
-    QMenu menu(this);
-    m_actionToColumnMap.clear();
-
-    QAction *showAllAction = menu.addAction("Show All");
-    QAction *hideAllAction = menu.addAction("Hide All");
-    menu.addSeparator();
-
-    connect(showAllAction, &QAction::triggered, this, &InfoWidgets::showAllColumns);
-    connect(hideAllAction, &QAction::triggered, this, &InfoWidgets::hideAllColumns);
-
-    for (int logicalIndex = 0; logicalIndex < header->count(); ++logicalIndex) {
-        QString columnName = model->headerData(logicalIndex, Qt::Horizontal).toString();
-        if (columnName.isEmpty()) {
-            columnName = QString("Column %1").arg(logicalIndex + 1);
-        }
-
-        QAction *columnAction = menu.addAction(columnName);
-        columnAction->setCheckable(true);
-        columnAction->setChecked(!header->isSectionHidden(logicalIndex));
-
-        m_actionToColumnMap[columnAction] = logicalIndex;
-
-        connect(columnAction, &QAction::triggered, this, &InfoWidgets::toggleColumnVisibility);
-    }
-
-    menu.exec(header->mapToGlobal(pos));
-}
-
-void InfoWidgets::toggleColumnVisibility()
-{
-    QAction *action = qobject_cast<QAction*>(sender());
-    if (!action || !m_actionToColumnMap.contains(action)) return;
-
-    int logicalIndex = m_actionToColumnMap[action];
-    QHeaderView *header = ui->detail_tb->horizontalHeader();
-
-    if (action->isChecked()) {
-        header->showSection(logicalIndex);
-    } else {
-        header->hideSection(logicalIndex);
-    }
-}
-
-void InfoWidgets::showAllColumns()
-{
-    QHeaderView *header = ui->detail_tb->horizontalHeader();
-    for (int i = 0; i < header->count(); ++i) {
-        header->showSection(i);
-    }
-}
-
-void InfoWidgets::hideAllColumns()
-{
-    QHeaderView *header = ui->detail_tb->horizontalHeader();
-    for (int i = 0; i < header->count(); ++i) {
-        header->hideSection(i);
-    }
-}

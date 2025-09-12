@@ -12,26 +12,26 @@
 
 #include <common/common.h>
 
-// 宏定义，方便使用
+// Macros for convenient usage
 #define LOG_DEBUG(module, message)    ZLogger::instance()->debug(module, message)
 #define LOG_INFO(module, message)     ZLogger::instance()->info(module, message)
 #define LOG_WARNING(module, message)  ZLogger::instance()->warning(module, message)
 #define LOG_ERROR(module, message)    ZLogger::instance()->error(module, message)
 #define LOG_FATAL(module, message)    ZLogger::instance()->fatal(module, message)
 /**
- * @brief 日志级别枚举
+ * @brief Log level enumeration
  */
 enum LogLevel {
-    LOG_DEBUG,   // 调试信息
-    LOG_INFO,    // 一般信息
-    LOG_WARNING, // 警告信息
-    LOG_ERROR,   // 错误信息
-    LOG_FATAL    // 严重错误
+    LOG_DEBUG,   // Debug messages
+    LOG_INFO,    // Informational messages
+    LOG_WARNING, // Warning messages
+    LOG_ERROR,   // Error messages
+    LOG_FATAL    // Critical error messages
 };
 
 /**
- * @brief 高效的日志记录工具类
- * @details 支持多级别日志、文件滚动、线程安全，集成Qt消息处理器
+ * @brief High-performance logging utility class
+ * @details Supports multi-level logging, file rotation, thread safety, and Qt message handler integration
  */
 class ZLogger : public QObject
 {
@@ -39,18 +39,18 @@ class ZLogger : public QObject
 
 public:
     /**
-     * @brief 获取日志实例（单例模式）
-     * @return Logger实例指针
+     * @brief Get logger instance (singleton pattern)
+     * @return Logger instance pointer
      */
     static ZLogger* instance();
 
     /**
-     * @brief 初始化日志系统
-     * @param logDir 日志目录
-     * @param maxSize 单个日志文件最大大小（MB）
-     * @param maxFiles 最大保留文件数
-     * @param installMessageHandler 是否安装Qt消息处理器
-     * @return 初始化是否成功
+     * @brief Initialize the logging system
+     * @param logDir Log directory
+     * @param maxSize Maximum size of a single log file (MB)
+     * @param maxFiles Maximum number of files to keep
+     * @param installMessageHandler Whether to install Qt message handler
+     * @return Whether initialization succeeded
      */
     bool initialize(const QString& logDir,
                     quint64 maxSize = 10,
@@ -58,99 +58,99 @@ public:
                     bool installMessageHandler = true);
 
     /**
-     * @brief 写入日志
-     * @param level 日志级别
-     * @param module 模块名称
-     * @param message 日志消息
+     * @brief Write log entry
+     * @param level Log level
+     * @param module Module name
+     * @param message Log message
      */
     void write(LogLevel level, const QString& module, const QString& message);
 
     /**
-     * @brief 处理Qt系统消息
-     * @param type Qt消息类型
-     * @param context 消息上下文
-     * @param msg 消息内容
+     * @brief Handle Qt system messages
+     * @param type Qt message type
+     * @param context Message context
+     * @param msg Message content
      */
     static void qtMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
     /**
-     * @brief 快捷方法：写入DEBUG级别日志
+     * @brief Shortcut method: write DEBUG level log
      */
     void debug(const QString& module, const QString& message);
 
     /**
-     * @brief 快捷方法：写入INFO级别日志
+     * @brief Shortcut method: write INFO level log
      */
     void info(const QString& module, const QString& message);
 
     /**
-     * @brief 快捷方法：写入WARNING级别日志
+     * @brief Shortcut method: write WARNING level log
      */
     void warning(const QString& module, const QString& message);
 
     /**
-     * @brief 快捷方法：写入ERROR级别日志
+     * @brief Shortcut method: write ERROR level log
      */
     void error(const QString& module, const QString& message);
 
     /**
-     * @brief 快捷方法：写入FATAL级别日志
+     * @brief Shortcut method: write FATAL level log
      */
     void fatal(const QString& module, const QString& message);
 
     /**
-     * @brief 设置最低日志级别
-     * @param level 最低日志级别
+     * @brief Set minimum log level
+     * @param level Minimum log level
      */
     void setMinLevel(LogLevel level);
 
     /**
-     * @brief 设置是否捕获Qt系统消息
-     * @param enable 是否启用
+     * @brief Set whether to capture Qt system messages
+     * @param enable Whether to enable
      */
     void setCaptureQtMessages(bool enable);
 
     /**
-     * @brief 清理旧日志文件
+     * @brief Clean up old log files
      */
     void cleanupOldFiles();
 
     /**
-     * @brief 关闭日志系统
+     * @brief Shutdown the logging system
      */
     void shutdown();
 
     /**
-     * @brief 从配置文件中加载配置
-     * @param settings QSettings实例
+     * @brief Load configuration from config file
+     * @param settings QSettings instance
      */
     void loadConfig(QSettings& settings);
 
     /**
-     * @brief 保存配置到配置文件
-     * @param settings QSettings实例
+     * @brief Save configuration to config file
+     * @param settings QSettings instance
      */
     void saveConfig(QSettings& settings);
 
     /**
-     * @brief 使用当前配置初始化日志系统
-     * @return 初始化是否成功
+     * @brief Initialize logging system with current configuration
+     * @return Whether initialization succeeded
      */
     bool initializeWithConfig();
 
     /**
-     * @brief 获取配置值
+     * @brief Get configuration value
      */
     QVariant getConfigValue(const QString& key, const QVariant& defaultValue = QVariant());
 
     /**
-     * @brief 设置配置值
+     * @brief Set configuration value
      */
     void setConfigValue(const QString& key, const QVariant& value);
 
 signals:
     /**
-     * @brief 日志消息信号（可用于UI显示）
+     * @brief Log message signal (can be used for UI display)
      */
     void logMessage(const QString& message);
 
@@ -158,54 +158,54 @@ private:
     explicit ZLogger(QObject *parent = nullptr);
     ~ZLogger();
 
-    // 禁止拷贝和赋值
+    // Disable copy and assignment
     ZLogger(const ZLogger&) = delete;
     ZLogger& operator=(const ZLogger&) = delete;
 
     /**
-     * @brief 获取日志级别字符串
+     * @brief Get log level string
      */
     QString levelToString(LogLevel level) const;
 
     /**
-     * @brief 获取当前日志文件名
+     * @brief Get current log file name
      */
     QString getCurrentLogFileName() const;
 
     /**
-     * @brief 滚动日志文件
+     * @brief Roll over log file
      */
     bool rolloverLogFile();
 
     /**
-     * @brief 检查是否需要滚动文件
+     * @brief Check if file rollover is needed
      */
     bool needRollover() const;
 
     /**
-     * @brief 将Qt消息类型转换为日志级别
+     * @brief Convert Qt message type to log level
      */
     LogLevel qtMsgTypeToLogLevel(QtMsgType type) const;
 
     /**
-     * @brief 从文件路径中提取模块名
+     * @brief Extract module name from file path
      */
     QString extractModuleFromPath(const char *file) const;
 
-    static ZLogger* m_instance;           // 单例实例
-    static QtMessageHandler m_oldHandler;// 原有的消息处理器
+    static ZLogger* m_instance;           // Singleton instance
+    static QtMessageHandler m_oldHandler; // Original message handler
 
-    QFile* m_logFile;                    // 日志文件
-    QTextStream* m_textStream;           // 文本流
-    QMutex m_mutex;                      // 互斥锁，保证线程安全
-    QString m_logDir;                    // 日志目录
-    quint64 m_maxFileSize;               // 最大文件大小（字节）
-    int m_maxFiles;                      // 最大文件数量
-    LogLevel m_minLevel;                 // 最低日志级别
-    bool m_initialized;                  // 初始化标志
-    bool m_captureQtMessages;            // 是否捕获Qt系统消息
+    QFile* m_logFile;                    // Log file
+    QTextStream* m_textStream;           // Text stream
+    QMutex m_mutex;                      // Mutex for thread safety
+    QString m_logDir;                    // Log directory
+    quint64 m_maxFileSize;               // Maximum file size (bytes)
+    int m_maxFiles;                      // Maximum number of files
+    LogLevel m_minLevel;                 // Minimum log level
+    bool m_initialized;                  // Initialization flag
+    bool m_captureQtMessages;            // Whether to capture Qt system messages
 
-    QMap<QString, QVariant> m_config; // 存储配置的容器
+    QMap<QString, QVariant> m_config; // Container for storing configuration
 };
 
 

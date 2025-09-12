@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include <common/singleton.h>
+#include <common/tableheadermanager.h>
+
+class LogModel;
 
 namespace Ui {
 class LogWG;
@@ -31,6 +34,8 @@ private slots:
 
 private:
     Ui::LogWG *ui;
+    LogModel *m_logModel;
+    TableHeaderManager *m_headerManager;
 };
 
 #endif // LOGWG_H

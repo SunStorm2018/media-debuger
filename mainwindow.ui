@@ -94,7 +94,7 @@
     <property name="title">
      <string>Play</string>
     </property>
-    <addaction name="actionplayer"/>
+    <addaction name="actionPlayer"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -112,7 +112,9 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="separator"/>
     <addaction name="actionLog"/>
+    <addaction name="actionApp_Dir"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBasic_Info"/>
@@ -357,14 +359,19 @@
     <string>About</string>
    </property>
   </action>
-  <action name="actionplayer">
+  <action name="actionPlayer">
    <property name="text">
-    <string>player</string>
+    <string>Player</string>
    </property>
   </action>
   <action name="actionFiles">
    <property name="text">
     <string>Files</string>
+   </property>
+  </action>
+  <action name="actionApp_Dir">
+   <property name="text">
+    <string>App Dir</string>
    </property>
   </action>
  </widget>

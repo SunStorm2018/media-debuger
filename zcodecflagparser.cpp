@@ -25,10 +25,10 @@ QString ZCodecFlagParser::getPositionMeaning(int index)
         "Encoding supported",
         "Video codec",
         "Audio codec",
-        "Subtitle codec",      // 第一个S：字幕编解码器
+        "Subtitle codec",      // First S: subtitle codec
         "Intra frame-only codec",
         "Lossy compression",
-        "Lossless compression" // 第二个S：无损压缩
+        "Lossless compression" // Second S: lossless compression
     };
 
     return (index >= 0 && index < meanings.size()) ? meanings[index] : "";

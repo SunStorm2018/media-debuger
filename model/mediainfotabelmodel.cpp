@@ -42,6 +42,10 @@ QVariant MediaInfoTabelModel::headerData(int section, Qt::Orientation orientatio
             return m_header->at(section);
     }
 
+    if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
+        return QString::number(section + 1);
+    }
+
     //qDebug()<<role << "--" << Qt::BackgroundRole;
 
     //    if(role == Qt::BackgroundRole)

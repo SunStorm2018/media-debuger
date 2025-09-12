@@ -6,6 +6,7 @@
 #include <QScreen>
 #include <QFileDialog>
 #include <QDockWidget>
+#include <QMessageBox>
 
 #include <common/zffprobe.h>
 #include <common/zwindowhelper.h>

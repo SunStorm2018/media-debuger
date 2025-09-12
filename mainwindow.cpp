@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QDesktopServices>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -14,13 +15,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     InitConnectation();
 
-    // 创建DockWidget布局
+    // Create DockWidget layout
     createDockWidgets();
 
-    // 恢复布局设置
+    // Restore layout settings
     restoreLayoutSettings();
 
-    // 设置窗口标题
+    // Set window title
     setWindowTitle(APPLICATION_NAME);
 }
 
@@ -79,25 +80,25 @@ void MainWindow::PopMediaInfoWindow(QString title, const QString &info, const QS
 
 void MainWindow::createDockWidgets()
 {
-    // 创建FilesWG的DockWidget（左边）
+    // Create FilesWG DockWidget (left side)
     m_filesWGDock = new QDockWidget(tr("Files"), this);
     m_filesWGDock->setObjectName("FilesDock");
     m_filesWGDock->setWidget(&m_filesWG);
     addDockWidget(Qt::LeftDockWidgetArea, m_filesWGDock);
 
-    // 创建LogWG的DockWidget（底部）
+    // Create LogWG DockWidget (bottom)
     m_logWGDock = new QDockWidget(tr("Logs"), this);
     m_logWGDock->setObjectName("LogsDock");
     m_logWGDock->setWidget(&m_logWG);
     addDockWidget(Qt::BottomDockWidgetArea, m_logWGDock);
 
-    // 设置PlayerWG为中心部件（占用剩余空间）
+    // Set PlayerWG as central widget (occupies remaining space)
     m_playerWGDock = new QDockWidget(tr("Player"), this);
     m_playerWGDock->setObjectName("PlayerDock");
     m_playerWGDock->setWidget(&m_playerWG);
     addDockWidget(Qt::RightDockWidgetArea, m_playerWGDock);
 
-    // 设置dock小部件的大小
+    // Set dock widget sizes
     m_filesWGDock->setMinimumWidth(200);
     m_logWGDock->setMinimumHeight(150);
     m_playerWGDock->setMinimumWidth(300);
@@ -107,10 +108,10 @@ void MainWindow::saveLayoutSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
 
-    // 保存窗口几何尺寸
+    // Save window geometry
     settings.setValue(GEOMETRY_KEY, saveGeometry());
 
-    // 保存Dock布局状态
+    // Save dock layout state
     settings.setValue(STATE_KEY, saveState());
 
     qInfo() << "Window layout settings saved";
@@ -120,17 +121,17 @@ void MainWindow::restoreLayoutSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
 
-    // 恢复窗口几何尺寸
+    // Restore window geometry
     if (settings.contains(GEOMETRY_KEY)) {
         restoreGeometry(settings.value(GEOMETRY_KEY).toByteArray());
     }
 
-    // 恢复Dock布局状态
+    // Restore dock layout state
     if (settings.contains(STATE_KEY)) {
         restoreState(settings.value(STATE_KEY).toByteArray());
         qInfo() << "Window layout restored from settings";
     } else {
-        // 首次运行的默认布局
+        // Default layout for first run
         resize(1200, 800);
         qInfo() << "Using default window layout";
     }
@@ -274,19 +275,24 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
         m_logWGDock->show();
         m_logWGDock->raise();
     }
+    if (ui->actionAbout == action) {
+        QMessageBox::about(this,
+                           tr("About MediaDebuger"),
+                           tr("MediaDebuger\n\n"
+                              "A powerful media file analysis tool that provides:\n"
+                              "- Detailed media information display\n"
+                              "- Multiple format views (JSON, Table)\n"
+                              "- Real-time logging\n"
+                              "- Customizable layout\n\n"
+                              "Version 1.0"));
+    }
+    if (ui->actionApp_Dir == action) {
+        QString appDir = QCoreApplication::applicationDirPath();
+        QDesktopServices::openUrl(QUrl::fromLocalFile(appDir));
+    }
 }
 
-if (ui->actionAbout == action) {
-    QMessageBox::about(this,
-        tr("About MediaDebuger"),
-        tr("MediaDebuger\n\n"
-           "A powerful media file analysis tool that provides:\n"
-           "- Detailed media information display\n"
-           "- Multiple format views (JSON, Table)\n"
-           "- Real-time logging\n"
-           "- Customizable layout\n\n"
-           "Version 1.0"));
-}
+
 
 void MainWindow::slotMenuPlayTriggered(QAction *action)
 {
@@ -294,7 +300,7 @@ void MainWindow::slotMenuPlayTriggered(QAction *action)
         return;
     }
 
-    if (ui->actionplayer == action) {
+    if (ui->actionPlayer == action) {
         m_playerWGDock->show();
         m_playerWGDock->raise();
         return;

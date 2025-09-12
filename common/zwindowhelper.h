@@ -11,13 +11,13 @@ class ZWindowHelper
 public:
     ZWindowHelper();
 
-    // 居中到主屏幕
+    // Center to primary screen
     static void centerToPrimaryScreen(QWidget* widget, bool dialog = false);
 
-    // 居中到当前屏幕（光标所在屏幕）
+    // Center to current screen (where cursor is)
     static void centerToCurrentScreen(QWidget* widget, bool dialog = false);
 
-    // 居中到父窗口
+    // Center to parent window
     static void centerToParent(QWidget* widget, bool dialog = false);
 };
 
