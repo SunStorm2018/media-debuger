@@ -196,8 +196,26 @@ void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
         }
         QString fileName = Common::instance()->getConfigValue(CURRENTFILE).toString();
         if (!fileName.isEmpty()) {
-            QString formats = m_probe.getMediaInfoJsonFormat(tmpFunction, fileName);
-            PopMediaInfoWindow(action->objectName().replace("action", "Detail Info : "), formats, "table");
+            ProgressDialog *progressDlg = new ProgressDialog;
+            progressDlg->setWindowTitle(tr("Parse Media: %1").arg(fileName));
+            progressDlg->setProgressMode(ProgressDialog::Indeterminate);
+            progressDlg->setMessage("Parsing...");
+            progressDlg->setAutoClose(true);
+
+            progressDlg->start();
+            QtConcurrent::run([=](){
+                QString formats = m_probe.getMediaInfoJsonFormat(tmpFunction, fileName);
+                QMetaObject::invokeMethod(this, "PopMediaInfoWindow",
+                                          Qt::QueuedConnection,
+                                          Q_ARG(QString, action->objectName().replace("action", "Detail Info : ")),
+                                          Q_ARG(QString, formats),
+                                          Q_ARG(QString, "table")
+                                          );
+                progressDlg->setMessage("Finsh parse");
+                progressDlg->finish();
+                progressDlg->deleteLater();
+            });
+            progressDlg->exec();
         } else {
             qWarning() << CURRENTFILE << fileName  << "is empty, please retray";
         }
@@ -264,7 +282,7 @@ void MainWindow::slotMenuConfigTriggered(QAction *action)
     ZWindowHelper::centerToParent(configWg, true);
     configWg->setCurrentTab(action->text());
     configWg->show();
-    }
+}
 
 void MainWindow::slotMenuHelpTriggered(QAction *action)
 {

@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,6 +26,7 @@ SOURCES += \
     widgets/jsonformatwg.cpp \
     widgets/logwg.cpp \
     widgets/playerwg.cpp \
+    widgets/progressdialog.cpp \
     widgets/tabelformatwg.cpp \
     zcodecflagparser.cpp
 
@@ -46,6 +47,7 @@ HEADERS += \
     widgets/jsonformatwg.h \
     widgets/logwg.h \
     widgets/playerwg.h \
+    widgets/progressdialog.h \
     widgets/tabelformatwg.h \
     zcodecflagparser.h
 

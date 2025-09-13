@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QDockWidget>
 #include <QMessageBox>
+#include <QtConcurrent>
 
 #include <common/zffprobe.h>
 #include <common/zwindowhelper.h>
@@ -20,6 +21,7 @@
 #include <widgets/logwg.h>
 #include <widgets/fileswg.h>
 #include <widgets/playerwg.h>
+#include <widgets/progressdialog.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,7 +37,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private:
+private slots:
     void InitConnectation();
     void PopBasicInfoWindow(QString title, const QString &info, const QString &format_key);
     void PopMediaInfoWindow(QString title, const QString &info, const QString &format_key = "json");

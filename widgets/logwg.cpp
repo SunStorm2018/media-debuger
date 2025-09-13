@@ -28,7 +28,7 @@ LogWG::LogWG(QWidget *parent)
     m_headerManager = new TableHeaderManager(ui->log_tbv->horizontalHeader(), ui->log_tbv->verticalHeader(), this);
     m_headerManager->setObjectName(this->objectName());
     m_headerManager->enableHeaderContextMenu(true);
-    m_headerManager->setTotalCountVisible(true);
+    m_headerManager->setTotalCountVisible(false);
     
     // Setup context menu
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -104,10 +104,10 @@ void LogWG::outLog(const QString &log)
         ui->log_tbv->scrollToBottom();
     }
 
-    // ui->log_tbv->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents); // Time
-    // ui->log_tbv->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents); // Level
-    // ui->log_tbv->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive); // Function (可手动调整)
-    // ui->log_tbv->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch); // Info (自动伸展)
+    ui->log_tbv->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents); // Time
+    ui->log_tbv->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents); // Level
+    ui->log_tbv->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive); // Function (可手动调整)
+    ui->log_tbv->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch); // Info (自动伸展)
 }
 
 void LogWG::on_expand_time_btn_clicked()
