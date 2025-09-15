@@ -11,6 +11,9 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     ui->detail_raw_pte->setVisible(false);
 
     model = new MediaInfoTabelModel;
+    proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(model);
+    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     ui->detail_tb->horizontalHeader()->setSectionsMovable(true);
     ui->detail_tb->verticalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -32,24 +35,11 @@ InfoWidgets::~InfoWidgets()
 
 void InfoWidgets::on_search_btn_clicked()
 {
-    if (ui->search_le->text().isEmpty()){
-        if (m_match_tb.size() < m_data_tb.size()){
-            update_data_detail_tb(m_data_tb);
-        }
-        return;
-    }
-
-    m_match_tb.clear();
-    for (auto line : m_data_tb) {
-        for (auto it : line) {
-            if (it.contains(ui->search_le->text().trimmed(), Qt::CaseInsensitive)){
-                m_match_tb.append(line);
-                break;
-            }
-        }
-    }
-
-    update_data_detail_tb(m_match_tb);
+    QString searchText = ui->search_le->text().trimmed();
+    proxyModel->setFilterFixedString(searchText);
+    
+    // Update total count with filtered results
+    m_headerManager->updateTotalCount(proxyModel->rowCount());
 }
 
 void InfoWidgets::clear_detail_tb()
@@ -77,22 +67,14 @@ void InfoWidgets::init_header_detail_tb(const QStringList &headers, QString form
 void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb, QString format_join)
 {
     model->setRow(data_tb.count());
-    if (m_data_tb.isEmpty()) {
-        m_match_tb = data_tb;
-    }
+    m_data_tb = data_tb;
+    model->setTableData(const_cast<QList<QStringList>*>(&m_data_tb));
 
-    if (m_data_tb.size() >= data_tb.size()) {
-        model->setTableData(const_cast<QList<QStringList>*>(&data_tb));
-    } else {
-        m_data_tb = data_tb;
-        model->setTableData(const_cast<QList<QStringList>*>(&m_data_tb));
-    }
-
-    ui->detail_tb->setModel(model);
+    ui->detail_tb->setModel(proxyModel);
     ui->detail_tb->setShowGrid(true);
     
     // Update total count
-    m_headerManager->updateTotalCount(data_tb.count());
+    m_headerManager->updateTotalCount(proxyModel->rowCount());
 
     if (m_headers.size() > 0 && ui->detail_tb->horizontalHeader()) {
         ui->detail_tb->horizontalHeader()->setSectionResizeMode(m_headers.size() - 1, QHeaderView::Stretch);

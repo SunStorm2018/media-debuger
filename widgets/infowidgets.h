@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QAction>
 #include <QMenu>
+#include <QSortFilterProxyModel>
 
 #include <common/common.h>
 #include <model/mediainfotabelmodel.h>
@@ -44,11 +45,10 @@ private:
     Ui::InfoWidgets *ui;
 
     QStringList m_headers;
-
     QList<QStringList> m_data_tb;
-    QList<QStringList> m_match_tb;
 
     MediaInfoTabelModel *model;
+    QSortFilterProxyModel *proxyModel;
     TableHeaderManager *m_headerManager;
 
 };
