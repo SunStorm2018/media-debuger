@@ -258,6 +258,7 @@ void MainWindow::slotMenuFileTriggered(QAction *action)
         if (!fileName.isEmpty()) {
             qDebug() << "Selected file:" << fileName;
             Common::instance()->setConfigValue(CURRENTFILE, fileName);
+            m_filesWG.addFileToHistory(fileName);
         }
 
         return;

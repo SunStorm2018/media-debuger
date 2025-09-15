@@ -19,6 +19,7 @@ constexpr auto LOG_GROUP = "LogSettings";
 constexpr auto GENERAL_GROUP = "GeneralSettings";
 constexpr auto MAINWINDOW_GROUP = "MainWindowSettings";
 constexpr auto WINDOWHEAD_GROUP = "WindowHeadSettings";
+constexpr auto RECENTFILES_GROUP = "RecentFilesSettings";
 
 extern const QStringList CONFIG_GROUPS;
 

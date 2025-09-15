@@ -15,6 +15,7 @@ SOURCES += \
     common/zffprobe.cpp \
     common/zlogger.cpp \
     common/zwindowhelper.cpp \
+    model/fileshistorymodel.cpp \
     model/logmodel.cpp \
     model/mediainfotabelmodel.cpp \
     model/multicolumnsearchproxymodel.cpp \
@@ -41,6 +42,7 @@ HEADERS += \
     common/zffprobe.h \
     common/zlogger.h \
     common/zwindowhelper.h \
+    model/fileshistorymodel.h \
     model/logmodel.h \
     model/mediainfotabelmodel.h \
     model/multicolumnsearchproxymodel.h \
