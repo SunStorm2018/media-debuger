@@ -1,6 +1,7 @@
 #include "mediainfotabelmodel.h"
 
-MediaInfoTabelModel::MediaInfoTabelModel(QObject *parent) : QAbstractTableModel(parent)
+MediaInfoTabelModel::MediaInfoTabelModel(QObject *parent) : QAbstractTableModel(parent),
+    row(0), column(0), m_header(nullptr), m_data(nullptr)
 {
 
 }
@@ -19,6 +20,10 @@ QVariant MediaInfoTabelModel::data(const QModelIndex &index, int role) const
 {
     if(role == Qt::DisplayRole || role == Qt::EditRole)
     {
+        if (!m_data || !index.isValid() || index.row() >= m_data->size() || 
+            index.column() >= m_data->at(index.row()).size()) {
+            return QVariant();
+        }
         return (*m_data)[index.row()][index.column()];
     }
 
@@ -38,7 +43,7 @@ QVariant MediaInfoTabelModel::data(const QModelIndex &index, int role) const
 QVariant MediaInfoTabelModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-        if(m_header->count() - 1 >= section)
+        if(m_header && section >= 0 && section < m_header->count())
             return m_header->at(section);
     }
 
@@ -67,11 +72,12 @@ QVariant MediaInfoTabelModel::headerData(int section, Qt::Orientation orientatio
 bool MediaInfoTabelModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role == Qt::EditRole) {
-        if (!checkIndex(index))
+        if (!checkIndex(index) || !m_data)
             return false;
 
         //save value from editor to member m_gridData
         (*m_data)[index.row()][index.column()] = value.toString();
+        emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
         return true;
     }
     return false;
@@ -94,12 +100,16 @@ void MediaInfoTabelModel::setColumn(int newColumn)
 
 void MediaInfoTabelModel::setTableHeader(QList<QString> *header)
 {
+    beginResetModel();
     m_header = header;
+    endResetModel();
 }
 
 void MediaInfoTabelModel::setTableData(QList<QStringList> *data)
 {
+    beginResetModel();
     m_data = data;
+    endResetModel();
 }
 
 void MediaInfoTabelModel::SlotUpdateTable()

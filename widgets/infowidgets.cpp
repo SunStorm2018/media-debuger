@@ -2,44 +2,66 @@
 #include "qdebug.h"
 #include "ui_infowidgets.h"
 #include <QtGlobal>
+#include <QPoint>
 
 InfoWidgets::InfoWidgets(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::InfoWidgets)
+    , m_searchButtonMenu(nullptr)
+    , m_detailSearchAction(nullptr)
+    , m_detailSearchDialog(nullptr)
+    , m_usingMultiColumnSearch(false)
 {
     ui->setupUi(this);
     ui->detail_raw_pte->setVisible(false);
 
-    model = new MediaInfoTabelModel;
-    proxyModel = new QSortFilterProxyModel(this);
-    proxyModel->setSourceModel(model);
-    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    model = new MediaInfoTabelModel(this);
+
+    multiColumnSearchModel = new MultiColumnSearchProxyModel(this);
+    multiColumnSearchModel->setSourceModel(model);
+    ui->detail_tb->setModel(multiColumnSearchModel);
 
     ui->detail_tb->horizontalHeader()->setSectionsMovable(true);
     ui->detail_tb->verticalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
     ui->detail_tb->verticalHeader()->setDefaultSectionSize(25);
     ui->detail_tb->verticalHeader()->setVisible(true);
     ui->detail_tb->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    
+    ui->detail_tb->setSortingEnabled(true);
+
     m_headerManager = new TableHeaderManager(ui->detail_tb->horizontalHeader(), ui->detail_tb->verticalHeader(), this);
     m_headerManager->setObjectName(this->objectName());
     m_headerManager->setTotalCountVisible(true);
     m_headerManager->restoreState();
+    
+    // Setup search button with right-click menu
+    setupSearchButton();
+
+    new QShortcut(QKeySequence("Ctrl+F"), this, SLOT(showDetailSearch));
 }
 
 InfoWidgets::~InfoWidgets()
 {
     delete m_headerManager;
+    delete m_detailSearchDialog;
     delete ui;
 }
 
 void InfoWidgets::on_search_btn_clicked()
 {
     QString searchText = ui->search_le->text().trimmed();
-    proxyModel->setFilterFixedString(searchText);
     
-    // Update total count with filtered results
-    m_headerManager->updateTotalCount(proxyModel->rowCount());
+    // Always use simple proxy model for basic search
+    m_usingMultiColumnSearch = false;
+    ui->detail_tb->setModel(multiColumnSearchModel);
+    
+    if (searchText.isEmpty()) {
+        multiColumnSearchModel->resetFilters();
+    } else {
+        // Apply basic search (all columns)
+        multiColumnSearchModel->setFilterFixedString(searchText);
+    }
+    
+    updateCurrentModel();
 }
 
 void InfoWidgets::clear_detail_tb()
@@ -49,14 +71,12 @@ void InfoWidgets::clear_detail_tb()
 
 void InfoWidgets::init_header_detail_tb(const QStringList &headers, QString format_join)
 {
+    m_headers = headers;
+    
     model->setColumn(headers.count());
     model->setTableHeader(&m_headers);
 
     ui->detail_tb->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
-    if (m_headers.isEmpty()) {
-        m_headers = headers;
-    }
 
     m_headerManager->restoreState();
 
@@ -70,11 +90,16 @@ void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb, QStri
     m_data_tb = data_tb;
     model->setTableData(const_cast<QList<QStringList>*>(&m_data_tb));
 
-    ui->detail_tb->setModel(proxyModel);
+    // Don't change the model here - keep whatever model is currently active
+    // Only set the model if no model is currently set
+    if (!ui->detail_tb->model()) {
+        ui->detail_tb->setModel(multiColumnSearchModel);
+    }
+    
     ui->detail_tb->setShowGrid(true);
     
-    // Update total count
-    m_headerManager->updateTotalCount(proxyModel->rowCount());
+    // Update using the helper method
+    updateCurrentModel();
 
     if (m_headers.size() > 0 && ui->detail_tb->horizontalHeader()) {
         ui->detail_tb->horizontalHeader()->setSectionResizeMode(m_headers.size() - 1, QHeaderView::Stretch);
@@ -309,5 +334,130 @@ void InfoWidgets::on_expand_raw_btn_clicked(bool checked)
 void InfoWidgets::on_search_le_editingFinished()
 {
     emit ui->search_btn->clicked();
+}
+
+void InfoWidgets::setupSearchButton()
+{
+    // Create right-click menu for search button
+    m_searchButtonMenu = new QMenu(this);
+    m_detailSearchAction = new QAction(tr("Detail Search"), this);
+    m_detailSearchAction->setToolTip(tr("Open advanced search dialog with more options"));
+    
+    m_searchButtonMenu->addAction(m_detailSearchAction);
+    
+    // Connect the action
+    connect(m_detailSearchAction, &QAction::triggered, this, &InfoWidgets::showDetailSearch);
+    
+    // Set context menu policy for search button
+    ui->search_btn->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->search_btn, &QPushButton::customContextMenuRequested, 
+            this, [this](const QPoint &pos) {
+        m_searchButtonMenu->exec(ui->search_btn->mapToGlobal(pos));
+    });
+
+    connect(m_detailSearchDialog, &SearchWG::searchTextChanged, [=](QString text) {
+        ui->search_le->setText(text);
+    });
+}
+
+void InfoWidgets::createDetailSearchDialog()
+{
+    if (!m_detailSearchDialog) {
+        m_detailSearchDialog = new SearchWG(this);
+        m_detailSearchDialog->setWindowTitle(tr("Detail Search"));
+        m_detailSearchDialog->setWindowFlags(Qt::Dialog | Qt::WindowCloseButtonHint);
+        m_detailSearchDialog->setWindowModality(Qt::ApplicationModal);
+        
+        // Configure to show only the required group boxes for InfoWidgets
+        auto requiredBoxes = SearchWG::SearchRange | SearchWG::MatchControl | SearchWG::Operation;
+        m_detailSearchDialog->setVisibleGroupBoxes(requiredBoxes);
+        
+        // Set search range options based on current table headers
+        if (!m_headers.isEmpty()) {
+            m_detailSearchDialog->setSearchRangeOptions(m_headers);
+        }
+        
+        // Connect signals
+        connect(m_detailSearchDialog, &SearchWG::searchRangeSelectionChanged,
+                this, &InfoWidgets::onDetailSearchCompleted);
+
+        connect(m_detailSearchDialog, &SearchWG::searchReady,
+                this, &InfoWidgets::onDetailSearchCompleted);
+        // Resize dialog appropriately
+        m_detailSearchDialog->adjustSize();
+        m_detailSearchDialog->setMinimumWidth(400);
+    }
+}
+
+void InfoWidgets::showDetailSearch()
+{
+    createDetailSearchDialog();
+    
+    // Update search range options with current headers
+    if (!m_headers.isEmpty()) {
+        m_detailSearchDialog->setSearchRangeOptions(m_headers);
+    }
+    
+    // Show the dialog
+    m_detailSearchDialog->show();
+    m_detailSearchDialog->raise();
+    m_detailSearchDialog->activateWindow();
+}
+
+void InfoWidgets::onDetailSearchCompleted()
+{
+    if (!m_detailSearchDialog) return;
+    
+    // Get search parameters from SearchWG
+    QStringList selectedRanges = m_detailSearchDialog->getSelectedSearchRanges();
+    QString searchText = ui->search_le->text().trimmed();
+    
+    qDebug() << "Detail search completed with selected ranges:" << selectedRanges;
+    qDebug() << "Search text:" << searchText;
+    
+    if (searchText.isEmpty()) {
+        // Switch back to simple proxy model if no search text
+        m_usingMultiColumnSearch = false;
+        ui->detail_tb->setModel(multiColumnSearchModel);
+        multiColumnSearchModel->resetFilters();
+        updateCurrentModel();
+        return;
+    }
+    
+    // Configure multi-column search model
+    multiColumnSearchModel->setSearchText(searchText);
+    
+    // Set match control options from SearchWG
+    multiColumnSearchModel->setCaseSensitive(m_detailSearchDialog->isCaseSensitive());
+    multiColumnSearchModel->setMatchWholeWords(m_detailSearchDialog->isMatchWholewords());
+    multiColumnSearchModel->setUseRegularExpression(m_detailSearchDialog->isUseRegularExpression());
+    
+    // Configure search columns
+    if (selectedRanges.isEmpty()) {
+        // No columns selected, search in all columns
+        multiColumnSearchModel->setSearchMode(false);
+        qDebug() << "Searching in all columns";
+    } else {
+        // Search only in selected columns
+        multiColumnSearchModel->setSearchColumns(selectedRanges);
+        multiColumnSearchModel->setSearchMode(true);
+        qDebug() << "Searching in selected columns:" << selectedRanges;
+    }
+    
+    // Switch to multi-column search model
+    m_usingMultiColumnSearch = true;
+    ui->detail_tb->setModel(multiColumnSearchModel);
+    
+    updateCurrentModel();
+    
+    qDebug() << "Multi-column search applied. Filtered rows:" << multiColumnSearchModel->rowCount();
+}
+
+void InfoWidgets::updateCurrentModel()
+{
+    // Update total count based on current active model
+    if (m_usingMultiColumnSearch) {
+        m_headerManager->updateTotalCount(multiColumnSearchModel->rowCount());
+    }
 }
 

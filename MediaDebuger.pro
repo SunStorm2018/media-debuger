@@ -10,12 +10,14 @@ CONFIG += c++17
 
 SOURCES += \
     common/common.cpp \
+    common/flowlayout.cpp \
     common/tableheadermanager.cpp \
     common/zffprobe.cpp \
     common/zlogger.cpp \
     common/zwindowhelper.cpp \
     model/logmodel.cpp \
     model/mediainfotabelmodel.cpp \
+    model/multicolumnsearchproxymodel.cpp \
     widgets/baseformatwg.cpp \
     widgets/fileswg.cpp \
     widgets/globalconfingwg.cpp \
@@ -27,17 +29,20 @@ SOURCES += \
     widgets/logwg.cpp \
     widgets/playerwg.cpp \
     widgets/progressdialog.cpp \
+    widgets/searchwg.cpp \
     widgets/tabelformatwg.cpp \
     zcodecflagparser.cpp
 
 HEADERS += \
     common/common.h \
+    common/flowlayout.h \
     common/tableheadermanager.h \
     common/zffprobe.h \
     common/zlogger.h \
     common/zwindowhelper.h \
     model/logmodel.h \
     model/mediainfotabelmodel.h \
+    model/multicolumnsearchproxymodel.h \
     widgets/baseformatwg.h \
     widgets/fileswg.h \
     widgets/globalconfingwg.h \
@@ -48,6 +53,7 @@ HEADERS += \
     widgets/logwg.h \
     widgets/playerwg.h \
     widgets/progressdialog.h \
+    widgets/searchwg.h \
     widgets/tabelformatwg.h \
     zcodecflagparser.h
 
@@ -59,6 +65,7 @@ FORMS += \
     widgets/jsonformatwg.ui \
     widgets/logwg.ui \
     widgets/playerwg.ui \
+    widgets/searchwg.ui \
     widgets/tabelformatwg.ui
 
 TRANSLATIONS += \

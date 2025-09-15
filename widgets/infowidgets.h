@@ -5,10 +5,13 @@
 #include <QAction>
 #include <QMenu>
 #include <QSortFilterProxyModel>
+#include <QShortcut>
 
 #include <common/common.h>
 #include <model/mediainfotabelmodel.h>
+#include <model/multicolumnsearchproxymodel.h>
 #include <common/tableheadermanager.h>
+#include <widgets/searchwg.h>
 
 namespace Ui {
 class InfoWidgets;
@@ -33,10 +36,17 @@ public slots:
 
 private slots:
     void on_search_btn_clicked();
-
     void on_expand_raw_btn_clicked(bool checked);
-
     void on_search_le_editingFinished();
+    
+    // Detail search functionality
+    void showDetailSearch();
+    void onDetailSearchCompleted();
+
+private:
+    void setupSearchButton();
+    void createDetailSearchDialog();
+    void updateCurrentModel(); // Helper method to update the current active model
 
 private:
     void format_data(const QString& data, QList<QStringList> &data_tb, QStringList &headers, QString format_key);
@@ -48,8 +58,16 @@ private:
     QList<QStringList> m_data_tb;
 
     MediaInfoTabelModel *model;
-    QSortFilterProxyModel *proxyModel;
+    MultiColumnSearchProxyModel *multiColumnSearchModel;
     TableHeaderManager *m_headerManager;
+    
+    // Detail search components
+    QMenu *m_searchButtonMenu;
+    QAction *m_detailSearchAction;
+    SearchWG *m_detailSearchDialog;
+    
+    // Track current model state
+    bool m_usingMultiColumnSearch;
 
 };
 
