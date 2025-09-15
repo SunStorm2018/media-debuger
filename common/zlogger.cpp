@@ -248,7 +248,7 @@ void ZLogger::loadConfig(QSettings &settings)
 {
     QMutexLocker locker(&m_mutex);
 
-    settings.beginGroup(LoggerConfig::LOG_GROUP);
+    settings.beginGroup(LOG_GROUP);
 
     m_config[LoggerConfig::ENABLED_KEY] = settings.value(
         LoggerConfig::ENABLED_KEY,
@@ -304,7 +304,7 @@ void ZLogger::saveConfig(QSettings& settings)
 {
     QMutexLocker locker(&m_mutex);
 
-    settings.beginGroup(LoggerConfig::LOG_GROUP);
+    settings.beginGroup(LOG_GROUP);
 
     settings.setValue(LoggerConfig::ENABLED_KEY, m_config[LoggerConfig::ENABLED_KEY]);
     settings.setValue(LoggerConfig::LEVEL_KEY, m_config[LoggerConfig::LEVEL_KEY]);

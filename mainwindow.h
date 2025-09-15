@@ -22,6 +22,7 @@
 #include <widgets/fileswg.h>
 #include <widgets/playerwg.h>
 #include <widgets/progressdialog.h>
+#include <widgets/folderswg.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -65,10 +66,12 @@ private:
     FilesWG &m_filesWG = FilesWG::instance();
     PlayerWG &m_playerWG = PlayerWG::instance();
     LogWG &m_logWG = LogWG::instance();
+    FoldersWG &m_foldersWG = FoldersWG::instance();
 
     QDockWidget *m_filesWGDock = nullptr;
     QDockWidget *m_logWGDock = nullptr;
     QDockWidget *m_playerWGDock = nullptr;
+    QDockWidget *m_foldersWGDock = nullptr;
 
     QString GEOMETRY_KEY = "mainWindowGeometry";
     QString STATE_KEY = "mainWindowState";

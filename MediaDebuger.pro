@@ -20,6 +20,7 @@ SOURCES += \
     model/multicolumnsearchproxymodel.cpp \
     widgets/baseformatwg.cpp \
     widgets/fileswg.cpp \
+    widgets/folderswg.cpp \
     widgets/globalconfingwg.cpp \
     widgets/infowidgets.cpp \
     main.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     model/multicolumnsearchproxymodel.h \
     widgets/baseformatwg.h \
     widgets/fileswg.h \
+    widgets/folderswg.h \
     widgets/globalconfingwg.h \
     widgets/infowidgets.h \
     mainwindow.h \
@@ -59,6 +61,7 @@ HEADERS += \
 
 FORMS += \
     widgets/fileswg.ui \
+    widgets/folderswg.ui \
     widgets/globalconfingwg.ui \
     widgets/infowidgets.ui \
     mainwindow.ui \

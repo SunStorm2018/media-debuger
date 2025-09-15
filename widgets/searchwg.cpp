@@ -330,6 +330,11 @@ bool SearchWG::isUseRegularExpression()
     return ui->use_regular_express_cbx->isChecked();
 }
 
+void SearchWG::setSearchText(const QString &text)
+{
+    ui->search_le->setText(text);
+}
+
 void SearchWG::on_search_btn_clicked()
 {
     emit searchReady();
@@ -339,5 +344,11 @@ void SearchWG::on_search_btn_clicked()
 void SearchWG::on_search_le_textChanged(const QString &arg1)
 {
     emit searchTextChanged(arg1);
+}
+
+
+void SearchWG::on_search_le_editingFinished()
+{
+    emit ui->search_btn->clicked();
 }
 

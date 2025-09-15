@@ -43,6 +43,8 @@ private slots:
     void showDetailSearch();
     void onDetailSearchCompleted();
 
+    void on_search_le_textChanged(const QString &arg1);
+
 private:
     void setupSearchButton();
     void createDetailSearchDialog();
@@ -65,10 +67,6 @@ private:
     QMenu *m_searchButtonMenu;
     QAction *m_detailSearchAction;
     SearchWG *m_detailSearchDialog;
-    
-    // Track current model state
-    bool m_usingMultiColumnSearch;
-
 };
 
 

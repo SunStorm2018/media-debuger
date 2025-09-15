@@ -53,6 +53,8 @@ public:
     bool isMatchWholewords();
     bool isUseRegularExpression();
 
+    void setSearchText(const QString &text);
+
 signals:
     void searchRangeSelectionChanged(const QStringList &selectedOptions);
     void searchReady();
@@ -65,6 +67,9 @@ private slots:
     void onGroupBoxToggled(bool checked);
 
     void on_search_btn_clicked();
+    void on_search_le_textChanged(const QString &arg1);
+
+    void on_search_le_editingFinished();
 
 private:
     void setupGroupBoxes();

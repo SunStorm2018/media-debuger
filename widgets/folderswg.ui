@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FilesWG</class>
- <widget class="QWidget" name="FilesWG">
+ <class>FoldersWG</class>
+ <widget class="QWidget" name="FoldersWG">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>619</width>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QListView" name="listView"/>
+    <widget class="QTreeView" name="treeView"/>
    </item>
   </layout>
  </widget>

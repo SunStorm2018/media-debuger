@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>522</height>
+    <height>500</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuBasic_Info">
@@ -86,9 +86,6 @@
     <property name="title">
      <string>Config</string>
     </property>
-    <addaction name="actionGenral"/>
-    <addaction name="actionFFprobe"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuPlay">
     <property name="title">
@@ -104,8 +101,10 @@
     <addaction name="actionOpen_Files"/>
     <addaction name="actionOpen_Folder"/>
     <addaction name="separator"/>
-    <addaction name="actionExport"/>
     <addaction name="actionFiles"/>
+    <addaction name="actionFolders"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -221,7 +220,7 @@
   </action>
   <action name="actionChapters">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Chapters</string>
@@ -229,7 +228,7 @@
   </action>
   <action name="actionFormat">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Format</string>
@@ -237,7 +236,7 @@
   </action>
   <action name="actionCount_Frames">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Count Frames</string>
@@ -245,7 +244,7 @@
   </action>
   <action name="actionCount_Packets">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Count Packets</string>
@@ -253,7 +252,7 @@
   </action>
   <action name="actionShow_Entries">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Show Entries</string>
@@ -281,7 +280,7 @@
   </action>
   <action name="actionStreams">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Streams</string>
@@ -289,7 +288,7 @@
   </action>
   <action name="actionProgram_Version">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Program Version</string>
@@ -297,7 +296,7 @@
   </action>
   <action name="actionLibrary_Versions">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Library Versions</string>
@@ -305,7 +304,7 @@
   </action>
   <action name="actionVersions">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Versions</string>
@@ -313,20 +312,30 @@
   </action>
   <action name="actionPixel_Formats">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Pixel Formats</string>
    </property>
   </action>
-  <action name="actionGenral">
+  <action name="actionLog_Conifg">
    <property name="text">
-    <string>General</string>
+    <string>Log</string>
    </property>
   </action>
-  <action name="actionFFprobe">
+  <action name="actionMainwindow_Config">
    <property name="text">
-    <string>FFprobe</string>
+    <string>Mainwindow</string>
+   </property>
+  </action>
+  <action name="actionWindowHeader_Config">
+   <property name="text">
+    <string>Window Head</string>
+   </property>
+  </action>
+  <action name="actionGeneral_Config">
+   <property name="text">
+    <string>General</string>
    </property>
   </action>
   <action name="actionFrames_Video">
@@ -367,6 +376,11 @@
   <action name="actionFiles">
    <property name="text">
     <string>Files</string>
+   </property>
+  </action>
+  <action name="actionFolders">
+   <property name="text">
+    <string>Folders</string>
    </property>
   </action>
   <action name="actionApp_Dir">

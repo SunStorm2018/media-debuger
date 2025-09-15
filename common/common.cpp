@@ -12,6 +12,13 @@ QList<QStringList> Common::logLevels = {
     {"trace", "56", "shows extremely detailed, low-level tracing information about the internal execution flow of the code, allowing for deep technical debugging and analysis."}
 };
 
+const QStringList CONFIG_GROUPS = {
+    LOG_GROUP,
+    GENERAL_GROUP,
+    MAINWINDOW_GROUP,
+    WINDOWHEAD_GROUP
+};
+
 QMutex Common::m_mutex;
 Common* Common::m_instance = nullptr;
 

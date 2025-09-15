@@ -8,8 +8,10 @@ GlobalConfingWG::GlobalConfingWG(QWidget *parent)
     ui->setupUi(this);
     generalCfgWg = new InfoWidgets(this);
 
-    setWindowTitle("Config");
-    loadGeneralConfig();
+    setWindowTitle("Global Config");
+    setupButtonGroup();
+    
+    ui->genreral_tab_layout->addWidget(generalCfgWg);
 }
 
 GlobalConfingWG::~GlobalConfingWG()
@@ -17,30 +19,56 @@ GlobalConfingWG::~GlobalConfingWG()
     delete ui;
 }
 
-void GlobalConfingWG::setCurrentTab(const QString &tabName)
+void GlobalConfingWG::setCurrentConfig(const QString &group)
 {
-    for (int i = 0; i < ui->config_tab_wg->count(); ++i) {
-        if (ui->config_tab_wg->tabText(i).toLower() == tabName.toLower()) {
-            ui->config_tab_wg->setCurrentIndex(i);
-            break;
-        }
-    }
+    loadConfigData(group);
 }
 
-void GlobalConfingWG::loadGeneralConfig()
+void GlobalConfingWG::setupButtonGroup()
+{
+    configButtonGroup = new QButtonGroup(this);
+    configButtonGroup->setExclusive(true);
+    for (auto it : CONFIG_GROUPS) {
+        QPushButton * btn = new QPushButton(it, this);
+        btn->setCheckable(true);
+        connect(btn, &QPushButton::clicked, [=](){
+            loadConfigData(btn->text());
+        });
+        ui->config_category_group_layout->addWidget(btn);
+    }
+
+}
+
+
+void GlobalConfingWG::loadConfigData(const QString& group, const QStringList& keys)
 {
     QStringList headers{"Key", "Value"};
     QList<QStringList> data;
 
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-    for (int row = 0; row < settings.allKeys().size(); ++row) {
-        QString key = settings.allKeys().at(row);
-        QVariant value = settings.value(key);
-        data << QStringList{key, value.toString()};
+    
+    if (!group.isEmpty()) {
+        settings.beginGroup(group);
+    }
+
+    QStringList keysToLoad = keys;
+    if (keysToLoad.isEmpty()) {
+        keysToLoad = settings.allKeys();
+    }
+
+    for (const QString &key : keysToLoad) {
+        if (settings.contains(key)) {
+            QVariant value = settings.value(key);
+            QString displayKey = group.isEmpty() ? key : group + "/" + key;
+            data << QStringList{displayKey, value.toString()};
+        }
+    }
+
+    if (!group.isEmpty()) {
+        settings.endGroup();
     }
 
     generalCfgWg->init_header_detail_tb(headers);
     generalCfgWg->update_data_detail_tb(data, "=");
 
-    ui->genreral_tab_layout->addWidget(generalCfgWg);
 }

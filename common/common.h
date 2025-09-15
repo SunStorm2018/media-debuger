@@ -15,13 +15,18 @@
 #define APPLICATION_NAME "DebuggerPro"
 #define APPLICATION_VERSION "1.0.0"
 
+constexpr auto LOG_GROUP = "LogSettings";
+constexpr auto GENERAL_GROUP = "GeneralSettings";
+constexpr auto MAINWINDOW_GROUP = "MainWindowSettings";
+constexpr auto WINDOWHEAD_GROUP = "WindowHeadSettings";
+
+extern const QStringList CONFIG_GROUPS;
+
 // config
 /**
  * @brief Macro definitions and default values for log configuration
  */
 namespace LoggerConfig {
-constexpr auto LOG_GROUP = "LogSettings";
-
 // Configuration key names
 constexpr auto ENABLED_KEY = "enabled";
 constexpr auto LEVEL_KEY = "logLevel";

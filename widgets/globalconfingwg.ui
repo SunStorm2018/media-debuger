@@ -13,23 +13,38 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
    <item>
-    <widget class="QTabWidget" name="config_tab_wg">
-     <property name="currentIndex">
-      <number>0</number>
+    <widget class="QGroupBox" name="horizontalLayout">
+     <property name="title">
+      <string>Category</string>
      </property>
-     <widget class="QWidget" name="genreral_tab">
-      <attribute name="title">
-       <string>General</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="genreral_tab_layout"/>
-     </widget>
-     <widget class="QWidget" name="ffprobe_tab">
-      <attribute name="title">
-       <string>FFprobe</string>
-      </attribute>
-     </widget>
+     <layout class="QHBoxLayout" name="config_category_group_layout">
+      <item>
+       <layout class="QHBoxLayout" name="config_category_group"/>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="config_display_group">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QVBoxLayout" name="genreral_tab_layout"/>
     </widget>
    </item>
   </layout>

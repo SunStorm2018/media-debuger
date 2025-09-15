@@ -13,6 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
     ZWindowHelper::centerToCurrentScreen(this);
     setAttribute(Qt::WA_QuitOnClose, true);
 
+    for (auto it : CONFIG_GROUPS) {
+        auto action = new QAction(it, ui->menuConfig);
+        action->setObjectName(it);
+        ui->menuConfig->addAction(action);
+    }
+
     InitConnectation();
 
     // Create DockWidget layout
@@ -92,6 +98,15 @@ void MainWindow::createDockWidgets()
     m_logWGDock->setWidget(&m_logWG);
     addDockWidget(Qt::BottomDockWidgetArea, m_logWGDock);
 
+    // Create FoldersWG DockWidget (under FilesWG)
+    m_foldersWGDock = new QDockWidget(tr("Folders"), this);
+    m_foldersWGDock->setObjectName("FoldersDock");
+    m_foldersWGDock->setWidget(&m_foldersWG);
+    addDockWidget(Qt::LeftDockWidgetArea, m_foldersWGDock);
+
+    // Position FoldersWG under FilesWG
+    splitDockWidget(m_filesWGDock, m_foldersWGDock, Qt::Vertical);
+
     // Set PlayerWG as central widget (occupies remaining space)
     m_playerWGDock = new QDockWidget(tr("Player"), this);
     m_playerWGDock->setObjectName("PlayerDock");
@@ -100,6 +115,7 @@ void MainWindow::createDockWidgets()
 
     // Set dock widget sizes
     m_filesWGDock->setMinimumWidth(200);
+    m_foldersWGDock->setMinimumWidth(200);
     m_logWGDock->setMinimumHeight(150);
     m_playerWGDock->setMinimumWidth(300);
 }
@@ -107,20 +123,20 @@ void MainWindow::createDockWidgets()
 void MainWindow::saveLayoutSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-
+settings.beginGroup(MAINWINDOW_GROUP);
     // Save window geometry
     settings.setValue(GEOMETRY_KEY, saveGeometry());
 
     // Save dock layout state
     settings.setValue(STATE_KEY, saveState());
-
+    settings.endGroup();
     qInfo() << "Window layout settings saved";
 }
 
 void MainWindow::restoreLayoutSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-
+settings.beginGroup(MAINWINDOW_GROUP);
     // Restore window geometry
     if (settings.contains(GEOMETRY_KEY)) {
         restoreGeometry(settings.value(GEOMETRY_KEY).toByteArray());
@@ -135,6 +151,7 @@ void MainWindow::restoreLayoutSettings()
         resize(1200, 800);
         qInfo() << "Using default window layout";
     }
+    settings.endGroup();
 }
 
 
@@ -270,6 +287,12 @@ void MainWindow::slotMenuFileTriggered(QAction *action)
         m_filesWGDock->raise();
         return;
     }
+
+    if (ui->actionFolders == action) {
+        m_foldersWGDock->show();
+        m_foldersWGDock->raise();
+        return;
+    }
 }
 
 void MainWindow::slotMenuConfigTriggered(QAction *action)
@@ -280,7 +303,7 @@ void MainWindow::slotMenuConfigTriggered(QAction *action)
 
     GlobalConfingWG *configWg = new GlobalConfingWG;
     ZWindowHelper::centerToParent(configWg, true);
-    configWg->setCurrentTab(action->text());
+    configWg->setCurrentConfig(action->objectName());
     configWg->show();
 }
 

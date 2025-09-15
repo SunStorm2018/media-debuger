@@ -5,6 +5,8 @@
 #include <QSettings>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QButtonGroup>
+#include <QPushButton>
 
 #include <widgets/infowidgets.h>
 
@@ -20,15 +22,17 @@ public:
     explicit GlobalConfingWG(QWidget *parent = nullptr);
     ~GlobalConfingWG();
 
-    void setCurrentTab(const QString& tabName);
+    void setCurrentConfig(const QString& group);
 
 private:
     Ui::GlobalConfingWG *ui;
 
     InfoWidgets *generalCfgWg;
+    QButtonGroup *configButtonGroup;
 
 private:
-    void loadGeneralConfig();
+    void loadConfigData(const QString& group, const QStringList& keys = QStringList());
+    void setupButtonGroup();
 };
 
 #endif // GLOBALCONFINGWG_H

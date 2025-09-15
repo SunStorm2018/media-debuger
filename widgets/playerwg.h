@@ -2,7 +2,7 @@
 #define PLAYERWG_H
 
 #include <QWidget>
-#include "../common/singleton.h"
+#include <common/singleton.h>
 
 namespace Ui {
 class PlayerWG;
