@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>27</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuBasic_Info">
@@ -113,7 +113,11 @@
     <addaction name="actionAbout"/>
     <addaction name="separator"/>
     <addaction name="actionLog"/>
+    <addaction name="separator"/>
     <addaction name="actionApp_Dir"/>
+    <addaction name="actionSetting_Dir"/>
+    <addaction name="actionSetting_File"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBasic_Info"/>
@@ -386,6 +390,16 @@
   <action name="actionApp_Dir">
    <property name="text">
     <string>App Dir</string>
+   </property>
+  </action>
+  <action name="actionSetting_Dir">
+   <property name="text">
+    <string>Setting Dir</string>
+   </property>
+  </action>
+  <action name="actionSetting_File">
+   <property name="text">
+    <string>Setting File</string>
    </property>
   </action>
  </widget>

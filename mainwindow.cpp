@@ -264,34 +264,23 @@ void MainWindow::slotMenuFileTriggered(QAction *action)
         return;
     }
 
-    if (ui->actionOpen == action) {
+    if (ui->actionOpen_Files == action) {
         QStringList fileNames = QFileDialog::getOpenFileNames(
             nullptr,
             "Select Files",
             QDir::homePath(),
-            "All Files (*.*);;Text Files (*.txt);;Image Files (*.png *.jpg *.bmp)"
+            "All Files (*.*);;Media Files (*.mp4 *.mkv *.webm *.mp3);;Image Files (*.png *.jpg *.bmp)"
             );
 
         if (!fileNames.isEmpty()) {
             for (const QString &fileName : fileNames) {
+                m_filesWG.addFileToHistory(fileName);
                 qDebug() << "Selected file:" << fileName;
             }
 
             Common::instance()->setConfigValue(CURRENTFILES, fileNames);
         }
 
-        return;
-    }
-
-    if (ui->actionFiles == action) {
-        m_filesWGDock->show();
-        m_filesWGDock->raise();
-        return;
-    }
-
-    if (ui->actionFolders == action) {
-        m_foldersWGDock->show();
-        m_foldersWGDock->raise();
         return;
     }
 }
@@ -328,13 +317,36 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
                               "- Customizable layout\n\n"
                               "Version 1.0"));
     }
+
     if (ui->actionApp_Dir == action) {
         QString appDir = QCoreApplication::applicationDirPath();
         QDesktopServices::openUrl(QUrl::fromLocalFile(appDir));
     }
+
+    if (ui->actionSetting_Dir == action) {
+        QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+        QString fileName = settings.fileName();
+
+        QFileInfo fileInfo(fileName);
+        if (fileInfo.exists()) {
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absolutePath()));
+        } else {
+            qWarning() << "Setting dir not exists!";
+        }
+    }
+
+    if (ui->actionSetting_File == action) {
+        QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+        QString fileName = settings.fileName();
+
+        QFile file(fileName);
+        if (file.exists()) {
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));
+        } else {
+            qWarning() << "Setting File not exists!";
+        }
+    }
 }
-
-
 
 void MainWindow::slotMenuPlayTriggered(QAction *action)
 {

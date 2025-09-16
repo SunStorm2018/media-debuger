@@ -30,11 +30,10 @@ void GlobalConfingWG::setupButtonGroup()
     configButtonGroup->setExclusive(true);
     for (auto it : CONFIG_GROUPS) {
         QPushButton * btn = new QPushButton(it, this);
-        btn->setCheckable(true);
         connect(btn, &QPushButton::clicked, [=](){
             loadConfigData(btn->text());
         });
-        ui->config_category_group_layout->addWidget(btn);
+        ui->config_category_group->addWidget(btn);
     }
 
 }

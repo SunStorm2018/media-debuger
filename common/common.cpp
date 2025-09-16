@@ -16,7 +16,8 @@ const QStringList CONFIG_GROUPS = {
     LOG_GROUP,
     GENERAL_GROUP,
     MAINWINDOW_GROUP,
-    WINDOWHEAD_GROUP
+    WINDOWHEAD_GROUP,
+    RECENTFILES_GROUP
 };
 
 QMutex Common::m_mutex;
