@@ -123,7 +123,7 @@ void MainWindow::createDockWidgets()
 void MainWindow::saveLayoutSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-settings.beginGroup(MAINWINDOW_GROUP);
+    settings.beginGroup(MAINWINDOW_GROUP);
     // Save window geometry
     settings.setValue(GEOMETRY_KEY, saveGeometry());
 
@@ -136,7 +136,7 @@ settings.beginGroup(MAINWINDOW_GROUP);
 void MainWindow::restoreLayoutSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-settings.beginGroup(MAINWINDOW_GROUP);
+    settings.beginGroup(MAINWINDOW_GROUP);
     // Restore window geometry
     if (settings.contains(GEOMETRY_KEY)) {
         restoreGeometry(settings.value(GEOMETRY_KEY).toByteArray());
@@ -283,6 +283,22 @@ void MainWindow::slotMenuFileTriggered(QAction *action)
 
         return;
     }
+    if (ui->actionExport == action) {
+        ExportWG *exportDlg = new ExportWG;
+        exportDlg->setWindowTitle(tr("Export Files"));
+        exportDlg->setAttribute(Qt::WA_DeleteOnClose);
+        exportDlg->setExportFiledsOptions(QStringList{
+            SHOW_FORMAT, SHOW_STREAMS, SHOW_CHAPTERS,
+            SHOW_FRAMES, SHOW_PACKETS,
+            SHOW_PROGRAMS,
+            SHOW_VERSIONS, SHOW_PROGRAM_VERSION, SHOW_LIBRARY_VERSIONS,
+            SHOW_PIXEL_FORMATS
+        });
+        exportDlg->setInputMediaFilePath(m_filesWG.getCurrentSelectFileName());
+        exportDlg->show();
+        ZWindowHelper::centerToParent(exportDlg);
+    }
+
 }
 
 void MainWindow::slotMenuConfigTriggered(QAction *action)

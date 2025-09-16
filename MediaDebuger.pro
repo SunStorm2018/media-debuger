@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    common/commandexecutor.cpp \
     common/common.cpp \
     common/flowlayout.cpp \
     common/tableheadermanager.cpp \
@@ -20,13 +21,13 @@ SOURCES += \
     model/mediainfotabelmodel.cpp \
     model/multicolumnsearchproxymodel.cpp \
     widgets/baseformatwg.cpp \
+    widgets/exportwg.cpp \
     widgets/fileswg.cpp \
     widgets/folderswg.cpp \
     widgets/globalconfingwg.cpp \
     widgets/infowidgets.cpp \
     main.cpp \
     mainwindow.cpp \
-    common/zprocess.cpp \
     widgets/jsonformatwg.cpp \
     widgets/logwg.cpp \
     widgets/playerwg.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
     zcodecflagparser.cpp
 
 HEADERS += \
+    common/commandexecutor.h \
     common/common.h \
     common/flowlayout.h \
     common/tableheadermanager.h \
@@ -47,12 +49,12 @@ HEADERS += \
     model/mediainfotabelmodel.h \
     model/multicolumnsearchproxymodel.h \
     widgets/baseformatwg.h \
+    widgets/exportwg.h \
     widgets/fileswg.h \
     widgets/folderswg.h \
     widgets/globalconfingwg.h \
     widgets/infowidgets.h \
     mainwindow.h \
-    common/zprocess.h \
     widgets/jsonformatwg.h \
     widgets/logwg.h \
     widgets/playerwg.h \
@@ -62,6 +64,7 @@ HEADERS += \
     zcodecflagparser.h
 
 FORMS += \
+    widgets/exportwg.ui \
     widgets/fileswg.ui \
     widgets/folderswg.ui \
     widgets/globalconfingwg.ui \

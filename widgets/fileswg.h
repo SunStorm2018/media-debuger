@@ -27,6 +27,7 @@ public slots:
     // Method to add a file to the history, can be called from other parts of the application
     void addFileToHistory(const QString &filePath);
 
+    QString getCurrentSelectFileName();
 private slots:
     void onListViewDoubleClicked(const QModelIndex &index);
     void onCustomContextMenuRequested(const QPoint &pos);

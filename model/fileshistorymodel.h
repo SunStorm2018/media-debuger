@@ -43,6 +43,9 @@ public:
     void loadSettings();
     void saveSettings();
 
+    //
+    QString currentFile(int index);
+
     // Context menu actions
     void removeRecord(int index);
     void deleteFile(int index);

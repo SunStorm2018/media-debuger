@@ -23,6 +23,7 @@
 #include <widgets/playerwg.h>
 #include <widgets/progressdialog.h>
 #include <widgets/folderswg.h>
+#include <widgets/exportwg.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

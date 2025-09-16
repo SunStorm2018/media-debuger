@@ -46,6 +46,13 @@ void FilesWG::addFileToHistory(const QString &filePath)
     m_model->addFile(filePath);
 }
 
+QString FilesWG::getCurrentSelectFileName()
+{
+    int index = ui->listView->currentIndex().row();
+
+    return m_model->currentFile(index);
+}
+
 void FilesWG::onListViewDoubleClicked(const QModelIndex &index)
 {
     if (index.isValid()) {

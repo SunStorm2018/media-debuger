@@ -125,6 +125,15 @@ void FilesHistoryModel::saveSettings()
     m_settings.endGroup();
 }
 
+QString FilesHistoryModel::currentFile(int index)
+{
+    if (index >= 0 && index < m_filePaths.size()) {
+        return m_filePaths.at(index);
+    } else {
+        return "";
+    }
+}
+
 void FilesHistoryModel::removeRecord(int index)
 {
     removeFile(index);
