@@ -24,6 +24,7 @@ public:
     bool embedWindow(unsigned long child, unsigned long parent);
     bool resizeWindow(unsigned long window, int width, int height);
     bool sendKey(unsigned long window, const QString &key);
+    bool showWindow(unsigned long window);
 
 private:
 #ifdef Q_OS_LINUX

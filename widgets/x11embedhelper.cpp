@@ -96,7 +96,8 @@ unsigned long X11EmbedHelper::findWindowRecursive(Display *display, Window windo
             matches = (name.startsWith("ffplay", Qt::CaseInsensitive) && 
                       (name.contains(".mp4") || name.contains(".mkv") || 
                        name.contains(".avi") || name.contains(".mov") ||
-                       name.contains(".wmv") || name.contains(".flv")));
+                       name.contains(".wmv") || name.contains(".flv") ||
+                       name.contains(".m4v") || name.contains(".webm")));
         }
         
         if (matches) {
@@ -231,6 +232,26 @@ bool X11EmbedHelper::sendKey(unsigned long window, const QString &key)
 #else
     Q_UNUSED(window)
     Q_UNUSED(key)
+    return false;
+#endif
+}
+
+bool X11EmbedHelper::showWindow(unsigned long window)
+{
+#ifdef Q_OS_LINUX
+    if (!m_display || window == 0) {
+        return false;
+    }
+    
+    Display *display = static_cast<Display*>(m_display);
+    Window win = static_cast<Window>(window);
+    
+    XMapWindow(display, win);
+    XRaiseWindow(display, win);
+    XFlush(display);
+    return true;
+#else
+    Q_UNUSED(window)
     return false;
 #endif
 }
