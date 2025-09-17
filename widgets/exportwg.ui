@@ -391,6 +391,9 @@
         <property name="text">
          <string>json</string>
         </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="1" column="1" colspan="3">
@@ -526,6 +529,9 @@
        <widget class="QCheckBox" name="xml_cbox">
         <property name="text">
          <string>xml</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

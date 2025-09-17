@@ -59,9 +59,9 @@ private slots:
 protected:
     void closeEvent(QCloseEvent *event) override;
 
-private:
+public:
     Ui::MainWindow *ui;
-
+private:
     ZFfprobe m_probe;
 
     FilesWG &m_filesWG = FilesWG::instance();
