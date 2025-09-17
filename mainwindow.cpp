@@ -73,6 +73,7 @@ QList<QAction *> MainWindow::getFilesAvailableAction()
 
 void MainWindow::InitConnectation()
 {
+    // menu connection
     connect(ui->menuFile, &QMenu::triggered, this, &MainWindow::slotMenuFileTriggered);
     connect(ui->menuBasic_Info, &QMenu::triggered, this, &MainWindow::slotMenuBasic_InfoTriggered);
     connect(ui->menuMedia_Info, &QMenu::triggered, this, &MainWindow::slotMenuMedia_InfoTriggered);
@@ -80,7 +81,12 @@ void MainWindow::InitConnectation()
     connect(ui->menuHelp, &QMenu::triggered, this, &MainWindow::slotMenuHelpTriggered);
     connect(ui->menuPlay, &QMenu::triggered, this, &MainWindow::slotMenuPlayTriggered);
 
+    // log
     connect(ZLogger::instance(), &ZLogger::logMessage, &m_logWG, &LogWG::outLog);
+
+    connect(&m_filesWG, &FilesWG::currentFileActived, [=](QPair<QString, QString> filePair){
+        m_playerWG.setMediaFile(filePair.second);
+    });
 }
 
 void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QString& format_key)

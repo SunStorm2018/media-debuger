@@ -32,6 +32,12 @@ FilesWG::FilesWG(QWidget *parent)
     // Connect signals
     connect(ui->listView, &QListView::doubleClicked, this, &FilesWG::onListViewDoubleClicked);
     connect(ui->listView, &QListView::customContextMenuRequested, this, &FilesWG::onCustomContextMenuRequested);
+
+    // connect to playwg
+    connect(ui->listView, &QListView::activated, this, &FilesWG::onListViewActivated);
+    connect(ui->listView, &QListView::clicked, this, &FilesWG::onListViewActivated);
+    connect(ui->listView, &QListView::doubleClicked, this, &FilesWG::onListViewActivated);
+    connect(ui->listView, &QListView::pressed, this, &FilesWG::onListViewActivated);
 }
 
 FilesWG::~FilesWG()
@@ -75,6 +81,16 @@ void FilesWG::onListViewDoubleClicked(const QModelIndex &index)
         QString filePath = index.data(FilesHistoryModel::FilePathRole).toString();
         if (!filePath.isEmpty()) {
             m_model->playFile(index.row());
+        }
+    }
+}
+
+void FilesWG::onListViewActivated(const QModelIndex &index)
+{
+    if (index.isValid()) {
+        QString filePath = index.data(FilesHistoryModel::FilePathRole).toString();
+        if (!filePath.isEmpty()) {
+            emit currentFileActived(QPair(index.data(FilesHistoryModel::FileNameRole).toString(), filePath));
         }
     }
 }

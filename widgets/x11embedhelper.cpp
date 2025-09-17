@@ -26,8 +26,7 @@ bool X11EmbedHelper::initialize()
     if (m_display) {
         return true;
     }
-    
-    // 检查DISPLAY环境变量，如果没有设置则跳过X11初始化
+
     const char* displayEnv = getenv("DISPLAY");
     if (!displayEnv || strlen(displayEnv) == 0) {
         qWarning() << "X11EmbedHelper" << "No DISPLAY environment variable set, skipping X11 initialization";
@@ -67,8 +66,7 @@ unsigned long X11EmbedHelper::findWindow(const QString &title)
     
     Display *display = static_cast<Display*>(m_display);
     Window root = DefaultRootWindow(display);
-    
-    // 递归查找所有窗口，包括子窗口
+
     return findWindowRecursive(display, root, title);
 #else
     Q_UNUSED(title)
@@ -79,19 +77,15 @@ unsigned long X11EmbedHelper::findWindow(const QString &title)
 #ifdef Q_OS_LINUX
 unsigned long X11EmbedHelper::findWindowRecursive(Display *display, Window window, const QString &title)
 {
-    // 检查当前窗口
     char *window_name = nullptr;
     if (XFetchName(display, window, &window_name) && window_name) {
         QString name(window_name);
-        
-        // 更精确的窗口匹配逻辑
+
         bool matches = false;
         if (!title.isEmpty()) {
-            // 精确匹配指定标题
             matches = (name == title || name.contains(title, Qt::CaseSensitive));
         }
-        
-        // 如果没有找到精确匹配，再尝试ffplay相关匹配
+
         if (!matches) {
             matches = (name.startsWith("ffplay", Qt::CaseInsensitive) && 
                       (name.contains(".mp4") || name.contains(".mkv") || 
@@ -107,8 +101,7 @@ unsigned long X11EmbedHelper::findWindowRecursive(Display *display, Window windo
         }
         XFree(window_name);
     }
-    
-    // 递归查找子窗口
+
     Window parent, *children;
     unsigned int nchildren;
     
@@ -137,26 +130,21 @@ bool X11EmbedHelper::embedWindow(unsigned long child, unsigned long parent)
     Display *display = static_cast<Display*>(m_display);
     Window childWindow = static_cast<Window>(child);
     Window parentWindow = static_cast<Window>(parent);
-    
-    // 检查窗口是否存在
+
     XWindowAttributes attrs;
     if (XGetWindowAttributes(display, childWindow, &attrs) == 0) {
         qWarning() << "X11EmbedHelper: Child window does not exist";
         return false;
     }
-    
-    // 首先将子窗口取消映射，避免闪烁
+
     XUnmapWindow(display, childWindow);
     XFlush(display);
-    
-    // 重新父化窗口
+
     XReparentWindow(display, childWindow, parentWindow, 0, 0);
     XFlush(display);
-    
-    // 设置窗口属性，禁止最大化和移动
+
     XSetWindowBorderWidth(display, childWindow, 0);
-    
-    // 重新映射窗口
+
     XMapWindow(display, childWindow);
     XFlush(display);
     

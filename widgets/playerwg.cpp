@@ -21,8 +21,7 @@ PlayerWG::PlayerWG(QWidget *parent)
 {
     ui->setupUi(this);
     initConnections();
-    
-    // 现在可以安全地初始化X11了
+
     if (!m_embedHelper->initialize()) {
         qWarning() << "PlayerWG: Failed to initialize X11 embed helper during construction";
     }
@@ -63,10 +62,8 @@ void PlayerWG::play()
         return;
     }
 
-    // X11已经在构造函数中初始化了
     if (!m_embedHelper->initialize()) {
         qCritical() << "PlayerWG" << "X11 embed helper not available";
-        // 即使X11初始化失败，也允许继续播放（只是不能嵌入窗口）
     }
 
     if (!m_ffplayProcess) {
@@ -217,22 +214,17 @@ void PlayerWG::startFfplay()
     QStringList arguments;
     arguments << "-autoexit"
               << "-volume" << QString::number(m_volume);
-    
-    // 尝试设置窗口标题，如果失败则使用默认
+
     QString windowTitle = QString("ffplay_%1").arg(QFileInfo(m_mediaFile).baseName());
     arguments << "-window_title" << windowTitle;
-    
-    // 如果是嵌入模式，添加相关选项
+
     if (m_embedHelper && m_embedHelper->initialize()) {
         arguments << "-noborder";
-        // 设置初始窗口大小，避免最大化
         QSize videoSize = ui->videoWidget->size();
         if (videoSize.width() > 100 && videoSize.height() > 100) {
             arguments << "-x" << QString::number(videoSize.width());
             arguments << "-y" << QString::number(videoSize.height());
         }
-        // 添加隐藏窗口选项，先不显示窗口
-        // 这样可以避免用户看到独立窗口闪烁
     }
     
     arguments << m_mediaFile;
@@ -253,9 +245,8 @@ void PlayerWG::startFfplay()
     ui->playPauseBtn->setText("Pause");
     m_positionTimer->start();
     emit stateChanged(true);
-    
-    // 更短的延迟，并且立即开始尝试嵌入
-    QTimer::singleShot(500, this, &PlayerWG::embedFfplayWindow);
+
+    QTimer::singleShot(200, this, &PlayerWG::embedFfplayWindow);
 }
 
 void PlayerWG::stopFfplay()
@@ -271,7 +262,7 @@ void PlayerWG::stopFfplay()
     m_windowEmbedded = false;
     m_isPlaying = false;
     m_isPaused = false;
-    m_embedRetryCount = 0;  // 重置重试计数器
+    m_embedRetryCount = 0;
 }
 
 void PlayerWG::embedFfplayWindow()
@@ -279,15 +270,13 @@ void PlayerWG::embedFfplayWindow()
     if (!m_ffplayProcess) {
         return;
     }
-    
-    // 使用实例变量而非静态变量，避免多个实例间干扰
-    if (m_embedRetryCount >= 20) {  // 增加重试次数，但缩短间隔
+
+    if (m_embedRetryCount >= 20) {
         qCritical() << "PlayerWG: Failed to find ffplay window after 20 retries. FFplay is running but not embedded.";
-        m_embedRetryCount = 0;  // 重置计数器
+        m_embedRetryCount = 0;
         return;
     }
-    
-    // 更精确的窗口标题匹配逻辑
+
     QString baseTitle = QString("ffplay_%1").arg(QFileInfo(m_mediaFile).baseName());
     QString fileName = QFileInfo(m_mediaFile).fileName();
     
@@ -295,28 +284,23 @@ void PlayerWG::embedFfplayWindow()
         qDebug() << "PlayerWG: Starting window search for ffplay embedding";
         qDebug() << "PlayerWG: Looking for window titles:" << baseTitle << "or containing" << fileName;
     }
-    
-    // 首先尝试精确匹配指定的窗口标题
+
     m_ffplayWindow = m_embedHelper->findWindow(baseTitle);
-    
-    // 如果没有找到，尝试文件名匹配
+
     if (m_ffplayWindow == 0) {
         m_ffplayWindow = m_embedHelper->findWindow(fileName);
     }
-    
-    // 最后尝试一般性的ffplay匹配
+
     if (m_ffplayWindow == 0) {
         m_ffplayWindow = m_embedHelper->findWindow("ffplay");
     }
     
     if (m_ffplayWindow == 0) {
         m_embedRetryCount++;
-        // 更短的重试间隔，更快速的嵌入
         QTimer::singleShot(250, this, &PlayerWG::embedFfplayWindow);
         return;
     }
-    
-    // 找到窗口，重置重试计数器
+
     m_embedRetryCount = 0;
     
     unsigned long parentWindow = ui->videoWidget->winId();
@@ -324,11 +308,9 @@ void PlayerWG::embedFfplayWindow()
     
     if (m_embedHelper->embedWindow(m_ffplayWindow, parentWindow)) {
         m_windowEmbedded = true;
-        // 立即调整窗口大小
         resizeFfplayWindow();
         qInfo() << "PlayerWG: FFplay window embedded successfully";
-        
-        // 显示嵌入的窗口
+
         m_embedHelper->showWindow(m_ffplayWindow);
     } else {
         qCritical() << "PlayerWG: Failed to embed FFplay window";
