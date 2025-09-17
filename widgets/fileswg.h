@@ -23,13 +23,18 @@ public:
     explicit FilesWG(QWidget *parent = nullptr);
     ~FilesWG();
     
+public:
+    void addActions(const QList<QAction*> actions);
+    void addSubActions(const QString& menu, const QList<QAction*>& actions);
+
 public slots:
     // Method to add a file to the history, can be called from other parts of the application
     void addFileToHistory(const QString &filePath);
 
     QString getCurrentSelectFileName();
-private slots:
+
     void onListViewDoubleClicked(const QModelIndex &index);
+
     void onCustomContextMenuRequested(const QPoint &pos);
 
 private:
@@ -41,15 +46,8 @@ private:
     QAction *m_openLocationAction;
     QAction *m_copyPathAction;
     QAction *m_playAction;
-    QMenu *m_mediaInfoSubMenu; // Submenu for Media Info actions
-    QList<QAction*> m_mediaInfoActions; // To hold the actions for the submenu
 
     void createContextMenu();
-    void createMediaInfoSubMenu(); // Helper to create the submenu
-
-signals:
-    // Signal to request media info display for a specific file and command
-    void requestMediaInfoDisplay(const QString &filePath, const QString &ffprobeCommand, const QString &windowTitle, const QString &formatType);
 };
 
 #endif // FILESWG_H

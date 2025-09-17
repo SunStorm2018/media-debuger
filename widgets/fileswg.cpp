@@ -14,7 +14,6 @@ FilesWG::FilesWG(QWidget *parent)
     , m_openLocationAction(nullptr)
     , m_copyPathAction(nullptr)
     , m_playAction(nullptr)
-    , m_mediaInfoSubMenu(nullptr)
 {
     ui->setupUi(this);
     
@@ -29,7 +28,6 @@ FilesWG::FilesWG(QWidget *parent)
     
     // Create context menu
     createContextMenu();
-    createMediaInfoSubMenu();
     
     // Connect signals
     connect(ui->listView, &QListView::doubleClicked, this, &FilesWG::onListViewDoubleClicked);
@@ -39,6 +37,24 @@ FilesWG::FilesWG(QWidget *parent)
 FilesWG::~FilesWG()
 {
     delete ui;
+}
+
+void FilesWG::addActions(const QList<QAction *> actions)
+{
+    for (auto action : actions){
+        if (action)
+            m_contextMenu->addAction(action);
+    }
+}
+
+void FilesWG::addSubActions(const QString &menu, const QList<QAction *> &actions)
+{
+    QMenu * tmpMenu = m_contextMenu->addMenu(menu);
+
+    for (auto action : actions){
+        if (action)
+            tmpMenu->addAction(action);
+    }
 }
 
 void FilesWG::addFileToHistory(const QString &filePath)
@@ -128,31 +144,4 @@ void FilesWG::createContextMenu()
         }
     });
     m_contextMenu->addAction(m_playAction);
-}
-
-void FilesWG::createMediaInfoSubMenu()
-{
-    m_mediaInfoSubMenu = m_contextMenu->addMenu("Media Info");
-    
-    // Create some example media info actions
-    QStringList formats = {"JSON", "XML", "CSV", "Table"};
-    QStringList commands = {"-v quiet -print_format json -show_format -show_streams",
-                          "-v quiet -print_format xml -show_format -show_streams",
-                          "-v quiet -print_format csv -show_format -show_streams",
-                          "-v quiet -show_format -show_streams"};
-    
-    for (int i = 0; i < formats.size(); ++i) {
-        QAction *action = new QAction(formats[i], this);
-        connect(action, &QAction::triggered, this, [this, formats, commands, i]() {
-            QModelIndex index = ui->listView->currentIndex();
-            if (index.isValid()) {
-                QString filePath = index.data(FilesHistoryModel::FilePathRole).toString();
-                emit requestMediaInfoDisplay(filePath, commands[i], 
-                                           QString("Media Info (%1)").arg(formats[i]), 
-                                           formats[i].toLower());
-            }
-        });
-        m_mediaInfoActions.append(action);
-        m_mediaInfoSubMenu->addAction(action);
-    }
 }

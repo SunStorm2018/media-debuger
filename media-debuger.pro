@@ -77,7 +77,7 @@ FORMS += \
     widgets/tabelformatwg.ui
 
 TRANSLATIONS += \
-    MediaDebuger_zh_CN.ts
+    media-debuger_zh_CN.ts
 CONFIG += lrelease
 CONFIG += embed_translations
 

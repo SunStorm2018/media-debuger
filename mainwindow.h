@@ -39,6 +39,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    QList<QAction *> getMediaInfoAvailableActions();
+    QList<QAction *> getFilesAvailableAction();
+
 private slots:
     void InitConnectation();
     void PopBasicInfoWindow(QString title, const QString &info, const QString &format_key);
@@ -59,9 +62,9 @@ private slots:
 protected:
     void closeEvent(QCloseEvent *event) override;
 
-public:
-    Ui::MainWindow *ui;
 private:
+    Ui::MainWindow *ui;
+
     ZFfprobe m_probe;
 
     FilesWG &m_filesWG = FilesWG::instance();

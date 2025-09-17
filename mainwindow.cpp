@@ -29,11 +29,41 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set window title
     setWindowTitle(APPLICATION_NAME);
+
+    m_filesWG.addActions(getFilesAvailableAction());
+    m_filesWG.addSubActions("Media Info", getMediaInfoAvailableActions());
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+QList<QAction *> MainWindow::getMediaInfoAvailableActions()
+{
+    QList<QAction *> tmpActions;
+
+    tmpActions << ui->actionStreams;
+    tmpActions << ui->actionFormat;
+    tmpActions << ui->actionChapters;
+    tmpActions << ui->actionFrames_Video;
+    tmpActions << ui->actionFrames_Audio;
+    tmpActions << ui->actionPackets_Video;
+    tmpActions << ui->actionPackets_Audio;
+
+    return tmpActions;
+}
+
+QList<QAction *> MainWindow::getFilesAvailableAction()
+{
+    QList<QAction *> tmpActions;
+
+    tmpActions << ui->actionOpen;
+    tmpActions << ui->actionOpen_Files;
+    tmpActions << ui->actionOpen_Folder;
+    tmpActions << ui->actionExport;
+
+    return tmpActions;
 }
 
 void MainWindow::InitConnectation()
@@ -166,7 +196,9 @@ void MainWindow::slotMenuBasic_InfoTriggered(QAction *action)
     QMetaObject::invokeMethod(&m_probe, function.toUtf8(), Qt::DirectConnection,
                               Q_RETURN_ARG(QString, retVal));
 
-    PopBasicInfoWindow(action->objectName().replace("action", "Detail Info : "), retVal, action->objectName().replace("action", ""));
+    PopBasicInfoWindow(action->objectName().replace("action", "Detail Info : ") + m_filesWG.getCurrentSelectFileName(),
+                       retVal,
+                       action->objectName().replace("action", ""));
 }
 
 void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
@@ -185,10 +217,11 @@ void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
             SHOW_PIXEL_FORMATS
         }.contains(function))
     {
-        QString fileName = Common::instance()->getConfigValue(CURRENTFILE).toString();
+        QString fileName = m_filesWG.getCurrentSelectFileName();
         if (!fileName.isEmpty()) {
             QString formats = m_probe.getMediaInfoJsonFormat(function, fileName);
-            PopMediaInfoWindow(action->objectName().replace("action", "Detail Info : "), formats);
+            PopMediaInfoWindow(action->objectName().replace("action", "Detail Info : ") + m_filesWG.getCurrentSelectFileName(),
+                               formats);
         } else {
             qWarning() << CURRENTFILE << "is empty, please retray";
         }
@@ -211,7 +244,7 @@ void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
             tmpFunction = tmpFunction.replace("_video", "", Qt::CaseInsensitive);
             tmpFunction += tr(" %1 v:0").arg(SELECT_STREAMS);
         }
-        QString fileName = Common::instance()->getConfigValue(CURRENTFILE).toString();
+        QString fileName = m_filesWG.getCurrentSelectFileName();
         if (!fileName.isEmpty()) {
             ProgressDialog *progressDlg = new ProgressDialog;
             progressDlg->setWindowTitle(tr("Parse Media: %1").arg(fileName));
