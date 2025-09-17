@@ -32,6 +32,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_filesWG.addActions(getFilesAvailableAction());
     m_filesWG.addSubActions("Media Info", getMediaInfoAvailableActions());
+    if (m_filesWG.getCurrentSelectFileName().isEmpty()) {
+        m_playerWG.setMediaFile(Common::instance()->getConfigValue(CURRENTFILE).toString());
+    } else {
+        m_playerWG.setMediaFile(m_filesWG.getCurrentSelectFileName());
+    }
 }
 
 MainWindow::~MainWindow()

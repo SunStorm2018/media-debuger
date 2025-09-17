@@ -4,6 +4,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
+# Add X11 support for Linux
+unix:!macx {
+    LIBS += -lX11
+}
+
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
@@ -34,6 +39,7 @@ SOURCES += \
     widgets/progressdialog.cpp \
     widgets/searchwg.cpp \
     widgets/tabelformatwg.cpp \
+    widgets/x11embedhelper.cpp \
     zcodecflagparser.cpp
 
 HEADERS += \
@@ -61,6 +67,7 @@ HEADERS += \
     widgets/progressdialog.h \
     widgets/searchwg.h \
     widgets/tabelformatwg.h \
+    widgets/x11embedhelper.h \
     zcodecflagparser.h
 
 FORMS += \
