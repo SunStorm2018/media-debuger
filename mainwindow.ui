@@ -46,6 +46,8 @@
     <addaction name="actionLayouts"/>
     <addaction name="actionSamplefmts"/>
     <addaction name="actionColors"/>
+    <addaction name="separator"/>
+    <addaction name="actionL"/>
    </widget>
    <widget class="QMenu" name="menuMedia_Info">
     <property name="title">
@@ -400,6 +402,11 @@
   <action name="actionSetting_File">
    <property name="text">
     <string>Setting File</string>
+   </property>
+  </action>
+  <action name="actionL">
+   <property name="text">
+    <string>License</string>
    </property>
   </action>
  </widget>

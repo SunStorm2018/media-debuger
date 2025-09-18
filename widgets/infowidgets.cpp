@@ -109,6 +109,15 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
     if (rawStringLines.at(0).contains(":"))
         rawStringLines.removeFirst();
 
+    // -L
+    if (QStringList{"L"}.contains(format_key, Qt::CaseInsensitive)){
+        headers << tr("Info");
+        for (auto it : rawStringLines) {
+            data_tb << QStringList{it};
+        }
+        return;
+    }
+
     // -version
     if (QStringList{"version"}.contains(format_key, Qt::CaseInsensitive)) {
         headers << tr("Config") << "Value";

@@ -89,6 +89,11 @@ QString ZFfprobe::getColors()
     return getFFprobeCommandOutput(COLORS);
 }
 
+QString ZFfprobe::getL()
+{
+    return getFFprobeCommandOutput(LICENSE);
+}
+
 QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& fileName)
 {
     QProcess process;
@@ -97,7 +102,7 @@ QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& 
                                OF << JSON <<
                                command.split(" ", QString::SkipEmptyParts)
                                          << fileName);
-    qDebug() << process.arguments();
+    qDebug() << FFPROBE << process.arguments().join(" ");
     process.waitForFinished();
     return process.readAll();
 }
@@ -106,7 +111,7 @@ QString ZFfprobe::getFFprobeCommandOutput(const QString &command, const QStringL
 {
     QProcess process;
     process.start(FFPROBE, QStringList() << command << HIDEBANNER << otherParms);
-    qDebug() << process.arguments();
+    qDebug() << FFPROBE << process.arguments().join(" ");
     process.waitForFinished();
     return process.readAll();
 }

@@ -22,6 +22,7 @@
 #define SAMPLE_FMTS "-sample_fmts"
 #define COLORS "-colors"
 #define HIDEBANNER "-hide_banner"
+#define LICENSE "-L"
 
 // -show_format
 #define SHOW_FORMAT "-show_format"       // show format/container info
@@ -162,6 +163,7 @@ public:
     Q_INVOKABLE QString getLayouts();               // show standard channel layouts
     Q_INVOKABLE QString getSamplefmts ();           // show available audio sample formats
     Q_INVOKABLE QString getColors();                // show available color names
+    Q_INVOKABLE QString getL();                     // show license.
 
 /*
  * Media Info
