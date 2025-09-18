@@ -52,18 +52,18 @@ void PlayerWG::setMediaFile(const QString &filePath)
 {
     m_mediaFile = filePath;
     stop();
-    qDebug() << "PlayerWG", "Media file set to: " + filePath;
+    qDebug() << "Media file set to: " + filePath;
 }
 
 void PlayerWG::play()
 {
     if (m_mediaFile.isEmpty()) {
-        qWarning() << "PlayerWG" << "No media file set";
+        qWarning() << "No media file set";
         return;
     }
 
     if (!m_embedHelper->initialize()) {
-        qCritical() << "PlayerWG" << "X11 embed helper not available";
+        qCritical() << "X11 embed helper not available";
     }
 
     if (!m_ffplayProcess) {
@@ -159,7 +159,7 @@ void PlayerWG::onFfplayFinished(int exitCode, QProcess::ExitStatus exitStatus)
     Q_UNUSED(exitCode)
     Q_UNUSED(exitStatus)
     
-    qDebug() << "PlayerWG" << "FFplay process finished";
+    qDebug() << "FFplay process finished";
     m_ffplayProcess = nullptr;
     m_ffplayWindow = 0;
     m_windowEmbedded = false;
@@ -335,7 +335,7 @@ void PlayerWG::sendKeyToFfplay(const QString &key)
     }
     
     if (!m_embedHelper->sendKey(m_ffplayWindow, key)) {
-        qWarning() << "PlayerWG" << "Failed to send key to FFplay: " + key;
+        qWarning() << "Failed to send key to FFplay: " + key;
     }
 }
 

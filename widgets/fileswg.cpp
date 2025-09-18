@@ -63,6 +63,17 @@ void FilesWG::addSubActions(const QString &menu, const QList<QAction *> &actions
     }
 }
 
+void FilesWG::addMenus(const QList<QMenu *> menus)
+{
+    for (auto menu : menus){
+        qDebug() << menu->parent();
+        if (menu)
+            m_contextMenu->addMenu(menu);
+
+        qDebug() << menu->parent();
+    }
+}
+
 void FilesWG::addFileToHistory(const QString &filePath)
 {
     m_model->addFile(filePath);
@@ -90,7 +101,7 @@ void FilesWG::onListViewActivated(const QModelIndex &index)
     if (index.isValid()) {
         QString filePath = index.data(FilesHistoryModel::FilePathRole).toString();
         if (!filePath.isEmpty()) {
-            emit currentFileActived(QPair(index.data(FilesHistoryModel::FileNameRole).toString(), filePath));
+            emit currentFileActived(QPair<QString, QString>(index.data(FilesHistoryModel::FileNameRole).toString(), filePath));
         }
     }
 }

@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_filesWG.addActions(getFilesAvailableAction());
     m_filesWG.addSubActions("Media Info", getMediaInfoAvailableActions());
+    m_filesWG.addMenus(getMediaInfoAvailableMenus());
+
     if (m_filesWG.getCurrentSelectFileName().isEmpty()) {
         m_playerWG.setMediaFile(Common::instance()->getConfigValue(CURRENTFILE).toString());
     } else {
@@ -51,10 +53,10 @@ QList<QAction *> MainWindow::getMediaInfoAvailableActions()
     tmpActions << ui->actionStreams;
     tmpActions << ui->actionFormat;
     tmpActions << ui->actionChapters;
-    tmpActions << ui->actionFrames_Video;
-    tmpActions << ui->actionFrames_Audio;
-    tmpActions << ui->actionPackets_Video;
-    tmpActions << ui->actionPackets_Audio;
+    // tmpActions << ui->actionFrames_Video;
+    // tmpActions << ui->actionFrames_Audio;
+    // tmpActions << ui->actionPackets_Video;
+    // tmpActions << ui->actionPackets_Audio;
 
     return tmpActions;
 }
@@ -71,15 +73,31 @@ QList<QAction *> MainWindow::getFilesAvailableAction()
     return tmpActions;
 }
 
+QList<QMenu *> MainWindow::getMediaInfoAvailableMenus()
+{
+    QList<QMenu *> tmpMenus;
+
+    tmpMenus << ui->menuFrames;
+    tmpMenus << ui->menuPackets;
+
+    return tmpMenus;
+}
+
 void MainWindow::InitConnectation()
 {
     // menu connection
     connect(ui->menuFile, &QMenu::triggered, this, &MainWindow::slotMenuFileTriggered);
     connect(ui->menuBasic_Info, &QMenu::triggered, this, &MainWindow::slotMenuBasic_InfoTriggered);
-    connect(ui->menuMedia_Info, &QMenu::triggered, this, &MainWindow::slotMenuMedia_InfoTriggered);
     connect(ui->menuConfig, &QMenu::triggered, this, &MainWindow::slotMenuConfigTriggered);
     connect(ui->menuHelp, &QMenu::triggered, this, &MainWindow::slotMenuHelpTriggered);
     connect(ui->menuPlay, &QMenu::triggered, this, &MainWindow::slotMenuPlayTriggered);
+
+    // media info
+    QList<QAction*> mediaActions;
+    getMenuAllActions(ui->menuMedia_Info, mediaActions);
+    for (auto action : mediaActions){
+        connect(action, &QAction::triggered, this, &MainWindow::slotMenuMedia_InfoTriggered);
+    }
 
     // log
     connect(ZLogger::instance(), &ZLogger::logMessage, &m_logWG, &LogWG::outLog);
@@ -212,13 +230,20 @@ void MainWindow::slotMenuBasic_InfoTriggered(QAction *action)
                        action->objectName().replace("action", ""));
 }
 
-void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
+void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
 {
-    if (!action) {
+    Q_UNUSED(checked);
+
+    QAction *senderAction = static_cast<QAction*>(QObject::sender());
+
+    if (!senderAction) {
         return;
     }
 
-    QString function = action->objectName().replace("action", "-show_").toLower();
+    QString function = senderAction->objectName().replace("action", "-show_").toLower();
+    if (function.isEmpty()) {
+        function = QObject::sender()->objectName();
+    }
 
     if (QStringList{
             SHOW_FORMAT, SHOW_STREAMS, SHOW_CHAPTERS,
@@ -231,7 +256,7 @@ void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
         QString fileName = m_filesWG.getCurrentSelectFileName();
         if (!fileName.isEmpty()) {
             QString formats = m_probe.getMediaInfoJsonFormat(function, fileName);
-            PopMediaInfoWindow(action->objectName().replace("action", "Detail Info : ") + m_filesWG.getCurrentSelectFileName(),
+            PopMediaInfoWindow(senderAction->objectName().replace("action", "Detail Info : ") + m_filesWG.getCurrentSelectFileName(),
                                formats);
         } else {
             qWarning() << CURRENTFILE << "is empty, please retray";
@@ -268,7 +293,7 @@ void MainWindow::slotMenuMedia_InfoTriggered(QAction *action)
                 QString formats = m_probe.getMediaInfoJsonFormat(tmpFunction, fileName);
                 QMetaObject::invokeMethod(this, "PopMediaInfoWindow",
                                           Qt::QueuedConnection,
-                                          Q_ARG(QString, action->objectName().replace("action", "Detail Info : ")),
+                                          Q_ARG(QString, senderAction->objectName().replace("action", "Detail Info : ")),
                                           Q_ARG(QString, formats),
                                           Q_ARG(QString, "table")
                                           );
@@ -419,6 +444,36 @@ void MainWindow::slotMenuPlayTriggered(QAction *action)
         m_playerWGDock->raise();
         return;
     }
+}
+
+void MainWindow::getMenuAllActions(QMenu *menu, QList<QAction *> &actionList)
+{
+    if (!menu) return;
+
+    QList<QAction*> actions = menu->actions();
+
+    for (QAction* action : actions) {
+        if (action->isSeparator()) {
+            continue;
+        }
+
+        if (QMenu* subMenu = action->menu()) {
+            getMenuAllActions(subMenu, actionList);
+        } else {
+            if (!actionList.contains(action)) {
+                actionList.append(action);
+            }
+        }
+    }
+}
+
+QList<QAction *> MainWindow::getMenuAllActions(QMenu *menu)
+{
+    QList<QAction *> actionList;
+
+    getMenuAllActions(menu, actionList);
+
+    return actionList;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

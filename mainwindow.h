@@ -41,6 +41,7 @@ public:
 
     QList<QAction *> getMediaInfoAvailableActions();
     QList<QAction *> getFilesAvailableAction();
+    QList<QMenu *> getMediaInfoAvailableMenus();
 
 private slots:
     void InitConnectation();
@@ -51,13 +52,16 @@ private slots:
     void saveLayoutSettings();
     void restoreLayoutSettings();
 
-private slots:
     void slotMenuBasic_InfoTriggered(QAction *action);
-    void slotMenuMedia_InfoTriggered(QAction *action);
+    void slotMenuMedia_InfoTriggered(bool checked);
     void slotMenuFileTriggered(QAction *action);
     void slotMenuConfigTriggered(QAction *action);
     void slotMenuHelpTriggered(QAction *action);
     void slotMenuPlayTriggered(QAction *action);
+
+private:
+    void getMenuAllActions(QMenu* menu, QList<QAction*>& actionList);
+    QList<QAction*> getMenuAllActions(QMenu* menu);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
