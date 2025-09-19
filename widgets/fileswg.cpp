@@ -1,8 +1,5 @@
 #include "fileswg.h"
 #include "ui_fileswg.h"
-#include <QListView>
-#include <QVBoxLayout>
-#include <QMessageBox>
 
 FilesWG::FilesWG(QWidget *parent)
     : QWidget(parent)
@@ -29,6 +26,10 @@ FilesWG::FilesWG(QWidget *parent)
     // Create context menu
     createContextMenu();
     
+    // Install Event Filter
+    ui->listView->setAcceptDrops(true);
+    ui->listView->installEventFilter(this);
+
     // Connect signals
     connect(ui->listView, &QListView::doubleClicked, this, &FilesWG::onListViewDoubleClicked);
     connect(ui->listView, &QListView::customContextMenuRequested, this, &FilesWG::onCustomContextMenuRequested);
@@ -65,12 +66,9 @@ void FilesWG::addSubActions(const QString &menu, const QList<QAction *> &actions
 
 void FilesWG::addMenus(const QList<QMenu *> menus)
 {
-    for (auto menu : menus){
-        qDebug() << menu->parent();
+    for (auto menu : menus){;
         if (menu)
             m_contextMenu->addMenu(menu);
-
-        qDebug() << menu->parent();
     }
 }
 
@@ -171,4 +169,66 @@ void FilesWG::createContextMenu()
         }
     });
     m_contextMenu->addAction(m_playAction);
+}
+
+void FilesWG::onFilesDropped(const QStringList &filePaths)
+{
+    for (const QString &filePath : filePaths) {
+        qDebug() << "drop file:" << filePath;
+        addFileToHistory(filePath);
+    }
+}
+
+bool FilesWG::eventFilter(QObject *obj, QEvent *ev)
+{
+    if (obj == ui->listView) {
+        switch (ev->type()) {
+        case QEvent::DragEnter:
+            dragEnterEvent(static_cast<QDragEnterEvent*>(ev));
+            return true;
+        case QEvent::DragMove:
+            dragMoveEvent(static_cast<QDragMoveEvent*>(ev));
+            return true;
+        case QEvent::Drop:
+            dropEvent(static_cast<QDropEvent*>(ev));
+            return true;
+        default:
+            break;
+        }
+    }
+    return QWidget::eventFilter(obj, ev);
+}
+
+void FilesWG::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (Common::containsSupportedMediaFiles(event->mimeData())) {
+        event->acceptProposedAction();
+    } else {
+        event->ignore();
+    }
+
+    // if (event->mimeData()->hasUrls()) {
+    //     // check file type
+    //     QList<QUrl> urls = event->mimeData()->urls();
+    //     for (const QUrl &url : urls) {
+    //         QString filePath = url.toLocalFile();
+    //         if (filePath.endsWith(".mp4") || filePath.endsWith(".avi") ||
+    //             filePath.endsWith(".mkv")) {
+    //             event->acceptProposedAction();
+    //             return;
+    //         }
+    //     }
+    // }
+    // event->ignore();
+}
+
+void FilesWG::dropEvent(QDropEvent *event)
+{
+    QStringList filePaths = Common::extractSupportedMediaFiles(event->mimeData());
+    if (!filePaths.isEmpty()) {
+        onFilesDropped(filePaths);
+        event->acceptProposedAction();
+    } else {
+        event->ignore();
+    }
 }

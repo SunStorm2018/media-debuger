@@ -4,8 +4,13 @@
 #include <QObject>
 #include <QMutex>
 #include <QSettings>
+#include <QSet>
 #include <QDebug>
+#include <QMimeData>
 #include <QCoreApplication>
+#include <QMimeDatabase>
+#include <QUrl>
+#include <QFileInfo>
 
 #define CURRENTFILE "currentFile"
 #define CURRENTFILES "currentFiles"
@@ -93,6 +98,30 @@ public:
 
     static QList<QStringList> logLevels;
 
+    // Check if the file is a supported video format
+    static bool isSupportedVideoFile(const QString &filePath);
+
+    // Check if the file is a video (generic method)
+    static bool isVideoFile(const QString &filePath);
+
+    // Check if the file is an audio file
+    static bool isAudioFile(const QString &filePath);
+
+    // Check if the file is a media file (video or audio)
+    static bool isMediaFile(const QString &filePath);
+
+    // Get all supported video MIME types
+    static QSet<QString> supportedVideoMimeTypes();
+
+    // Get all supported video file extensions
+    static QSet<QString> supportedVideoExtensions();
+
+    // Extract supported media file paths from MIME data
+    static QStringList extractSupportedMediaFiles(const QMimeData *mimeData);
+
+    // Check if MIME data contains supported media files
+    static bool containsSupportedMediaFiles(const QMimeData *mimeData);
+
 private:
     Common();
     ~Common();
@@ -100,6 +129,12 @@ private:
     bool m_initialized;
     static QMutex m_mutex;
     static Common* m_instance;
+
+    // Initialize supported MIME types (lazy initialization)
+    static const QSet<QString> &getSupportedVideoMimeTypes();
+
+    // Initialize supported file extensions (lazy initialization)
+    static const QSet<QString> &getSupportedVideoExtensions();
 };
 
 #endif // COMMON_H

@@ -76,4 +76,124 @@ bool Common::isInitialized() const
     return m_initialized;
 }
 
+bool Common::isSupportedVideoFile(const QString &filePath)
+{
+    QFileInfo fileInfo(filePath);
+    if (!fileInfo.isFile() || !fileInfo.exists()) {
+        return false;
+    }
+
+    QMimeDatabase mimeDb;
+    QMimeType mimeType = mimeDb.mimeTypeForFile(filePath, QMimeDatabase::MatchExtension);
+
+    const QSet<QString> &supportedMimeTypes = getSupportedVideoMimeTypes();
+    if (supportedMimeTypes.contains(mimeType.name())) {
+        return true;
+    }
+
+    const QSet<QString> &supportedExtensions = getSupportedVideoExtensions();
+    QString extension = fileInfo.suffix().toLower();
+    return supportedExtensions.contains(extension);
+}
+
+bool Common::isVideoFile(const QString &filePath)
+{
+    QMimeDatabase mimeDb;
+    QMimeType mimeType = mimeDb.mimeTypeForFile(filePath);
+
+    return mimeType.name().startsWith("video/");
+}
+
+bool Common::isAudioFile(const QString &filePath)
+{
+    QMimeDatabase mimeDb;
+    QMimeType mimeType = mimeDb.mimeTypeForFile(filePath);
+
+    return mimeType.name().startsWith("audio/");
+}
+
+bool Common::isMediaFile(const QString &filePath)
+{
+    return isVideoFile(filePath) || isAudioFile(filePath);
+}
+
+QSet<QString> Common::supportedVideoMimeTypes()
+{
+    return getSupportedVideoMimeTypes();
+}
+
+QSet<QString> Common::supportedVideoExtensions()
+{
+    return getSupportedVideoExtensions();
+}
+
+QStringList Common::extractSupportedMediaFiles(const QMimeData *mimeData)
+{
+    QStringList supportedFiles;
+
+    if (!mimeData || !mimeData->hasUrls()) {
+        return supportedFiles;
+    }
+
+    QList<QUrl> urlList = mimeData->urls();
+    for (const QUrl &url : urlList) {
+        QString filePath = url.toLocalFile();
+        if (!filePath.isEmpty() && isSupportedVideoFile(filePath)) {
+            supportedFiles.append(filePath);
+        }
+    }
+
+    return supportedFiles;
+}
+
+bool Common::containsSupportedMediaFiles(const QMimeData *mimeData)
+{
+    if (!mimeData || !mimeData->hasUrls()) {
+        return false;
+    }
+
+    QList<QUrl> urlList = mimeData->urls();
+    for (const QUrl &url : urlList) {
+        QString filePath = url.toLocalFile();
+        if (!filePath.isEmpty() && isSupportedVideoFile(filePath)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+const QSet<QString> &Common::getSupportedVideoMimeTypes()
+{
+    static QSet<QString> supportedMimeTypes = {
+        "video/mp4",
+        "video/x-msvideo",    // AVI
+        "video/x-matroska",   // MKV
+        "video/quicktime",    // MOV
+        "video/x-ms-wmv",     // WMV
+        "video/mpeg",         // MPG, MPEG
+        "video/x-flv",        // FLV
+        "video/webm",         // WEBM
+        "video/3gpp",         // 3GP
+        "video/mp2t",         // TS, M2TS
+        "video/x-m4v",        // M4V
+        "video/x-ms-asf",     // ASF
+        "video/x-mng",        // MNG
+        "video/x-sgi-movie"   // MOV
+    };
+
+    return supportedMimeTypes;
+}
+
+const QSet<QString> &Common::getSupportedVideoExtensions()
+{
+    static QSet<QString> supportedExtensions = {
+        "mp4", "avi", "mkv", "mov", "wmv", "mpg", "mpeg",
+        "flv", "webm", "m4v", "3gp", "ts", "mts", "m2ts",
+        "asf", "mng", "qt", "divx", "xvid", "rm", "rmvb",
+        "vob", "ogv", "mxf", "mjp", "mjpeg"
+    };
+
+    return supportedExtensions;
+}
 

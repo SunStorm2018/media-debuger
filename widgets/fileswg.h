@@ -7,6 +7,10 @@
 #include <QMenu>
 #include <QAction>
 #include <QPair>
+#include <QListView>
+#include <QVBoxLayout>
+#include <QMessageBox>
+#include <QMimeData>
 
 #include <common/singleton.h>
 #include <model/fileshistorymodel.h>
@@ -53,6 +57,12 @@ private:
     QAction *m_playAction;
 
     void createContextMenu();
+    void onFilesDropped(const QStringList &filePaths);
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *ev) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 };
 
 #endif // FILESWG_H
