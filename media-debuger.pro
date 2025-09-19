@@ -30,13 +30,14 @@ SOURCES += \
     widgets/fileswg.cpp \
     widgets/folderswg.cpp \
     widgets/globalconfingwg.cpp \
+    widgets/helpquerywg.cpp \
     widgets/infowidgets.cpp \
     main.cpp \
     mainwindow.cpp \
     widgets/jsonformatwg.cpp \
     widgets/logwg.cpp \
     widgets/playerwg.cpp \
-    widgets/progressdialog.cpp \
+    widgets/progressdlg.cpp \
     widgets/searchwg.cpp \
     widgets/tabelformatwg.cpp \
     widgets/x11embedhelper.cpp \
@@ -59,12 +60,13 @@ HEADERS += \
     widgets/fileswg.h \
     widgets/folderswg.h \
     widgets/globalconfingwg.h \
+    widgets/helpquerywg.h \
     widgets/infowidgets.h \
     mainwindow.h \
     widgets/jsonformatwg.h \
     widgets/logwg.h \
     widgets/playerwg.h \
-    widgets/progressdialog.h \
+    widgets/progressdlg.h \
     widgets/searchwg.h \
     widgets/tabelformatwg.h \
     widgets/x11embedhelper.h \
@@ -75,6 +77,7 @@ FORMS += \
     widgets/fileswg.ui \
     widgets/folderswg.ui \
     widgets/globalconfingwg.ui \
+    widgets/helpquerywg.ui \
     widgets/infowidgets.ui \
     mainwindow.ui \
     widgets/jsonformatwg.ui \

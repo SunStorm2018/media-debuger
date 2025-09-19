@@ -16,7 +16,7 @@
 #include <common/flowlayout.h>
 #include <common/commandexecutor.h>
 
-#include <widgets/progressdialog.h>
+#include <widgets/progressdlg.h>
 
 namespace Ui {
 class ExportWG;

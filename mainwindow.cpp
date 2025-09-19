@@ -117,6 +117,10 @@ void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QS
     infoWindow->show();
     ZWindowHelper::centerToParent(infoWindow);
     infoWindow->init_detail_tb(info, format_key.toLower());
+    QString tmp = format_key;
+    tmp = tmp.toLower();
+    tmp.chop(1);
+    infoWindow->setHelpInfoKey(tmp);
 
     qDebug() << title << info;
 
@@ -390,7 +394,10 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
     if (ui->actionLog == action) {
         m_logWGDock->show();
         m_logWGDock->raise();
+
+        return;
     }
+
     if (ui->actionAbout == action) {
         QMessageBox::about(this,
                            tr("About MediaDebuger"),
@@ -430,6 +437,15 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
         } else {
             qWarning() << "Setting File not exists!";
         }
+    }
+
+    if (ui->actionHelp == action) {
+        HelpQueryWg *helpWindow = new HelpQueryWg;
+        helpWindow->setAttribute(Qt::WA_DeleteOnClose);
+
+        helpWindow->setWindowTitle("Help Query");
+        helpWindow->show();
+        ZWindowHelper::centerToParent(helpWindow);
     }
 }
 

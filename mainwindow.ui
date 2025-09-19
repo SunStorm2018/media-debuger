@@ -120,6 +120,7 @@
     <addaction name="actionSetting_Dir"/>
     <addaction name="actionSetting_File"/>
     <addaction name="separator"/>
+    <addaction name="actionHelp"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBasic_Info"/>
@@ -407,6 +408,11 @@
   <action name="actionL">
    <property name="text">
     <string>License</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
    </property>
   </action>
  </widget>

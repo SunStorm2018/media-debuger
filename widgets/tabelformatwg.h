@@ -25,6 +25,11 @@ public:
 
 private:
     Ui::TabelFormatWG *ui;
+
+    QMenu *contextMenu;
+    int currentRow;
+    int currentColumn;
+
     InfoWidgets *m_tableFormatWg;
 
     QList<QStringList> m_data_tb;
@@ -32,6 +37,7 @@ private:
 
     QString valueToString(const QJsonValue &value);
     QString extractSideData(const QJsonObject &frameObj, const QString &key);
+
 protected:
     bool loadJson(const QByteArray &json);
 };

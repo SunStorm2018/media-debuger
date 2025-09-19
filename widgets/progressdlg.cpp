@@ -1,4 +1,4 @@
-#include "progressdialog.h"
+#include "progressdlg.h"
 #include <QCloseEvent>
 #include <QApplication>
 #include <QStyle>

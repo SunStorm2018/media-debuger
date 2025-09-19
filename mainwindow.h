@@ -21,9 +21,10 @@
 #include <widgets/logwg.h>
 #include <widgets/fileswg.h>
 #include <widgets/playerwg.h>
-#include <widgets/progressdialog.h>
+#include <widgets/progressdlg.h>
 #include <widgets/folderswg.h>
 #include <widgets/exportwg.h>
+#include <widgets/helpquerywg.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

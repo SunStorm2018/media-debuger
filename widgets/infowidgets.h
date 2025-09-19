@@ -6,12 +6,18 @@
 #include <QMenu>
 #include <QSortFilterProxyModel>
 #include <QShortcut>
+#include <QClipboard>
+#include <QThread>
 
 #include <common/common.h>
+#include <common/tableheadermanager.h>
+#include <common/zwindowhelper.h>
+
 #include <model/mediainfotabelmodel.h>
 #include <model/multicolumnsearchproxymodel.h>
-#include <common/tableheadermanager.h>
+
 #include <widgets/searchwg.h>
+#include <widgets/helpquerywg.h>
 
 namespace Ui {
 class InfoWidgets;
@@ -25,6 +31,8 @@ public:
     explicit InfoWidgets(QWidget *parent = nullptr);
     ~InfoWidgets();
 
+    void setHelpInfoKey(const QString& key);
+
 public slots:
     void init_detail_tb(const QString& data, const QString &format_key);
 
@@ -33,6 +41,10 @@ public slots:
     void update_data_detail_tb(const QList<QStringList> &data_tb, QString format_join = "");
 
     void clear_detail_tb();
+
+    void exportSelectedData();
+    void copySelectedText();
+    void showDetailInfo();
 
 private slots:
     void on_search_btn_clicked();
@@ -44,7 +56,6 @@ private slots:
     void onDetailSearchCompleted();
 
     void on_search_le_textChanged(const QString &arg1);
-
 private:
     void setupSearchButton();
     void createDetailSearchDialog();
@@ -67,6 +78,11 @@ private:
     QMenu *m_searchButtonMenu;
     QAction *m_detailSearchAction;
     SearchWG *m_detailSearchDialog;
+
+    QMenu *m_tableContextMenu;
+    int currentRow;
+    int currentColumn;
+    QString m_helpKey;
 };
 
 

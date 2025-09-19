@@ -10,10 +10,26 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     , m_searchButtonMenu(nullptr)
     , m_detailSearchAction(nullptr)
     , m_detailSearchDialog(nullptr)
+    , m_tableContextMenu(new QMenu(this))
 {
     ui->setupUi(this);
     ui->detail_raw_pte->setVisible(false);
 
+    // Enable context menu for table
+    ui->detail_tb->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->detail_tb, &QTableView::customContextMenuRequested, [this](const QPoint &pos) {
+        QModelIndex index = ui->detail_tb->indexAt(pos);
+        if (index.isValid()) {
+            currentRow = index.row();
+            currentColumn = index.column();
+            m_tableContextMenu->exec(ui->detail_tb->viewport()->mapToGlobal(pos));
+        }
+    });
+    QAction *detailAction = new QAction("Detail Info", this);
+    connect(detailAction, &QAction::triggered, this, &InfoWidgets::showDetailInfo);
+    m_tableContextMenu->addAction(detailAction);
+
+    // model
     model = new MediaInfoTabelModel(this);
 
     multiColumnSearchModel = new MultiColumnSearchProxyModel(this);
@@ -36,6 +52,7 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     setupSearchButton();
 
     new QShortcut(QKeySequence("Ctrl+F"), this, SLOT(showDetailSearch()));
+
 }
 
 InfoWidgets::~InfoWidgets()
@@ -43,6 +60,11 @@ InfoWidgets::~InfoWidgets()
     delete m_headerManager;
     delete m_detailSearchDialog;
     delete ui;
+}
+
+void InfoWidgets::setHelpInfoKey(const QString &key)
+{
+    m_helpKey = key;
 }
 
 void InfoWidgets::on_search_btn_clicked()
@@ -455,5 +477,56 @@ void InfoWidgets::on_search_le_textChanged(const QString &arg1)
     if (m_detailSearchDialog) {
         m_detailSearchDialog->setSearchText(arg1);
     }
+}
+
+void InfoWidgets::copySelectedText()
+{
+    QModelIndexList selected = ui->detail_tb->selectionModel()->selectedIndexes();
+    if (selected.isEmpty()) {
+        return;
+    }
+
+    QString text;
+    QItemSelectionRange range = ui->detail_tb->selectionModel()->selection().first();
+    for (int i = range.top(); i <= range.bottom(); ++i) {
+        QStringList rowContents;
+        for (int j = range.left(); j <= range.right(); ++j) {
+            rowContents << ui->detail_tb->model()->index(i,j).data().toString();
+        }
+        text += rowContents.join("\t");
+        text += "\n";
+    }
+
+    QApplication::clipboard()->setText(text);
+}
+
+void InfoWidgets::showDetailInfo()
+{
+    QModelIndex currentIndex = ui->detail_tb->currentIndex();
+
+    int nameIndex = m_headers.indexOf("name");
+
+    auto index = multiColumnSearchModel->mapToSource(currentIndex);
+
+    qDebug() << "current name-s: " << m_data_tb[index.row()][nameIndex];
+
+    HelpQueryWg *helpWindow = new HelpQueryWg;
+    helpWindow->setAttribute(Qt::WA_DeleteOnClose);
+
+    helpWindow->setWindowTitle("Help Query");
+    helpWindow->setHelpParams(m_helpKey, m_data_tb[index.row()][nameIndex]);
+    helpWindow->show();
+    ZWindowHelper::centerToParent(helpWindow);
+}
+
+void InfoWidgets::exportSelectedData()
+{
+    QModelIndexList selected = ui->detail_tb->selectionModel()->selectedIndexes();
+    if (selected.isEmpty()) {
+        return;
+    }
+
+    // TODO: Implement actual export functionality
+    qDebug() << "Exporting selected data";
 }
 

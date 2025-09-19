@@ -23,6 +23,7 @@
 #define COLORS "-colors"
 #define HIDEBANNER "-hide_banner"
 #define LICENSE "-L"
+#define HELP "-help"
 
 // -show_format
 #define SHOW_FORMAT "-show_format"       // show format/container info
@@ -164,6 +165,7 @@ public:
     Q_INVOKABLE QString getSamplefmts ();           // show available audio sample formats
     Q_INVOKABLE QString getColors();                // show available color names
     Q_INVOKABLE QString getL();                     // show license.
+    Q_INVOKABLE QString getHelp(const QStringList& helpList);      // show help info.
 
 /*
  * Media Info

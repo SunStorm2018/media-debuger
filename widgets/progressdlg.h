@@ -1,5 +1,5 @@
-#ifndef PROGRESSDIALOG_H
-#define PROGRESSDIALOG_H
+#ifndef PROGRESSDLG_H
+#define PROGRESSDLG_H
 
 #include <QDialog>
 #include <QProgressBar>
@@ -89,4 +89,4 @@ private:
     QString formatTime(qint64 milliseconds);
 };
 
-#endif // PROGRESSDIALOG_H
+#endif // PROGRESSDLG_H

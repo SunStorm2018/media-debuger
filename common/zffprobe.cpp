@@ -94,6 +94,11 @@ QString ZFfprobe::getL()
     return getFFprobeCommandOutput(LICENSE);
 }
 
+QString ZFfprobe::getHelp(const QStringList& helpList)
+{
+    return getFFprobeCommandOutput(HELP, helpList);
+}
+
 QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& fileName)
 {
     QProcess process;
@@ -102,7 +107,7 @@ QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& 
                                OF << JSON <<
                                command.split(" ", QString::SkipEmptyParts)
                                          << fileName);
-    qDebug() << FFPROBE << process.arguments().join(" ");
+    qDebug() << process.arguments().join(" ").prepend(" ").prepend(FFPROBE);
     process.waitForFinished();
     return process.readAll();
 }
@@ -110,8 +115,11 @@ QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& 
 QString ZFfprobe::getFFprobeCommandOutput(const QString &command, const QStringList &otherParms)
 {
     QProcess process;
-    process.start(FFPROBE, QStringList() << command << HIDEBANNER << otherParms);
-    qDebug() << FFPROBE << process.arguments().join(" ");
+    process.start(FFPROBE, QStringList() << HIDEBANNER <<
+                               LOGLEVEL << QUIET <<
+                               command << otherParms);
+
+    qDebug() << process.arguments().join(" ").prepend(" ").prepend(FFPROBE);
     process.waitForFinished();
     return process.readAll();
 }
