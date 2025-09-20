@@ -117,10 +117,9 @@ void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QS
     infoWindow->show();
     ZWindowHelper::centerToParent(infoWindow);
     infoWindow->init_detail_tb(info, format_key.toLower());
-    QString tmp = format_key;
-    tmp = tmp.toLower();
-    tmp.chop(1);
-    infoWindow->setHelpInfoKey(tmp);
+
+    // fit help option
+    infoWindow->setHelpInfoKey(format_key.mid(0, format_key.length() - 1).toLower());
 
     qDebug() << title << info;
 

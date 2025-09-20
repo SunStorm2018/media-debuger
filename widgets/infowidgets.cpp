@@ -18,10 +18,13 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     // Enable context menu for table
     ui->detail_tb->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->detail_tb, &QTableView::customContextMenuRequested, [this](const QPoint &pos) {
+        if (!HELP_OPTION_FORMATS.contains(m_helpKey)) {
+            return;
+        }
         QModelIndex index = ui->detail_tb->indexAt(pos);
         if (index.isValid()) {
-            currentRow = index.row();
-            currentColumn = index.column();
+            m_currentRow = index.row();
+            m_currentColumn = index.column();
             m_tableContextMenu->exec(ui->detail_tb->viewport()->mapToGlobal(pos));
         }
     });
@@ -30,10 +33,10 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     m_tableContextMenu->addAction(detailAction);
 
     // model
-    model = new MediaInfoTabelModel(this);
+    m_model = new MediaInfoTabelModel(this);
 
     multiColumnSearchModel = new MultiColumnSearchProxyModel(this);
-    multiColumnSearchModel->setSourceModel(model);
+    multiColumnSearchModel->setSourceModel(m_model);
     ui->detail_tb->setModel(multiColumnSearchModel);
 
     ui->detail_tb->horizontalHeader()->setSectionsMovable(true);
@@ -74,15 +77,15 @@ void InfoWidgets::on_search_btn_clicked()
 
 void InfoWidgets::clear_detail_tb()
 {
-    model->setRow(0);
+    m_model->setRow(0);
 }
 
 void InfoWidgets::init_header_detail_tb(const QStringList &headers, QString format_join)
 {
     m_headers = headers;
     
-    model->setColumn(headers.count());
-    model->setTableHeader(&m_headers);
+    m_model->setColumn(headers.count());
+    m_model->setTableHeader(&m_headers);
 
     ui->detail_tb->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
@@ -94,9 +97,9 @@ void InfoWidgets::init_header_detail_tb(const QStringList &headers, QString form
 
 void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb, QString format_join)
 {
-    model->setRow(data_tb.count());
+    m_model->setRow(data_tb.count());
     m_data_tb = data_tb;
-    model->setTableData(const_cast<QList<QStringList>*>(&m_data_tb));
+    m_model->setTableData(const_cast<QList<QStringList>*>(&m_data_tb));
 
     // Don't change the model here - keep whatever model is currently active
     // Only set the model if no model is currently set
@@ -513,7 +516,7 @@ void InfoWidgets::showDetailInfo()
     HelpQueryWg *helpWindow = new HelpQueryWg;
     helpWindow->setAttribute(Qt::WA_DeleteOnClose);
 
-    helpWindow->setWindowTitle("Help Query");
+    helpWindow->setWindowTitle(tr("Help Query %1=%2").arg(m_helpKey).arg(m_data_tb[index.row()][nameIndex]));
     helpWindow->setHelpParams(m_helpKey, m_data_tb[index.row()][nameIndex]);
     helpWindow->show();
     ZWindowHelper::centerToParent(helpWindow);

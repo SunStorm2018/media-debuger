@@ -4,6 +4,10 @@
 #include <QObject>
 #include <QProcess>
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+}
+
 #define FFPROBE "ffprobe"
 #define VERSION "-version"
 #define BUILDCONF "-buildconf"
@@ -172,11 +176,15 @@ public:
  */
     Q_INVOKABLE QString getMediaInfoJsonFormat(const QString& command, const QString& fileName);           // show format/container info
 
+    QStringList getCodecsFromLibav(int type); // 0: decoders, 1: ncoders
 signals:
 
 private:
     QString getFFprobeCommandOutput(const QString& command, const QStringList &otherParms = {});
 
+    int get_codecs_sorted(const AVCodecDescriptor ***rcodecs);
+    char get_media_type_char(enum AVMediaType type);
+    static int compare_codec_desc(const void *a, const void *b);
 private:
     QString cacheVersion;
 };

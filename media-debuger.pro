@@ -93,6 +93,15 @@ CONFIG += embed_translations
 
 include(third_part/QJsonModel/QJsonModel.pri)
 
+CONFIG += link_pkgconfig
+PKGCONFIG += \
+    libavcodec \
+    libavformat \
+    libavutil \
+    libswscale \
+    libswresample \
+    libavfilter
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin

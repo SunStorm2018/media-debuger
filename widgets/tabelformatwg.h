@@ -8,8 +8,9 @@
 #include <QDebug>
 
 #include <widgets/infowidgets.h>
-#include <model/mediainfotabelmodel.h>
 #include <widgets/baseformatwg.h>
+
+#include <model/mediainfotabelmodel.h>
 
 namespace Ui {
 class TabelFormatWG;
@@ -25,10 +26,6 @@ public:
 
 private:
     Ui::TabelFormatWG *ui;
-
-    QMenu *contextMenu;
-    int currentRow;
-    int currentColumn;
 
     InfoWidgets *m_tableFormatWg;
 

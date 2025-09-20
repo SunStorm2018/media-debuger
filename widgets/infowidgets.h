@@ -70,7 +70,7 @@ private:
     QStringList m_headers;
     QList<QStringList> m_data_tb;
 
-    MediaInfoTabelModel *model;
+    MediaInfoTabelModel *m_model;
     MultiColumnSearchProxyModel *multiColumnSearchModel;
     TableHeaderManager *m_headerManager;
     
@@ -80,8 +80,8 @@ private:
     SearchWG *m_detailSearchDialog;
 
     QMenu *m_tableContextMenu;
-    int currentRow;
-    int currentColumn;
+    int m_currentRow;
+    int m_currentColumn;
     QString m_helpKey;
 };
 
