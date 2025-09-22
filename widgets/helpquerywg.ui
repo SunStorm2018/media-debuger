@@ -37,14 +37,17 @@
       <widget class="QComboBox" name="param_combox"/>
      </item>
      <item>
-      <widget class="QLineEdit" name="search_input_le"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="search_btn">
-       <property name="text">
-        <string>Search</string>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>

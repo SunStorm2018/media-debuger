@@ -10,7 +10,17 @@ LineEditSynchronizer::LineEditSynchronizer(QObject *parent)
         },
         [](QLineEdit* edit, const QVariant& value) {
             edit->setText(value.toString());
-        },
-        &QLineEdit::textChanged
+        }
         );
+}
+
+void LineEditSynchronizer::addObject(QLineEdit *obj) {
+    if (!obj || objects().contains(obj)) return;
+    
+    StateSynchronizer<QLineEdit>::addObject(obj);
+    
+    // 连接信号
+    connect(obj, &QLineEdit::textChanged, this, [this, obj](const QString& text) {
+        onStateChanged(obj, text);
+    });
 }

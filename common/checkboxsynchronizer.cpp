@@ -9,7 +9,17 @@ CheckBoxSynchronizer::CheckBoxSynchronizer(QObject *parent)
         },
         [](QCheckBox* checkbox, const QVariant& value) {
             checkbox->setChecked(value.toBool());
-        },
-        &QCheckBox::toggled
+        }
         );
+}
+
+void CheckBoxSynchronizer::addObject(QCheckBox *obj) {
+    if (!obj || objects().contains(obj)) return;
+    
+    StateSynchronizer<QCheckBox>::addObject(obj);
+    
+    // 连接信号
+    connect(obj, &QCheckBox::toggled, this, [this, obj](bool checked) {
+        onStateChanged(obj, checked);
+    });
 }

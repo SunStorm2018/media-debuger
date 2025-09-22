@@ -17,7 +17,8 @@ class StateSynchronizer : public QObject
 public:
     using GetterFunc = std::function<QVariant(const T*)>;
     using SetterFunc = std::function<void(T*, const QVariant&)>;
-    using ChangeSignal = void(T::*)(const QVariant&);
+    // 使用通用信号类型，通过lambda适配不同的信号
+    using SignalHandler = std::function<void(T*, const QVariant&)>;
 
     explicit StateSynchronizer(QObject *parent = nullptr);
 
@@ -31,7 +32,11 @@ public:
     void clear();
 
     // 设置状态获取和设置函数
-    void setAccessors(GetterFunc getter, SetterFunc setter, ChangeSignal signal);
+    void setAccessors(GetterFunc getter, SetterFunc setter);
+
+    // 连接信号 - 模板方法支持不同类型的信号
+    template<typename SignalType, typename SlotType>
+    void connectSignal(T* obj, SignalType signal, SlotType slot);
 
     // 设置是否启用同步
     void setEnabled(bool enabled);
@@ -43,7 +48,7 @@ public:
     // 获取所有同步对象
     QSet<T*> objects() const;
 
-private:
+protected:
     void setupConnections(T* obj);
 
     void disconnectObject(T* obj);
@@ -54,9 +59,10 @@ private:
     QSet<T*> m_objects;
     GetterFunc m_getter;
     SetterFunc m_setter;
-    ChangeSignal m_signal = nullptr;
+    SignalHandler m_signalHandler;
     bool m_enabled;
     bool m_syncing;
+    QMetaObject::Connection m_connection;
 };
 
 #endif // STATESYNCHRONIZER_H

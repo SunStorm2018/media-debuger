@@ -3,13 +3,13 @@
 #define SPINBOXSYNCHRONIZER_H
 
 #include "statesynchronizer.h"
-
 #include <QSpinBox>
 
 class SpinBoxSynchronizer : public StateSynchronizer<QSpinBox>
 {
 public:
     explicit SpinBoxSynchronizer(QObject *parent = nullptr);
+    void addObject(QSpinBox* obj);
 };
 
 #endif // SPINBOXSYNCHRONIZER_H

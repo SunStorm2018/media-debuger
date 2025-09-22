@@ -335,9 +335,19 @@ void SearchWG::setSearchText(const QString &text)
     ui->search_le->setText(text);
 }
 
+QString SearchWG::getSearchText()
+{
+    return ui->search_le->text();
+}
+
 void SearchWG::setSearchStatus(const QString &text)
 {
     ui->status_lb->setText(text);
+}
+
+QLineEdit *SearchWG::getSearchLE()
+{
+    return ui->search_le;
 }
 
 void SearchWG::on_search_btn_clicked()

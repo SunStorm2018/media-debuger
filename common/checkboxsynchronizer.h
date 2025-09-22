@@ -9,6 +9,7 @@ class CheckBoxSynchronizer : public StateSynchronizer<QCheckBox>
 {
 public:
     explicit CheckBoxSynchronizer(QObject *parent = nullptr);
+    void addObject(QCheckBox* obj);
 };
 
 #endif // CHECKBOXSYNCHRONIZER_H

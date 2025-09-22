@@ -98,14 +98,21 @@ void ZTextHighlighter::highlight(const QString &searchText, const QColor &backgr
 
 void ZTextHighlighter::clearHighlight()
 {
-    if (!m_textEdit || m_highlightedCursors.isEmpty()) {
+    if (!m_textEdit) {
         return;
     }
 
+    // 清除所有存储的高亮光标
     QTextCharFormat plainFormat;
     for (QTextCursor &cursor : m_highlightedCursors) {
         cursor.mergeCharFormat(plainFormat);
     }
+
+    // 重置整个文本编辑器的格式，确保没有残留的高亮样式
+    QTextCursor cursor(m_textEdit->document());
+    cursor.select(QTextCursor::Document);
+    cursor.setCharFormat(plainFormat);
+    cursor.clearSelection();
 
     m_highlightedCursors.clear();
     m_currentIndex = -1;

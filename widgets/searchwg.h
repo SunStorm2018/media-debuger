@@ -8,6 +8,7 @@
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QRadioButton>
+#include <QLineEdit>
 
 #include <common/flowlayout.h>
 
@@ -54,8 +55,11 @@ public:
     bool isUseRegularExpression();
 
     void setSearchText(const QString &text);
+    QString getSearchText();
+
     void setSearchStatus(const QString &text);
 
+    QLineEdit * getSearchLE();
 signals:
     void searchRangeSelectionChanged(const QStringList &selectedOptions);
     void searchReady();

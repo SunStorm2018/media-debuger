@@ -1,8 +1,16 @@
 #include "statesynchronizer.h"
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QCheckBox>
 
 template<typename T>
 StateSynchronizer<T>::StateSynchronizer(QObject *parent)
     : QObject(parent), m_enabled(true), m_syncing(false) {}
+
+// 显式实例化常用类型
+template class StateSynchronizer<QLineEdit>;
+template class StateSynchronizer<QSpinBox>;
+template class StateSynchronizer<QCheckBox>;
 
 template<typename T>
 void StateSynchronizer<T>::addObject(T *obj) {
@@ -10,10 +18,10 @@ void StateSynchronizer<T>::addObject(T *obj) {
 
     m_objects.insert(obj);
 
-    // 如果有设置访问器，建立连接
-    if (m_getter && m_setter) {
-        // 这里需要具体的信号类型，所以在派生类中处理更合适
-    }
+    // 设置信号处理器
+    m_signalHandler = [this](T* changedObj, const QVariant& value) {
+        onStateChanged(changedObj, value);
+    };
 }
 
 template<typename T>
@@ -33,21 +41,15 @@ void StateSynchronizer<T>::clear() {
 }
 
 template<typename T>
-void StateSynchronizer<T>::setAccessors(GetterFunc getter, SetterFunc setter, ChangeSignal signal) {
+void StateSynchronizer<T>::setAccessors(GetterFunc getter, SetterFunc setter) {
     m_getter = getter;
     m_setter = setter;
+}
 
-    // 先断开所有现有连接
-    for (T* obj : m_objects) {
-        disconnect(obj, nullptr, this, nullptr);
-    }
-
-    // 重新建立连接
-    for (T* obj : m_objects) {
-        connect(obj, signal, this, [this, obj](auto&&... args) {
-            onStateChanged(obj);
-        });
-    }
+template<typename T>
+template<typename SignalType, typename SlotType>
+void StateSynchronizer<T>::connectSignal(T* obj, SignalType signal, SlotType slot) {
+    connect(obj, signal, this, slot);
 }
 
 template<typename T>
@@ -84,18 +86,12 @@ QSet<T *> StateSynchronizer<T>::objects() const { return m_objects; }
 
 template<typename T>
 void StateSynchronizer<T>::setupConnections(T *obj) {
-    if (!m_signal) return;
-
-    connect(obj, m_signal, this, [this, obj](const QVariant& value) {
-        onStateChanged(obj, value);
-    });
+    // 连接逻辑移到具体的派生类中处理
 }
 
 template<typename T>
 void StateSynchronizer<T>::disconnectObject(T *obj) {
-    if (m_signal) {
-        disconnect(obj, m_signal, this, nullptr);
-    }
+    disconnect(obj, nullptr, this, nullptr);
 }
 
 template<typename T>
@@ -103,8 +99,8 @@ void StateSynchronizer<T>::onStateChanged(T *changedObj, const QVariant &value) 
     if (!m_enabled || m_syncing || !m_getter || !m_setter) return;
 
     m_syncing = true;
-    QVariant value = m_getter(changedObj);
-
+    
+    // 使用传入的value参数，而不是重新获取
     for (T* obj : m_objects) {
         if (obj != changedObj) {
             m_setter(obj, value);

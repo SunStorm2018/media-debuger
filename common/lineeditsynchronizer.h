@@ -9,6 +9,7 @@ class LineEditSynchronizer : public StateSynchronizer<QLineEdit>
 {
 public:
     explicit LineEditSynchronizer(QObject *parent = nullptr);
+    void addObject(QLineEdit* obj);
 };
 
 #endif // LINEEDITSYNCHRONIZER_H

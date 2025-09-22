@@ -7,7 +7,7 @@ HelpQueryWg::HelpQueryWg(QWidget *parent)
 {
     ui->setupUi(this);
     ui->category_combx->addItems(HELP_OPTION_FORMATS);
-    emit ui->category_combx->activated(0);
+
     m_highLighter = new ZTextHighlighter(ui->search_output_ple);
 
     m_detailSearchWg = new SearchWG(this);
@@ -26,7 +26,11 @@ HelpQueryWg::HelpQueryWg(QWidget *parent)
     });
 
     connect(m_detailSearchWg, &SearchWG::searchReady, this, &HelpQueryWg::on_search);
-    connect(m_detailSearchWg, &SearchWG::searchClear, m_highLighter, &ZTextHighlighter::clearHighlight);
+    connect(m_detailSearchWg, &SearchWG::searchClear, this, [this]() {
+        m_highLighter->clearHighlight();
+        m_detailSearchWg->setSearchText("");
+        m_detailSearchWg->setSearchStatus("");
+    });
     connect(m_detailSearchWg, &SearchWG::searchBefore, m_highLighter, &ZTextHighlighter::gotoPreviousHighlight);
     connect(m_detailSearchWg, &SearchWG::searchNext, m_highLighter, &ZTextHighlighter::gotoNextHighlight);
 
@@ -41,6 +45,8 @@ HelpQueryWg::HelpQueryWg(QWidget *parent)
     connect(m_highLighter, &ZTextHighlighter::searchTextNotFound, [=](const QString &searchText) {
         m_detailSearchWg->setSearchStatus(QString("Text '%1' not found").arg(searchText));
     });
+
+    emit ui->category_combx->activated(0);
 }
 
 HelpQueryWg::~HelpQueryWg()
@@ -50,6 +56,10 @@ HelpQueryWg::~HelpQueryWg()
 
 bool HelpQueryWg::setHelpParams(const QString &category, const QString &value)
 {
+    // 清除高亮状态
+    m_highLighter->clearHighlight();
+    
+    // 清空文本框
     ui->search_output_ple->clear();
 
     QStringList helpList {
@@ -59,75 +69,85 @@ bool HelpQueryWg::setHelpParams(const QString &category, const QString &value)
             .arg(value)
     };
 
-    ui->search_output_ple->setPlainText(m_probe.getHelp(helpList));
-}
-
-void HelpQueryWg::on_search_btn_clicked()
-{
-    if (!ui->keep_last_cbx->isChecked()) {
-        ui->search_output_ple->clear();
+    QString helpText = m_probe.getHelp(helpList);
+    if (helpText.isEmpty()) {
+        helpText = tr("No help information available for %1=%2").arg(category, value);
     }
-
-    QStringList helpList {
-        QString("%1%2%3")
-        .arg(ui->category_combx->currentText())
-            .arg("=")
-            .arg(ui->param_combox->currentText())
-    };
-
-    ui->search_output_ple->setPlainText(m_probe.getHelp(helpList));
+    
+    ui->search_output_ple->setPlainText(helpText);
+    
+    // 不再自动重新应用高亮，避免切换内容时背景变黄的问题
+    // 用户需要手动重新搜索才会应用高亮
+    
+    return !helpText.isEmpty();
 }
-
 
 void HelpQueryWg::on_category_combx_activated(int index)
 {
-    if (QStringList{"full", "long"}.contains( ui->category_combx->currentText())) {
-        ui->param_combox->setVisible(false);
-    } else {
-        ui->param_combox->setVisible(true);
-    }
+    QString currentCategory = ui->category_combx->currentText();
+    
+    // 根据类别决定是否显示参数下拉框
+    bool showParamBox = !QStringList{"full", "long"}.contains(currentCategory);
+    ui->param_combox->setVisible(showParamBox);
 
     ui->param_combox->clear();
-    if (ui->category_combx->currentText() == DECODER_FMT) {
-        ui->param_combox->addItems(m_probe.getCodecsFromLibav(CODEC_TYPE_DECODER));
+    
+    // 如果不需要参数，直接查询
+    if (!showParamBox) {
+        setHelpParams(currentCategory, "");
         return;
     }
-    if (ui->category_combx->currentText() == ENCODER_FMT) {
-        ui->param_combox->addItems(m_probe.getCodecsFromLibav(CODEC_TYPE_ENCODER));
-        return;
-    }
-    if (ui->category_combx->currentText() == DEMUXER_FMT) {
-        ui->param_combox->addItems(m_probe.getMuxersFromLibav(MUXER_TYPE_DEMUXER));
-        return;
-    }
-    if (ui->category_combx->currentText() == MUXER_FMT) {
-        ui->param_combox->addItems(m_probe.getMuxersFromLibav(MUXER_TYPE_MUXER));
-        return;
-    }
-    if (ui->category_combx->currentText() == FILTER_FMT) {
-        ui->param_combox->addItems(m_probe.getFiltersFromLibav());
-        return;
-    }
-    if (ui->category_combx->currentText() == BSF_FMT) {
-        ui->param_combox->addItems(m_probe.getBsfFromLibav());
-        return;
-    }
-    if (ui->category_combx->currentText() == PROTOCOL_FMT) {
-        ui->param_combox->addItems(m_probe.getProtocolFromLibav());
-        return;
-    }
-}
 
+    // 根据不同类别加载对应的参数列表
+    QStringList items;
+    bool success = false;
+    
+    if (currentCategory == DECODER_FMT) {
+        items = m_probe.getCodecsFromLibav(CODEC_TYPE_DECODER);
+        success = !items.isEmpty();
+    } else if (currentCategory == ENCODER_FMT) {
+        items = m_probe.getCodecsFromLibav(CODEC_TYPE_ENCODER);
+        success = !items.isEmpty();
+    } else if (currentCategory == DEMUXER_FMT) {
+        items = m_probe.getMuxersFromLibav(MUXER_TYPE_DEMUXER);
+        success = !items.isEmpty();
+    } else if (currentCategory == MUXER_FMT) {
+        items = m_probe.getMuxersFromLibav(MUXER_TYPE_MUXER);
+        success = !items.isEmpty();
+    } else if (currentCategory == FILTER_FMT) {
+        items = m_probe.getFiltersFromLibav();
+        success = !items.isEmpty();
+    } else if (currentCategory == BSF_FMT) {
+        items = m_probe.getBsfFromLibav();
+        success = !items.isEmpty();
+    } else if (currentCategory == PROTOCOL_FMT) {
+        items = m_probe.getProtocolFromLibav();
+        success = !items.isEmpty();
+    }
 
-void HelpQueryWg::on_search_input_le_editingFinished()
-{
-    emit ui->search_btn->clicked();
+    if (success && !items.isEmpty()) {
+        ui->param_combox->addItems(items);
+        // 自动选择第一项
+        if (items.size() > 0) {
+            setHelpParams(currentCategory, items.first());
+        }
+    } else {
+        // 加载失败时显示错误信息
+        ui->search_output_ple->setPlainText(tr("Failed to load %1 parameters").arg(currentCategory));
+    }
 }
 
 void HelpQueryWg::on_search()
 {
-    QString searchText = ui->search_input_le->text().trimmed();
+    QString searchText = m_detailSearchWg->getSearchText().trimmed();
     if (searchText.isEmpty()) {
+        m_detailSearchWg->setSearchStatus(tr("Search text is empty"));
+        return;
+    }
+
+    // 检查是否有内容可以搜索
+    if (ui->search_output_ple->toPlainText().isEmpty()) {
+        m_detailSearchWg->setSearchStatus(tr("No content to search"));
         return;
     }
 
@@ -138,3 +158,16 @@ void HelpQueryWg::on_search()
     m_highLighter->highlight(searchText);
 }
 
+void HelpQueryWg::on_param_combox_activated(int index)
+{
+    setHelpParams(ui->category_combx->currentText(), ui->param_combox->currentText());
+}
+
+void HelpQueryWg::on_keep_last_cbx_stateChanged(int state)
+{
+    // 当keep_last_cbx状态改变时，如果取消勾选，清除当前内容
+    if (state == Qt::Unchecked) {
+        m_highLighter->clearHighlight();
+        ui->search_output_ple->clear();
+    }
+}

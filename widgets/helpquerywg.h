@@ -48,13 +48,13 @@ public:
     bool setHelpParams(const QString &category, const QString &value);
 
 private slots:
-    void on_search_btn_clicked();
 
     void on_category_combx_activated(int index);
 
-    void on_search_input_le_editingFinished();
-
     void on_search();
+    void on_param_combox_activated(int index);
+    void on_keep_last_cbx_stateChanged(int state);
+
 private:
     Ui::HelpQueryWg *ui;
     ZFfprobe m_probe;
