@@ -6,6 +6,9 @@
 
 extern "C" {
 #include <libavcodec/avcodec.h>
+#include <libavcodec/bsf.h>
+#include <libavformat/avformat.h>
+#include <libavfilter/avfilter.h>
 }
 
 #define FFPROBE "ffprobe"
@@ -143,6 +146,17 @@ extern "C" {
         return process.readAll(); \
 }()
 
+enum CodecType {
+    CODEC_TYPE_DECODER = 1,
+    CODEC_TYPE_ENCODER = 2
+};
+
+enum MuxerType {
+    MUXER_TYPE_MUXER = 1,
+    MUXER_TYPE_DEMUXER = 2
+};
+
+
 class ZFfprobe : public QObject
 {
     Q_OBJECT
@@ -176,7 +190,11 @@ public:
  */
     Q_INVOKABLE QString getMediaInfoJsonFormat(const QString& command, const QString& fileName);           // show format/container info
 
-    QStringList getCodecsFromLibav(int type); // 0: decoders, 1: ncoders
+    QStringList getCodecsFromLibav(CodecType type);
+    QStringList getMuxersFromLibav(MuxerType type);
+    QStringList getFiltersFromLibav();
+    QStringList getBsfFromLibav();
+    QStringList getProtocolFromLibav();
 signals:
 
 private:

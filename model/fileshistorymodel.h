@@ -48,9 +48,13 @@ public:
 
     // Context menu actions
     void removeRecord(int index);
+    void removeRecords(const QModelIndexList &indexs);
     void deleteFile(int index);
     void openFileLocation(int index);
+    void openFileLocations(const QModelIndexList &indexs);
     void copyFilePath(int index);
+    void copyFilePaths(QList<int> indexs);
+    void copyFilePaths(QModelIndexList indexs);
     void playFile(int index);
 
 private:

@@ -8,6 +8,13 @@ HelpQueryWg::HelpQueryWg(QWidget *parent)
     ui->setupUi(this);
     ui->category_combx->addItems(HELP_OPTION_FORMATS);
 
+    qDebug() << "get codecs-encoder:" << m_probe.getCodecsFromLibav(CODEC_TYPE_ENCODER);
+    qDebug() << "get codecs-decoder:" << m_probe.getCodecsFromLibav(CODEC_TYPE_DECODER);
+    qDebug() << "get muxer-demuxer:" << m_probe.getMuxersFromLibav(MUXER_TYPE_DEMUXER);
+    qDebug() << "get muxer-muxer:" << m_probe.getMuxersFromLibav(MUXER_TYPE_MUXER);
+    qDebug() << "get filters:" << m_probe.getFiltersFromLibav();
+    qDebug() << "get bsf:" << m_probe.getBsfFromLibav();
+    qDebug() << "get protocols:" << m_probe.getProtocolFromLibav();
 }
 
 HelpQueryWg::~HelpQueryWg()
@@ -19,8 +26,6 @@ bool HelpQueryWg::setHelpParams(const QString &category, const QString &value)
 {
     ui->search_output_ple->clear();
 
-    ZFfprobe probe;
-
     QStringList helpList {
         QString("%1%2%3")
         .arg(category)
@@ -28,8 +33,7 @@ bool HelpQueryWg::setHelpParams(const QString &category, const QString &value)
             .arg(value)
     };
 
-    qDebug() << probe.getHelp(helpList);
-    ui->search_output_ple->setPlainText(probe.getHelp(helpList));
+    ui->search_output_ple->setPlainText(m_probe.getHelp(helpList));
 }
 
 void HelpQueryWg::on_search_btn_clicked()

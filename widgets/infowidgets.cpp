@@ -326,7 +326,7 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
     if (QStringList{"bsfs", "buildconf"}.contains(format_key, Qt::CaseInsensitive)) {
         headers << tr("Bitstream filters");
 
-        for (int i = 1; i < rawStringLines.size(); i++) {
+        for (int i = 0; i < rawStringLines.size(); i++) {
             data_tb.append(QStringList{rawStringLines.at(i).trimmed()});
         }
 

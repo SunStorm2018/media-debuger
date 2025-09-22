@@ -76,7 +76,7 @@ bool FilesHistoryModel::addFile(const QString &filePath)
         endRemoveRows();
     }
 
-    saveSettings(); // Save immediately
+    saveSettings();
     return true;
 }
 
@@ -99,7 +99,7 @@ bool FilesHistoryModel::removeFile(int index)
     m_filePaths.removeAt(index);
     endRemoveRows();
 
-    saveSettings(); // Save immediately
+    saveSettings();
     return true;
 }
 
@@ -108,7 +108,7 @@ void FilesHistoryModel::clearHistory()
     beginResetModel();
     m_filePaths.clear();
     endResetModel();
-    saveSettings(); // Save immediately
+    saveSettings();
 }
 
 void FilesHistoryModel::loadSettings()
@@ -137,6 +137,27 @@ QString FilesHistoryModel::currentFile(int index)
 void FilesHistoryModel::removeRecord(int index)
 {
     removeFile(index);
+}
+
+void FilesHistoryModel::removeRecords(const QModelIndexList& indexs)
+{
+    if (indexs.isEmpty()) {
+        return;
+    }
+    int firstRow = indexs.first().row();
+    int lastRow = indexs.last().row();
+
+    beginRemoveRows(QModelIndex(), firstRow, lastRow);
+
+    for (int i = lastRow; i >= firstRow; --i) {
+        if (i < m_filePaths.size()) {
+            m_filePaths.removeAt(i);
+        }
+    }
+
+    endRemoveRows();
+
+    saveSettings();
 }
 
 void FilesHistoryModel::deleteFile(int index)
@@ -196,6 +217,82 @@ void FilesHistoryModel::openFileLocation(int index)
     }
 }
 
+void FilesHistoryModel::openFileLocations(const QModelIndexList &indexs)
+{
+    if (indexs.isEmpty()) {
+        return;
+    }
+
+    // Use QSet to store unique parent directories to avoid duplicates
+    QSet<QString> uniqueParentDirs;
+    QList<QString> validFilePaths;
+
+    // Collect valid file paths and their parent directories
+    for (const QModelIndex &index : indexs) {
+        if (!index.isValid() || index.row() < 0 || index.row() >= m_filePaths.size()) {
+            continue;
+        }
+
+        QString filePath = m_filePaths.at(index.row());
+        QFileInfo fileInfo(filePath);
+
+        if (!fileInfo.exists()) {
+            QMessageBox::warning(nullptr, "File Not Found",
+                                 QString("The file does not exist:\n%1").arg(filePath));
+            continue;
+        }
+
+        QString parentDir = fileInfo.absolutePath();
+        if (!uniqueParentDirs.contains(parentDir)) {
+            uniqueParentDirs.insert(parentDir);
+            validFilePaths.append(filePath);
+        }
+    }
+
+    if (validFilePaths.isEmpty()) {
+        return;
+    }
+
+    // Open file locations for each unique parent directory
+    bool overallSuccess = false;
+    for (const QString &filePath : validFilePaths) {
+        QFileInfo fileInfo(filePath);
+        bool success = false;
+
+#if defined(Q_OS_WIN)
+        success = QProcess::startDetached("explorer.exe",
+                                          QStringList() << "/select," << QDir::toNativeSeparators(filePath));
+#elif defined(Q_OS_MACOS)
+        success = QProcess::startDetached("open",
+                                          QStringList() << "-R" << filePath);
+#else // Linux and other OS \
+    // Try to find a suitable file manager
+        if (QProcess::execute("which", QStringList() << "dolphin") == 0) {
+            success = QProcess::startDetached("dolphin",
+                                              QStringList() << "--select" << filePath);
+        } else if (QProcess::execute("which", QStringList() << "nautilus") == 0) {
+            success = QProcess::startDetached("nautilus",
+                                              QStringList() << "--select" << filePath);
+        } else if (QProcess::execute("which", QStringList() << "thunar") == 0) {
+            success = QProcess::startDetached("thunar",
+                                              QStringList() << "--select" << filePath);
+        } else if (QProcess::execute("which", QStringList() << "xdg-open") == 0) {
+            // Fallback: open the parent directory instead of selecting the file
+            success = QProcess::startDetached("xdg-open",
+                                              QStringList() << fileInfo.absolutePath());
+        }
+#endif
+
+        if (success) {
+            overallSuccess = true;
+        }
+    }
+
+    if (!overallSuccess) {
+        QMessageBox::warning(nullptr, "Error", "Could not open file location(s).");
+    }
+}
+
 void FilesHistoryModel::copyFilePath(int index)
 {
     if (index < 0 || index >= m_filePaths.size()) {
@@ -204,6 +301,29 @@ void FilesHistoryModel::copyFilePath(int index)
     QString filePath = m_filePaths.at(index);
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(filePath);
+}
+
+void FilesHistoryModel::copyFilePaths(QList<int> indexs)
+{
+    QString filePaths;
+    for (auto index: indexs) {
+        if (index < 0 || index >= m_filePaths.size()) {
+            continue;
+        }
+        filePaths.append(m_filePaths.at(index) + "\n");
+    }
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(filePaths);
+}
+
+void FilesHistoryModel::copyFilePaths(QModelIndexList indexs)
+{
+    QString filePaths;
+    for (auto index: indexs) {
+        filePaths.append(m_filePaths.at(index.row()) + "\n");
+    }
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(filePaths);
 }
 
 void FilesHistoryModel::playFile(int index)

@@ -119,19 +119,17 @@ void FilesWG::createContextMenu()
     // Remove record action
     m_removeAction = new QAction("Remove Record", this);
     connect(m_removeAction, &QAction::triggered, this, [this]() {
-        QModelIndex index = ui->listView->currentIndex();
-        if (index.isValid()) {
-            m_model->removeRecord(index.row());
-        }
+        m_model->removeRecords(ui->listView->selectionModel()->selectedIndexes());
     });
     m_contextMenu->addAction(m_removeAction);
     
     // Delete file action
     m_deleteFileAction = new QAction("Delete File", this);
-    connect(m_deleteFileAction, &QAction::triggered, this, [this]() {
-        QModelIndex index = ui->listView->currentIndex();
-        if (index.isValid()) {
-            m_model->deleteFile(index.row());
+    connect(m_deleteFileAction, &QAction::triggered, this, [this]() {        
+        for (auto index : ui->listView->selectionModel()->selectedIndexes()) {
+            if (index.isValid()) {
+                m_model->deleteFile(index.row());
+            }
         }
     });
     m_contextMenu->addAction(m_deleteFileAction);
@@ -141,20 +139,14 @@ void FilesWG::createContextMenu()
     // Open file location action
     m_openLocationAction = new QAction("Open File Location", this);
     connect(m_openLocationAction, &QAction::triggered, this, [this]() {
-        QModelIndex index = ui->listView->currentIndex();
-        if (index.isValid()) {
-            m_model->openFileLocation(index.row());
-        }
+        m_model->openFileLocations(ui->listView->selectionModel()->selectedIndexes());
     });
     m_contextMenu->addAction(m_openLocationAction);
     
     // Copy file path action
     m_copyPathAction = new QAction("Copy File Path", this);
     connect(m_copyPathAction, &QAction::triggered, this, [this]() {
-        QModelIndex index = ui->listView->currentIndex();
-        if (index.isValid()) {
-            m_model->copyFilePath(index.row());
-        }
+        m_model->copyFilePaths(ui->listView->selectionModel()->selectedIndexes());
     });
     m_contextMenu->addAction(m_copyPathAction);
     
@@ -163,9 +155,10 @@ void FilesWG::createContextMenu()
     // Play file action
     m_playAction = new QAction("Play", this);
     connect(m_playAction, &QAction::triggered, this, [this]() {
-        QModelIndex index = ui->listView->currentIndex();
-        if (index.isValid()) {
-            m_model->playFile(index.row());
+        for (auto index : ui->listView->selectionModel()->selectedIndexes()) {
+            if (index.isValid()) {
+                m_model->playFile(index.row());
+            }
         }
     });
     m_contextMenu->addAction(m_playAction);
@@ -174,7 +167,6 @@ void FilesWG::createContextMenu()
 void FilesWG::onFilesDropped(const QStringList &filePaths)
 {
     for (const QString &filePath : filePaths) {
-        qDebug() << "drop file:" << filePath;
         addFileToHistory(filePath);
     }
 }
