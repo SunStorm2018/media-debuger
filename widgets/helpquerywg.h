@@ -3,9 +3,13 @@
 
 #include <QWidget>
 #include <QDebug>
+#include <QShortcut>
 
 #include <common/common.h>
 #include <common/zffprobe.h>
+#include <common/ztexthighlighter.h>
+
+#include <widgets/searchwg.h>
 
 namespace Ui {
 class HelpQueryWg;
@@ -42,6 +46,7 @@ public:
     ~HelpQueryWg();
 
     bool setHelpParams(const QString &category, const QString &value);
+
 private slots:
     void on_search_btn_clicked();
 
@@ -49,9 +54,12 @@ private slots:
 
     void on_search_input_le_editingFinished();
 
+    void on_search();
 private:
     Ui::HelpQueryWg *ui;
     ZFfprobe m_probe;
+    ZTextHighlighter *m_highLighter;
+    SearchWG *m_detailSearchWg;
 };
 
 #endif // HELPQUERYWG_H

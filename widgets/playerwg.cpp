@@ -52,7 +52,7 @@ void PlayerWG::setMediaFile(const QString &filePath)
 {
     m_mediaFile = filePath;
     stop();
-    qDebug() << "Media file set to: " + filePath;
+    // qDebug() << "Media file set to: " + filePath;
 }
 
 void PlayerWG::play()

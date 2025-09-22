@@ -335,6 +335,11 @@ void SearchWG::setSearchText(const QString &text)
     ui->search_le->setText(text);
 }
 
+void SearchWG::setSearchStatus(const QString &text)
+{
+    ui->status_lb->setText(text);
+}
+
 void SearchWG::on_search_btn_clicked()
 {
     emit searchReady();
@@ -350,5 +355,23 @@ void SearchWG::on_search_le_textChanged(const QString &arg1)
 void SearchWG::on_search_le_editingFinished()
 {
     emit ui->search_btn->clicked();
+}
+
+
+void SearchWG::on_before_btn_clicked()
+{
+    emit searchBefore();
+}
+
+
+void SearchWG::on_next_btn_clicked()
+{
+    emit searchNext();
+}
+
+
+void SearchWG::on_clear_btn_clicked()
+{
+    emit searchClear();
 }
 

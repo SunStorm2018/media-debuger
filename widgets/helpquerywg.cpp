@@ -7,16 +7,40 @@ HelpQueryWg::HelpQueryWg(QWidget *parent)
 {
     ui->setupUi(this);
     ui->category_combx->addItems(HELP_OPTION_FORMATS);
-
-    // qDebug() << "get codecs-encoder:" << m_probe.getCodecsFromLibav(CODEC_TYPE_ENCODER);
-    // qDebug() << "get codecs-decoder:" << m_probe.getCodecsFromLibav(CODEC_TYPE_DECODER);
-    // qDebug() << "get muxer-demuxer:" << m_probe.getMuxersFromLibav(MUXER_TYPE_DEMUXER);
-    // qDebug() << "get muxer-muxer:" << m_probe.getMuxersFromLibav(MUXER_TYPE_MUXER);
-    // qDebug() << "get filters:" << m_probe.getFiltersFromLibav();
-    // qDebug() << "get bsf:" << m_probe.getBsfFromLibav();
-    // qDebug() << "get protocols:" << m_probe.getProtocolFromLibav();
-
     emit ui->category_combx->activated(0);
+    m_highLighter = new ZTextHighlighter(ui->search_output_ple);
+
+    m_detailSearchWg = new SearchWG(this);
+    m_detailSearchWg->setWindowTitle(tr("Detail Search"));
+
+    // Configure to show only the required group boxes for InfoWidgets
+    auto requiredBoxes = SearchWG::MatchControl | SearchWG::Operation;
+    m_detailSearchWg->setVisibleGroupBoxes(requiredBoxes);
+
+    ui->verticalLayout->addWidget(m_detailSearchWg);
+    m_detailSearchWg->setVisible(false);
+
+    QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+F"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        m_detailSearchWg->setVisible(!m_detailSearchWg->isVisible());
+    });
+
+    connect(m_detailSearchWg, &SearchWG::searchReady, this, &HelpQueryWg::on_search);
+    connect(m_detailSearchWg, &SearchWG::searchClear, m_highLighter, &ZTextHighlighter::clearHighlight);
+    connect(m_detailSearchWg, &SearchWG::searchBefore, m_highLighter, &ZTextHighlighter::gotoPreviousHighlight);
+    connect(m_detailSearchWg, &SearchWG::searchNext, m_highLighter, &ZTextHighlighter::gotoNextHighlight);
+
+    connect(m_highLighter, &ZTextHighlighter::highlightCountChanged, [=](int count) {
+        m_detailSearchWg->setSearchStatus(QString("Found %1 results").arg(count));
+    });
+    connect(m_highLighter, &ZTextHighlighter::currentHighlightChanged, [=](int index) {
+        if (index >= 0) {
+            m_detailSearchWg->setSearchStatus(QString("Result %1 of %2").arg(index + 1).arg(m_highLighter->highlightCount()));
+        }
+    });
+    connect(m_highLighter, &ZTextHighlighter::searchTextNotFound, [=](const QString &searchText) {
+        m_detailSearchWg->setSearchStatus(QString("Text '%1' not found").arg(searchText));
+    });
 }
 
 HelpQueryWg::~HelpQueryWg()
@@ -98,5 +122,19 @@ void HelpQueryWg::on_category_combx_activated(int index)
 void HelpQueryWg::on_search_input_le_editingFinished()
 {
     emit ui->search_btn->clicked();
+}
+
+void HelpQueryWg::on_search()
+{
+    QString searchText = ui->search_input_le->text().trimmed();
+    if (searchText.isEmpty()) {
+        return;
+    }
+
+    m_highLighter->setCaseSensitive(m_detailSearchWg->isCaseSensitive());
+    m_highLighter->setWholeWord(m_detailSearchWg->isMatchWholewords());
+    m_highLighter->setUseRegex(m_detailSearchWg->isUseRegularExpression());
+
+    m_highLighter->highlight(searchText);
 }
 

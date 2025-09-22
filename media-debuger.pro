@@ -14,12 +14,17 @@ unix:!macx {
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    common/checkboxsynchronizer.cpp \
     common/commandexecutor.cpp \
     common/common.cpp \
     common/flowlayout.cpp \
+    common/lineeditsynchronizer.cpp \
+    common/spinboxsynchronizer.cpp \
+    common/statesynchronizer.cpp \
     common/tableheadermanager.cpp \
     common/zffprobe.cpp \
     common/zlogger.cpp \
+    common/ztexthighlighter.cpp \
     common/zwindowhelper.cpp \
     model/fileshistorymodel.cpp \
     model/logmodel.cpp \
@@ -44,12 +49,18 @@ SOURCES += \
     zcodecflagparser.cpp
 
 HEADERS += \
+    common/checkboxsynchronizer.h \
     common/commandexecutor.h \
     common/common.h \
     common/flowlayout.h \
+    common/lineeditsynchronizer.h \
+    common/spinboxsynchronizer.h \
+    common/statesynchronizer.h \
+    common/synchronizermacros.h \
     common/tableheadermanager.h \
     common/zffprobe.h \
     common/zlogger.h \
+    common/ztexthighlighter.h \
     common/zwindowhelper.h \
     model/fileshistorymodel.h \
     model/logmodel.h \

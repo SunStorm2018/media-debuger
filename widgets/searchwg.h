@@ -54,11 +54,15 @@ public:
     bool isUseRegularExpression();
 
     void setSearchText(const QString &text);
+    void setSearchStatus(const QString &text);
 
 signals:
     void searchRangeSelectionChanged(const QStringList &selectedOptions);
     void searchReady();
     void searchTextChanged(QString text);
+    void searchNext();
+    void searchBefore();
+    void searchClear();
 
 private slots:
     void onSelectAllClicked(bool checked);
@@ -70,6 +74,12 @@ private slots:
     void on_search_le_textChanged(const QString &arg1);
 
     void on_search_le_editingFinished();
+
+    void on_before_btn_clicked();
+
+    void on_next_btn_clicked();
+
+    void on_clear_btn_clicked();
 
 private:
     void setupGroupBoxes();
