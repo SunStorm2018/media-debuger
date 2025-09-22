@@ -10,40 +10,40 @@ HelpQueryWg::HelpQueryWg(QWidget *parent)
 
     m_highLighter = new ZTextHighlighter(ui->search_output_ple);
 
-    m_detailSearchWg = new SearchWG(this);
-    m_detailSearchWg->setWindowTitle(tr("Detail Search"));
+    m_searchWG = new SearchWG(this);
+    m_searchWG->setWindowTitle(tr("Detail Search"));
 
     // Configure to show only the required group boxes for InfoWidgets
     auto requiredBoxes = SearchWG::MatchControl | SearchWG::Operation;
-    m_detailSearchWg->setVisibleGroupBoxes(requiredBoxes);
+    m_searchWG->setVisibleGroupBoxes(requiredBoxes);
 
-    ui->verticalLayout->addWidget(m_detailSearchWg);
-    m_detailSearchWg->setVisible(false);
+    ui->verticalLayout->addWidget(m_searchWG);
+    m_searchWG->setVisible(false);
 
     QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+F"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
-        m_detailSearchWg->setVisible(!m_detailSearchWg->isVisible());
+        m_searchWG->setVisible(!m_searchWG->isVisible());
     });
 
-    connect(m_detailSearchWg, &SearchWG::searchReady, this, &HelpQueryWg::on_search);
-    connect(m_detailSearchWg, &SearchWG::searchClear, this, [this]() {
+    connect(m_searchWG, &SearchWG::searchReady, this, &HelpQueryWg::on_searchReady);
+    connect(m_searchWG, &SearchWG::searchClear, this, [this]() {
         m_highLighter->clearHighlight();
-        m_detailSearchWg->setSearchText("");
-        m_detailSearchWg->setSearchStatus("");
+        m_searchWG->setSearchText("");
+        m_searchWG->setSearchStatus("");
     });
-    connect(m_detailSearchWg, &SearchWG::searchBefore, m_highLighter, &ZTextHighlighter::gotoPreviousHighlight);
-    connect(m_detailSearchWg, &SearchWG::searchNext, m_highLighter, &ZTextHighlighter::gotoNextHighlight);
+    connect(m_searchWG, &SearchWG::searchBefore, m_highLighter, &ZTextHighlighter::gotoPreviousHighlight);
+    connect(m_searchWG, &SearchWG::searchNext, m_highLighter, &ZTextHighlighter::gotoNextHighlight);
 
     connect(m_highLighter, &ZTextHighlighter::highlightCountChanged, [=](int count) {
-        m_detailSearchWg->setSearchStatus(QString("Found %1 results").arg(count));
+        m_searchWG->setSearchStatus(QString("Found %1 results").arg(count));
     });
     connect(m_highLighter, &ZTextHighlighter::currentHighlightChanged, [=](int index) {
         if (index >= 0) {
-            m_detailSearchWg->setSearchStatus(QString("Result %1 of %2").arg(index + 1).arg(m_highLighter->highlightCount()));
+            m_searchWG->setSearchStatus(QString("Result %1 of %2").arg(index + 1).arg(m_highLighter->highlightCount()));
         }
     });
     connect(m_highLighter, &ZTextHighlighter::searchTextNotFound, [=](const QString &searchText) {
-        m_detailSearchWg->setSearchStatus(QString("Text '%1' not found").arg(searchText));
+        m_searchWG->setSearchStatus(QString("Text '%1' not found").arg(searchText));
     });
 
     emit ui->category_combx->activated(0);
@@ -137,23 +137,23 @@ void HelpQueryWg::on_category_combx_activated(int index)
     }
 }
 
-void HelpQueryWg::on_search()
+void HelpQueryWg::on_searchReady()
 {
-    QString searchText = m_detailSearchWg->getSearchText().trimmed();
+    QString searchText = m_searchWG->getSearchText().trimmed();
     if (searchText.isEmpty()) {
-        m_detailSearchWg->setSearchStatus(tr("Search text is empty"));
+        m_searchWG->setSearchStatus(tr("Search text is empty"));
         return;
     }
 
     // 检查是否有内容可以搜索
     if (ui->search_output_ple->toPlainText().isEmpty()) {
-        m_detailSearchWg->setSearchStatus(tr("No content to search"));
+        m_searchWG->setSearchStatus(tr("No content to search"));
         return;
     }
 
-    m_highLighter->setCaseSensitive(m_detailSearchWg->isCaseSensitive());
-    m_highLighter->setWholeWord(m_detailSearchWg->isMatchWholewords());
-    m_highLighter->setUseRegex(m_detailSearchWg->isUseRegularExpression());
+    m_highLighter->setCaseSensitive(m_searchWG->isCaseSensitive());
+    m_highLighter->setWholeWord(m_searchWG->isMatchWholewords());
+    m_highLighter->setUseRegex(m_searchWG->isUseRegularExpression());
 
     m_highLighter->highlight(searchText);
 }

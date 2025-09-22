@@ -51,7 +51,7 @@ private slots:
 
     void on_category_combx_activated(int index);
 
-    void on_search();
+    void on_searchReady();
     void on_param_combox_activated(int index);
     void on_keep_last_cbx_stateChanged(int state);
 
@@ -59,7 +59,7 @@ private:
     Ui::HelpQueryWg *ui;
     ZFfprobe m_probe;
     ZTextHighlighter *m_highLighter;
-    SearchWG *m_detailSearchWg;
+    SearchWG *m_searchWG;
 };
 
 #endif // HELPQUERYWG_H
