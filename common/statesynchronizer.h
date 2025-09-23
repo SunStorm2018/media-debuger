@@ -17,35 +17,35 @@ class StateSynchronizer : public QObject
 public:
     using GetterFunc = std::function<QVariant(const T*)>;
     using SetterFunc = std::function<void(T*, const QVariant&)>;
-    // 使用通用信号类型，通过lambda适配不同的信号
+    // Generic signal type using lambda to adapt different signals
     using SignalHandler = std::function<void(T*, const QVariant&)>;
 
     explicit StateSynchronizer(QObject *parent = nullptr);
 
-    // 添加要同步的对象
+    // Add object to synchronize
     void addObject(T* obj);
 
-    // 移除同步对象
+    // Remove synchronized object
     void removeObject(T* obj);
 
-    // 清空所有同步对象
+    // Clear all synchronized objects
     void clear();
 
-    // 设置状态获取和设置函数
+    // Set state getter/setter functions
     void setAccessors(GetterFunc getter, SetterFunc setter);
 
-    // 连接信号 - 模板方法支持不同类型的信号
+    // Connect signal - template method supports different signal types
     template<typename SignalType, typename SlotType>
     void connectSignal(T* obj, SignalType signal, SlotType slot);
 
-    // 设置是否启用同步
+    // Enable/disable synchronization
     void setEnabled(bool enabled);
     bool isEnabled() const;
 
-    // 立即同步所有对象的状态
+    // Sync all objects immediately
     void syncAll(const QVariant& value = QVariant());
 
-    // 获取所有同步对象
+    // Get all synchronized objects
     QSet<T*> objects() const;
 
 protected:

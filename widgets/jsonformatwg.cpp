@@ -77,14 +77,14 @@ void JsonFormatWG::on_searchReady()
             // For whole word matching with regex, we need to adjust the pattern
             searchText = QString("\\b%1\\b").arg(searchText);
         }
-        m_proxyModel->setFilterRegularExpression(searchText);
+        m_proxyModel->setFilterRegExp(searchText);
     } else {
         if (m_searchWG->isMatchWholewords()) {
             // For whole word matching without regex, we need a different approach
             // Since QSortFilterProxyModel doesn't support whole word matching directly,
             // we'll use a regex pattern for this case too
             searchText = QString("\\b%1\\b").arg(QRegularExpression::escape(searchText));
-            m_proxyModel->setFilterRegularExpression(searchText);
+            m_proxyModel->setFilterRegExp(searchText);
         } else {
             m_proxyModel->setFilterFixedString(searchText);
         }

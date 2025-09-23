@@ -7,7 +7,7 @@ template<typename T>
 StateSynchronizer<T>::StateSynchronizer(QObject *parent)
     : QObject(parent), m_enabled(true), m_syncing(false) {}
 
-// 显式实例化常用类型
+// Explicit instantiation for common types
 template class StateSynchronizer<QLineEdit>;
 template class StateSynchronizer<QSpinBox>;
 template class StateSynchronizer<QCheckBox>;
@@ -18,7 +18,7 @@ void StateSynchronizer<T>::addObject(T *obj) {
 
     m_objects.insert(obj);
 
-    // 设置信号处理器
+    // Set signal handler
     m_signalHandler = [this](T* changedObj, const QVariant& value) {
         onStateChanged(changedObj, value);
     };
@@ -86,7 +86,7 @@ QSet<T *> StateSynchronizer<T>::objects() const { return m_objects; }
 
 template<typename T>
 void StateSynchronizer<T>::setupConnections(T *obj) {
-    // 连接逻辑移到具体的派生类中处理
+    // Connection logic handled in derived classes
 }
 
 template<typename T>
@@ -100,7 +100,7 @@ void StateSynchronizer<T>::onStateChanged(T *changedObj, const QVariant &value) 
 
     m_syncing = true;
     
-    // 使用传入的value参数，而不是重新获取
+    // Use passed value parameter instead of refetching
     for (T* obj : m_objects) {
         if (obj != changedObj) {
             m_setter(obj, value);

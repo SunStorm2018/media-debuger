@@ -56,10 +56,8 @@ HelpQueryWg::~HelpQueryWg()
 
 bool HelpQueryWg::setHelpParams(const QString &category, const QString &value)
 {
-    // 清除高亮状态
     m_highLighter->clearHighlight();
-    
-    // 清空文本框
+
     ui->search_output_ple->clear();
 
     QStringList helpList {
@@ -75,10 +73,7 @@ bool HelpQueryWg::setHelpParams(const QString &category, const QString &value)
     }
     
     ui->search_output_ple->setPlainText(helpText);
-    
-    // 不再自动重新应用高亮，避免切换内容时背景变黄的问题
-    // 用户需要手动重新搜索才会应用高亮
-    
+        
     return !helpText.isEmpty();
 }
 
@@ -86,19 +81,19 @@ void HelpQueryWg::on_category_combx_activated(int index)
 {
     QString currentCategory = ui->category_combx->currentText();
     
-    // 根据类别决定是否显示参数下拉框
+    // Show/hide parameter dropdown based on category
     bool showParamBox = !QStringList{"full", "long"}.contains(currentCategory);
     ui->param_combox->setVisible(showParamBox);
 
     ui->param_combox->clear();
     
-    // 如果不需要参数，直接查询
+    // Query directly if no parameters needed
     if (!showParamBox) {
         setHelpParams(currentCategory, "");
         return;
     }
 
-    // 根据不同类别加载对应的参数列表
+    // Load corresponding parameters by category
     QStringList items;
     bool success = false;
     
@@ -127,12 +122,12 @@ void HelpQueryWg::on_category_combx_activated(int index)
 
     if (success && !items.isEmpty()) {
         ui->param_combox->addItems(items);
-        // 自动选择第一项
+        // Auto-select first item
         if (items.size() > 0) {
             setHelpParams(currentCategory, items.first());
         }
     } else {
-        // 加载失败时显示错误信息
+        // Show error when loading fails
         ui->search_output_ple->setPlainText(tr("Failed to load %1 parameters").arg(currentCategory));
     }
 }
@@ -145,7 +140,7 @@ void HelpQueryWg::on_searchReady()
         return;
     }
 
-    // 检查是否有内容可以搜索
+    // Check if there's content to search
     if (ui->search_output_ple->toPlainText().isEmpty()) {
         m_searchWG->setSearchStatus(tr("No content to search"));
         return;
@@ -165,7 +160,7 @@ void HelpQueryWg::on_param_combox_activated(int index)
 
 void HelpQueryWg::on_keep_last_cbx_stateChanged(int state)
 {
-    // 当keep_last_cbx状态改变时，如果取消勾选，清除当前内容
+    // Clear content when unchecking keep_last_cbx
     if (state == Qt::Unchecked) {
         m_highLighter->clearHighlight();
         ui->search_output_ple->clear();

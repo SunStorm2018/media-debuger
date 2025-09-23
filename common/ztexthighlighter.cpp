@@ -9,9 +9,9 @@ ZTextHighlighter::ZTextHighlighter(QPlainTextEdit *parent)
     , m_useRegex(false)
     , m_currentIndex(-1)
 {
-    // 设置默认高亮格式
-    m_highlightFormat.setBackground(QColor(255, 255, 100)); // 浅黄色背景
-    m_highlightFormat.setForeground(Qt::black);            // 黑色文字
+    // Set default highlight format
+    m_highlightFormat.setBackground(QColor(255, 255, 100)); // Light yellow background
+    m_highlightFormat.setForeground(Qt::black);            // Black text
 }
 
 ZTextHighlighter::~ZTextHighlighter()
@@ -30,13 +30,13 @@ void ZTextHighlighter::highlight(const QString &searchText, const QColor &backgr
         return;
     }
 
-    // 保存当前搜索文本
+    // Save current search text
     m_currentSearchText = searchText;
 
-    // 清除旧的高亮
+    // Clear old highlights
     clearHighlight();
 
-    // 设置高亮格式
+    // Set highlight format
     m_highlightFormat.setBackground(backgroundColor);
     m_highlightFormat.setForeground(textColor);
 
@@ -50,7 +50,7 @@ void ZTextHighlighter::highlight(const QString &searchText, const QColor &backgr
     bool found = false;
 
     if (m_useRegex) {
-        // 使用正则表达式搜索
+        // Regex search
         QRegularExpression regex(searchText, m_caseSensitive ? QRegularExpression::NoPatternOption
                                                              : QRegularExpression::CaseInsensitiveOption);
         if (!regex.isValid()) {
@@ -71,7 +71,7 @@ void ZTextHighlighter::highlight(const QString &searchText, const QColor &backgr
             foundCount++;
         }
     } else {
-        // 普通文本搜索
+        // Plain text search
         QTextDocument::FindFlags flags = getFindFlags();
 
         while (m_textEdit->find(searchText, flags)) {
@@ -83,7 +83,7 @@ void ZTextHighlighter::highlight(const QString &searchText, const QColor &backgr
         }
     }
 
-    // 恢复原始光标位置
+    // Restore original cursor position
     m_textEdit->setTextCursor(originalCursor);
 
     if (foundCount > 0) {
@@ -102,13 +102,13 @@ void ZTextHighlighter::clearHighlight()
         return;
     }
 
-    // 清除所有存储的高亮光标
+    // Clear all stored highlight cursors
     QTextCharFormat plainFormat;
     for (QTextCursor &cursor : m_highlightedCursors) {
         cursor.mergeCharFormat(plainFormat);
     }
 
-    // 重置整个文本编辑器的格式，确保没有残留的高亮样式
+    // Reset entire editor format to ensure no highlight remnants
     QTextCursor cursor(m_textEdit->document());
     cursor.select(QTextCursor::Document);
     cursor.setCharFormat(plainFormat);

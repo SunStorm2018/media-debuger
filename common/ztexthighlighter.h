@@ -17,32 +17,32 @@ public:
     explicit ZTextHighlighter(QPlainTextEdit *parent = nullptr);
     ~ZTextHighlighter();
 
-    // 高亮搜索
+    // Highlight search
     void highlight(const QString &searchText);
     void highlight(const QString &searchText, const QColor &backgroundColor, const QColor &textColor = Qt::black);
 
-    // 清除高亮
+    // Clear highlights
     void clearHighlight();
 
-    // 导航功能
+    // Navigation functions
     void gotoNextHighlight();
     void gotoPreviousHighlight();
     void gotoFirstHighlight();
     void gotoLastHighlight();
 
-    // 设置选项
+    // Configuration options
     void setCaseSensitive(bool caseSensitive);
     void setWholeWord(bool wholeWord);
     void setUseRegex(bool useRegex);
     void setHighlightColor(const QColor &backgroundColor, const QColor &textColor = Qt::black);
 
-    // 状态获取
+    // Status getters
     int highlightCount() const;
     int currentHighlightIndex() const;
     bool hasHighlights() const;
     QString currentSearchText() const;
 
-    // 高亮所有匹配项，返回匹配数量
+    // Highlight all matches and return count
     int highlightAll(const QString &searchText);
 
 signals:

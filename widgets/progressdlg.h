@@ -16,52 +16,52 @@ class ProgressDialog : public QDialog
 
 public:
     enum ProgressMode {
-        Determinate,    // 确定性进度（有明确最大值）
-        Indeterminate,  // 不确定性进度（循环动画）
-        Busy            // 繁忙状态（无进度条，只有动画）
+        Determinate,    // Determinate progress (with max value)
+        Indeterminate,  // Indeterminate progress (looping animation)
+        Busy            // Busy state (no progress bar, only animation)
     };
 
     explicit ProgressDialog(QWidget *parent = nullptr,
                             Qt::WindowFlags flags = Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     ~ProgressDialog();
 
-    // 设置进度模式
+    // Set progress mode
     void setProgressMode(ProgressMode mode);
 
-    // 设置窗口标题
+    // Set window title
     void setWindowTitle(const QString &title);
 
-    // 设置信息文本
+    // Set message text
     void setMessage(const QString &message);
 
-    // 设置进度值（Determinate模式使用）
+    // Set progress value (for Determinate mode)
     void setValue(int value);
     void setRange(int minimum, int maximum);
 
-    // 设置是否显示取消按钮
+    // Show/hide cancel button
     void setCancelButtonVisible(bool visible);
 
-    // 设置是否自动关闭
+    // Enable auto close
     void setAutoClose(bool autoClose);
 
-    // 获取是否被取消
+    // Check if canceled
     bool wasCanceled() const;
 
-    // 重置进度
+    // Reset progress
     void reset();
 
 public slots:
-    // 开始进度（Indeterminate/Busy模式）
+    // Start progress (for Indeterminate/Busy modes)
     void start();
 
-    // 完成进度
+    // Finish progress
     void finish();
 
-    // 取消进度
+    // Cancel progress
     void cancel();
 
 signals:
-    // 取消信号
+    // Cancel signal
     void canceled();
 
 protected:

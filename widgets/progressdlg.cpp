@@ -18,8 +18,8 @@ ProgressDialog::ProgressDialog(QWidget *parent, Qt::WindowFlags flags)
 
     m_elapsedTimer = new QElapsedTimer();
 
-    setWindowTitle(tr("处理中..."));
-    setMessage(tr("请稍候..."));
+    setWindowTitle(tr("Processing..."));
+    setMessage(tr("Please wait..."));
     setCancelButtonVisible(true);
 }
 
@@ -32,29 +32,29 @@ void ProgressDialog::setupUI()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-    // 消息标签
+    // Message label
     m_messageLabel = new QLabel(this);
     m_messageLabel->setAlignment(Qt::AlignCenter);
     m_messageLabel->setWordWrap(true);
     mainLayout->addWidget(m_messageLabel);
 
-    // 进度条
+    // Progress bar
     m_progressBar = new QProgressBar(this);
     m_progressBar->setRange(0, 100);
     m_progressBar->setTextVisible(true);
     mainLayout->addWidget(m_progressBar);
 
-    // 时间标签
+    // Time label
     m_timeLabel = new QLabel(this);
     m_timeLabel->setAlignment(Qt::AlignCenter);
-    m_timeLabel->setText(tr("已用时间: 00:00:00"));
+    m_timeLabel->setText(tr("Elapsed time: 00:00:00"));
     mainLayout->addWidget(m_timeLabel);
 
-    // 取消按钮
+    // Cancel button
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
 
-    m_cancelButton = new QPushButton(tr("取消"), this);
+    m_cancelButton = new QPushButton(tr("Cancel"), this);
     connect(m_cancelButton, &QPushButton::clicked, this, &ProgressDialog::cancel);
     buttonLayout->addWidget(m_cancelButton);
 
@@ -116,7 +116,7 @@ void ProgressDialog::reset()
     m_progressBar->reset();
     m_animationTimer->stop();
     m_elapsedTimer->invalidate();
-    m_timeLabel->setText(tr("已用时间: 00:00:00"));
+    m_timeLabel->setText(tr("Elapsed time: 00:00:00"));
 }
 
 void ProgressDialog::start()
@@ -125,7 +125,7 @@ void ProgressDialog::start()
     m_elapsedTimer->start();
 
     if (m_mode == Indeterminate || m_mode == Busy) {
-        m_animationTimer->start(50); // 每50ms更新一次动画
+        m_animationTimer->start(50); // Update animation every 50ms
     }
 
     show();
@@ -157,26 +157,26 @@ void ProgressDialog::closeEvent(QCloseEvent *event)
     if (m_cancelButton->isVisible()) {
         cancel();
     }
-    event->ignore(); // 防止直接关闭，而是通过cancel处理
+    event->ignore(); // Prevent direct close, handle via cancel
 }
 
 void ProgressDialog::updateAnimation()
 {
     if (m_elapsedTimer->isValid()) {
         qint64 elapsed = m_elapsedTimer->elapsed();
-        m_timeLabel->setText(tr("已用时间: %1").arg(formatTime(elapsed)));
+        m_timeLabel->setText(tr("Elapsed time: %1").arg(formatTime(elapsed)));
     }
 
     if (m_mode == Indeterminate) {
-        // 更新不确定进度条的动画
+        // Update indeterminate progress animation
         m_animationStep = (m_animationStep + 1) % 100;
         m_progressBar->setValue(m_animationStep);
     } else if (m_mode == Busy) {
-        // 繁忙模式的动画效果
+        // Busy mode animation
         static const QStringList busyIcons = { "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" };
         m_animationStep = (m_animationStep + 1) % busyIcons.size();
         QString message = m_messageLabel->text();
-        // 移除之前的动画图标
+        // Remove previous animation icon
         if (message.startsWith('[') && message.length() > 3) {
             message = message.mid(3).trimmed();
         }
@@ -193,7 +193,7 @@ void ProgressDialog::updateProgressStyle()
         m_progressBar->setVisible(true);
         break;
     case Indeterminate:
-        m_progressBar->setRange(0, 0); // 设置为0表示不确定模式
+        m_progressBar->setRange(0, 0); // Set to 0 for indeterminate mode
         m_progressBar->setTextVisible(false);
         m_progressBar->setVisible(true);
         break;
