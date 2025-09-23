@@ -1,73 +1,123 @@
-# MediaDebuger
+# MediaDebugger
 
-MediaDebuger 是一个基于 Qt 的多媒体文件分析调试工具，主要用于查看和分析多媒体文件的各种信息，包括格式、编码、流信息等。该项目使用 FFprobe 作为底层工具来获取媒体文件的详细信息，并通过图形界面展示给用户。
+MediaDebugger is a Qt-based multimedia file analysis and debugging tool, primarily used for viewing and analyzing various information of multimedia files, including format, encoding, stream information, etc. This project uses FFprobe as the underlying tool to obtain detailed information about media files and presents it to users through a graphical interface.
 
-## 功能特性
+## Features
 
-- **媒体信息查看**：支持查看媒体文件的格式、编码器、流信息等。
-- **日志记录**：提供详细的日志记录功能，便于调试和问题追踪。
-- **历史记录**：自动保存最近打开的文件记录，方便快速访问。
-- **搜索功能**：支持在媒体信息中进行关键字搜索。
-- **导出功能**：可以将媒体信息导出为多种格式，如 JSON、表格等。
-- **多语言支持**：界面支持中文等多语言切换。
+- **Comprehensive Media Analysis**:
+  - Detailed format, encoder and stream information via FFprobe integration
+  - Frame-level metadata inspection
+  - Codec parameters and capabilities analysis
 
-## 安装说明
+- **Advanced UI Components**:
+  - Media Player (PlayerWG): Embedded playback with seek and frame analysis
+  - Search Panel (SearchWG): Multi-column search across media attributes
+  - Log Viewer (LogWG): Real-time logging with text highlighting
+  - JSON Formatter: Pretty-print and analyze media metadata
+  - Table View: Structured display of media properties
 
-### 依赖项
+- **Core Functionality**:
+  - State synchronization between UI components
+  - Configurable logging system with multiple levels
+  - History management for recently opened files
+  - Export to JSON, CSV and other formats
+  - Multi-language support (English/Chinese)
+
+- **Technical Highlights**:
+  - Custom text highlighters for log analysis
+  - UI state synchronization system
+  - Asynchronous command execution
+  - Model-View architecture for data presentation
+
+## Installation Instructions
+
+### Dependencies
 
 - Qt 6.x
-- FFmpeg（包含 FFprobe）
-- CMake 3.21 或更高版本
+- FFmpeg (including FFprobe)
+- CMake 3.21 or higher
 
-### 构建步骤
+### Build Steps
 
-1. 克隆仓库：
+1. Clone the repository:
+
    ```bash
    git clone https://gitee.com/sunstom/media-debuger.git
    ```
 
-2. 进入项目目录：
+2. Enter the project directory:
+
    ```bash
    cd media-debuger
    ```
 
-3. 创建构建目录并进入：
+3. Create a build directory and enter it:
+
    ```bash
    mkdir build && cd build
    ```
 
-4. 配置构建系统：
+4. Configure the build system:
+
    ```bash
    cmake ..
    ```
 
-5. 编译项目：
+5. Compile the project:
+
    ```bash
    cmake --build .
    ```
 
-6. 运行程序：
+6. Run the application:
+
    ```bash
    ./MediaDebuger
    ```
 
-## 使用说明
+## Usage Instructions
 
-- **打开文件**：通过文件菜单或拖放操作打开媒体文件。
-- **查看信息**：在主窗口中查看媒体文件的详细信息。
-- **搜索功能**：使用搜索框输入关键字，快速定位相关信息。
-- **导出信息**：点击导出按钮，选择需要导出的信息和格式，保存为文件。
-- **日志查看**：在日志窗口中查看程序运行时的日志信息。
+1. **File Operations**:
+   - Open media files via menu or drag-and-drop
+   - View recently opened files in history panel
+   - Export media info to various formats
 
-## 贡献指南
+2. **Media Analysis**:
+   - View detailed format info in main panel
+   - Inspect individual streams and codecs
+   - Analyze frame-level metadata
 
-欢迎贡献代码和文档。请遵循以下步骤：
+3. **Advanced Features**:
+   - Use embedded player to inspect video frames
+   - Search across all media attributes
+   - View and filter application logs
+   - Customize UI layout and preferences
 
-1. Fork 仓库。
-2. 创建新分支。
-3. 提交更改。
-4. 发起 Pull Request。
+## Development
 
-## 许可证
+### Project Structure
 
-本项目采用 MIT 许可证。详情请参阅 LICENSE 文件。
+- `common/`: Core components and utilities
+  - `zffprobe`: FFprobe integration
+  - `zlogger`: Logging system
+  - Synchronizers for UI state management
+
+- `widgets/`: UI components
+  - Player, Search, Log and other panels
+  - Format-specific display widgets
+
+- `model/`: Data models
+  - Media info, logs and search models
+
+### Contribution Guidelines
+
+Code and documentation contributions are welcome. Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch.
+3. Commit your changes.
+4. Submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License. Please refer to the LICENSE file for details.
