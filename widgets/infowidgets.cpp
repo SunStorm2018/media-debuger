@@ -11,6 +11,9 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     , m_detailSearchAction(nullptr)
     , m_detailSearchDialog(nullptr)
     , m_tableContextMenu(new QMenu(this))
+    , m_isUserAdjusted(false)
+    , m_resizeTimer(new QTimer(this))
+    , m_lastTableWidth(0)
 {
     ui->setupUi(this);
     ui->detail_raw_pte->setVisible(false);
@@ -18,9 +21,8 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     // Enable context menu for table
     ui->detail_tb->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->detail_tb, &QTableView::customContextMenuRequested, [this](const QPoint &pos) {
-        if (!HELP_OPTION_FORMATS.contains(m_helpKey)) {
-            return;
-        }
+        m_detailAction->setVisible(HELP_OPTION_FORMATS.contains(m_helpKey));
+
         QModelIndex index = ui->detail_tb->indexAt(pos);
         if (index.isValid()) {
             m_currentRow = index.row();
@@ -28,9 +30,20 @@ InfoWidgets::InfoWidgets(QWidget *parent)
             m_tableContextMenu->exec(ui->detail_tb->viewport()->mapToGlobal(pos));
         }
     });
-    QAction *detailAction = new QAction("Detail Info", this);
-    connect(detailAction, &QAction::triggered, this, &InfoWidgets::showDetailInfo);
-    m_tableContextMenu->addAction(detailAction);
+    m_detailAction = new QAction("Detail Info", this);
+    connect(m_detailAction, &QAction::triggered, this, &InfoWidgets::showDetailInfo);
+    m_tableContextMenu->addAction(m_detailAction);
+
+    m_restoreOrderAction = new QAction("Restore Order", this);
+    connect(m_restoreOrderAction, &QAction::triggered, [=](){
+        QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->detail_tb->model());
+        if (!proxyModel) return;
+        proxyModel->sort(-1, Qt::AscendingOrder);
+        // multiColumnSearchModel->sort(-1, Qt::AscendingOrder); // both two could satisify
+        ui->detail_tb->horizontalHeader()->setSortIndicator(-1, Qt::AscendingOrder);
+        ui->detail_tb->horizontalHeader()->setSortIndicatorShown(false);
+    });
+    m_tableContextMenu->addAction(m_restoreOrderAction);
 
     // model
     m_model = new MediaInfoTabelModel(this);
@@ -50,6 +63,9 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     m_headerManager->setObjectName(this->objectName());
     m_headerManager->setTotalCountVisible(false);
     m_headerManager->restoreState();
+    
+    // Setup column width management
+    setupColumnWidthManagement();
     
     // Setup search button with right-click menu
     setupSearchButton();
@@ -87,8 +103,7 @@ void InfoWidgets::init_header_detail_tb(const QStringList &headers, QString form
     m_model->setColumn(headers.count());
     m_model->setTableHeader(&m_headers);
 
-    ui->detail_tb->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
+    // Initial resize mode will be set in setupInitialColumnWidths()
     m_headerManager->restoreState();
 
     ui->detail_raw_pte->clear();
@@ -112,8 +127,9 @@ void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb, QStri
     // Update using the helper method
     updateCurrentModel();
 
-    if (m_headers.size() > 0 && ui->detail_tb->horizontalHeader()) {
-        ui->detail_tb->horizontalHeader()->setSectionResizeMode(m_headers.size() - 1, QHeaderView::Stretch);
+    // Setup column widths after data is loaded
+    if (m_headers.size() > 0) {
+        setupInitialColumnWidths();
     }
     ui->detail_raw_pte->clear();
     for (auto it : data_tb) {
@@ -507,17 +523,27 @@ void InfoWidgets::showDetailInfo()
 {
     QModelIndex currentIndex = ui->detail_tb->currentIndex();
 
-    int nameIndex = m_headers.indexOf("name");
-
+    int columnIndex = m_headers.indexOf("name");
+    int rowIndex = -1;
     auto index = multiColumnSearchModel->mapToSource(currentIndex);
 
-    qDebug() << "current name-s: " << m_data_tb[index.row()][nameIndex];
+    if (m_helpKey == PROTOCOL_FMT) {
+        columnIndex = index.column();
+    }
+    rowIndex = index.row();
+
+    if (columnIndex < 0 || rowIndex < 0) {
+        qCritical() << "can't find selected column or row" << columnIndex << rowIndex;
+        return;
+    }
+
+    qDebug() << "current name-s: " << m_data_tb[rowIndex][columnIndex];
 
     HelpQueryWg *helpWindow = new HelpQueryWg;
     helpWindow->setAttribute(Qt::WA_DeleteOnClose);
 
-    helpWindow->setWindowTitle(tr("Help Query %1=%2").arg(m_helpKey).arg(m_data_tb[index.row()][nameIndex]));
-    helpWindow->setHelpParams(m_helpKey, m_data_tb[index.row()][nameIndex]);
+    helpWindow->setWindowTitle(tr("Help Query %1=%2").arg(m_helpKey).arg(m_data_tb[rowIndex][columnIndex]));
+    helpWindow->setHelpParams(m_helpKey, m_data_tb[rowIndex][columnIndex]);
     helpWindow->show();
     ZWindowHelper::centerToParent(helpWindow);
 }
@@ -531,5 +557,156 @@ void InfoWidgets::exportSelectedData()
 
     // TODO: Implement actual export functionality
     qDebug() << "Exporting selected data";
+}
+
+void InfoWidgets::setupColumnWidthManagement()
+{
+    // Setup resize timer for performance optimization
+    m_resizeTimer->setSingleShot(true);
+    m_resizeTimer->setInterval(100); // 100ms delay
+    connect(m_resizeTimer, &QTimer::timeout, this, &InfoWidgets::onResizeTimerTimeout);
+    
+    // Connect header resize signal
+    connect(ui->detail_tb->horizontalHeader(), &QHeaderView::sectionResized,
+            this, &InfoWidgets::onHeaderSectionResized);
+    
+    // Install event filter on table view to catch resize events
+    ui->detail_tb->installEventFilter(this);
+}
+
+void InfoWidgets::saveColumnWidthRatios()
+{
+    if (m_headers.isEmpty() || !ui->detail_tb->horizontalHeader()) {
+        return;
+    }
+    
+    QHeaderView *header = ui->detail_tb->horizontalHeader();
+    int totalWidth = 0;
+    m_columnWidthRatios.clear();
+    
+    // Calculate total width
+    for (int i = 0; i < m_headers.size(); ++i) {
+        totalWidth += header->sectionSize(i);
+    }
+    
+    if (totalWidth <= 0) {
+        return;
+    }
+    
+    // Calculate ratios
+    for (int i = 0; i < m_headers.size(); ++i) {
+        double ratio = static_cast<double>(header->sectionSize(i)) / totalWidth;
+        m_columnWidthRatios.append(ratio);
+    }
+    
+    m_lastTableWidth = ui->detail_tb->viewport()->width();
+    qDebug() << "Saved column width ratios:" << m_columnWidthRatios;
+}
+
+void InfoWidgets::restoreColumnWidthRatios()
+{
+    if (m_columnWidthRatios.isEmpty() || m_headers.isEmpty() || !ui->detail_tb->horizontalHeader()) {
+        return;
+    }
+    
+    QHeaderView *header = ui->detail_tb->horizontalHeader();
+    int availableWidth = ui->detail_tb->viewport()->width();
+    
+    if (availableWidth <= 0) {
+        return;
+    }
+    
+    // Temporarily disable stretch mode
+    header->setSectionResizeMode(QHeaderView::Interactive);
+    
+    // Apply ratios
+    for (int i = 0; i < qMin(m_columnWidthRatios.size(), m_headers.size()); ++i) {
+        int newWidth = static_cast<int>(availableWidth * m_columnWidthRatios[i]);
+        newWidth = qMax(newWidth, 50); // Minimum width
+        header->resizeSection(i, newWidth);
+    }
+    
+    m_lastTableWidth = availableWidth;
+    qDebug() << "Restored column widths with available width:" << availableWidth;
+}
+
+void InfoWidgets::resizeColumnsProportionally()
+{
+    if (!m_isUserAdjusted || m_columnWidthRatios.isEmpty() || m_headers.isEmpty()) {
+        setupInitialColumnWidths();
+        return;
+    }
+    
+    restoreColumnWidthRatios();
+}
+
+void InfoWidgets::setupInitialColumnWidths()
+{
+    if (m_headers.isEmpty() || !ui->detail_tb->horizontalHeader()) {
+        return;
+    }
+    
+    QHeaderView *header = ui->detail_tb->horizontalHeader();
+    
+    // If user hasn't adjusted columns, use automatic sizing
+    if (!m_isUserAdjusted) {
+        header->setSectionResizeMode(QHeaderView::ResizeToContents);
+        
+        // Process events to ensure content-based sizing is applied
+        QApplication::processEvents();
+        
+        // Set last column to stretch if there are multiple columns
+        if (m_headers.size() > 1) {
+            header->setSectionResizeMode(m_headers.size() - 1, QHeaderView::Stretch);
+        }
+        
+        // Save initial ratios after auto-sizing
+        QTimer::singleShot(50, this, [this]() {
+            saveColumnWidthRatios();
+        });
+    } else {
+        // Restore user-adjusted proportions
+        restoreColumnWidthRatios();
+    }
+}
+
+void InfoWidgets::onHeaderSectionResized(int logicalIndex, int oldSize, int newSize)
+{
+    Q_UNUSED(logicalIndex)
+    Q_UNUSED(oldSize)
+    Q_UNUSED(newSize)
+    
+    // Mark as user-adjusted when user manually resizes columns
+    if (!m_isUserAdjusted) {
+        m_isUserAdjusted = true;
+        qDebug() << "Column widths marked as user-adjusted";
+    }
+    
+    // Use timer to avoid frequent updates during dragging
+    m_resizeTimer->start();
+}
+
+void InfoWidgets::onResizeTimerTimeout()
+{
+    // Save new ratios after user adjustment
+    saveColumnWidthRatios();
+}
+
+bool InfoWidgets::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == ui->detail_tb && event->type() == QEvent::Resize) {
+        QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
+        int newWidth = resizeEvent->size().width();
+        
+        // Only trigger proportional resize if width changed significantly
+        if (qAbs(newWidth - m_lastTableWidth) > 10) {
+            // Use timer to avoid frequent resizing during window drag
+            QTimer::singleShot(50, this, [this]() {
+                resizeColumnsProportionally();
+            });
+        }
+    }
+    
+    return QWidget::eventFilter(obj, event);
 }
 

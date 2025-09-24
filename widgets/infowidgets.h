@@ -8,6 +8,8 @@
 #include <QShortcut>
 #include <QClipboard>
 #include <QThread>
+#include <QTimer>
+#include <QHeaderView>
 
 #include <common/common.h>
 #include <common/tableheadermanager.h>
@@ -56,6 +58,10 @@ private slots:
     void onDetailSearchCompleted();
 
     void on_search_le_textChanged(const QString &arg1);
+    
+    // Column width management slots
+    void onHeaderSectionResized(int logicalIndex, int oldSize, int newSize);
+    void onResizeTimerTimeout();
 private:
     void setupSearchButton();
     void createDetailSearchDialog();
@@ -83,6 +89,21 @@ private:
     int m_currentRow;
     int m_currentColumn;
     QString m_helpKey;
+    QAction *m_detailAction;
+    QAction *m_restoreOrderAction;
+    
+    // Column width management
+    QVector<double> m_columnWidthRatios;
+    bool m_isUserAdjusted;
+    QTimer *m_resizeTimer;
+    int m_lastTableWidth;
+    
+    void setupColumnWidthManagement();
+    void saveColumnWidthRatios();
+    void restoreColumnWidthRatios();
+    void resizeColumnsProportionally();
+    void setupInitialColumnWidths();
+    bool eventFilter(QObject *obj, QEvent *event) override;
 };
 
 
