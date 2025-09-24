@@ -165,7 +165,12 @@ private:
     /**
      * @brief Get log level string
      */
-    QString levelToString(LogLevel level) const;
+    QString levelToString(const LogLevel& level) const;
+
+    /**
+     * @brief Get log string to level
+     */
+    LogLevel stringToLevel(const QString& level) const;
 
     /**
      * @brief Get current log file name

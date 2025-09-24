@@ -248,7 +248,7 @@ void ZLogger::loadConfig(QSettings &settings)
 {
     QMutexLocker locker(&m_mutex);
 
-    settings.beginGroup(LOG_GROUP);
+    settings.beginGroup(LOG_SETTINGS_GROUP);
 
     m_config[LoggerConfig::ENABLED_KEY] = settings.value(
         LoggerConfig::ENABLED_KEY,
@@ -304,7 +304,7 @@ void ZLogger::saveConfig(QSettings& settings)
 {
     QMutexLocker locker(&m_mutex);
 
-    settings.beginGroup(LOG_GROUP);
+    settings.beginGroup(LOG_SETTINGS_GROUP);
 
     settings.setValue(LoggerConfig::ENABLED_KEY, m_config[LoggerConfig::ENABLED_KEY]);
     settings.setValue(LoggerConfig::LEVEL_KEY, m_config[LoggerConfig::LEVEL_KEY]);
@@ -360,7 +360,7 @@ void ZLogger::setConfigValue(const QString& key, const QVariant& value)
     }
 }
 
-QString ZLogger::levelToString(LogLevel level) const
+QString ZLogger::levelToString(const LogLevel &level) const
 {
     switch (level) {
     case LogLevel::LOG_DEBUG:   return "DEBUG";
@@ -368,8 +368,18 @@ QString ZLogger::levelToString(LogLevel level) const
     case LogLevel::LOG_WARNING: return "WARN";
     case LogLevel::LOG_ERROR:   return "ERROR";
     case LogLevel::LOG_FATAL:   return "FATAL";
-    default:                return "UNKNOWN";
+    default:                    return "UNKNOWN";
     }
+}
+
+LogLevel ZLogger::stringToLevel(const QString &level) const
+{
+    if (level == "DEBUG")       return LOG_DEBUG;
+    if (level == "INFO")        return LOG_INFO;
+    if (level == "WARNING")     return LOG_WARNING;
+    if (level == "ERROR")       return LOG_ERROR;
+    if (level == "FATAL")       return LOG_FATAL;
+    return LOG_INFO;            // Default to INFO
 }
 
 QString ZLogger::getCurrentLogFileName() const

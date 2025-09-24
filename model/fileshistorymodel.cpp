@@ -113,14 +113,14 @@ void FilesHistoryModel::clearHistory()
 
 void FilesHistoryModel::loadSettings()
 {
-    m_settings.beginGroup(RECENTFILES_GROUP);
+    m_settings.beginGroup(RECENTFILES_SETTINGS_GROUP);
     m_filePaths = m_settings.value(FILES_KEY).toStringList();
     m_settings.endGroup();
 }
 
 void FilesHistoryModel::saveSettings()
 {
-    m_settings.beginGroup(RECENTFILES_GROUP);
+    m_settings.beginGroup(RECENTFILES_SETTINGS_GROUP);
     m_settings.setValue(FILES_KEY, m_filePaths);
     m_settings.endGroup();
 }

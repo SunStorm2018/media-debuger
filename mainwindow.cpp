@@ -185,7 +185,7 @@ void MainWindow::createDockWidgets()
 void MainWindow::saveLayoutSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-    settings.beginGroup(MAINWINDOW_GROUP);
+    settings.beginGroup(MAINWINDOW_SETTINGS_GROUP);
     // Save window geometry
     settings.setValue(GEOMETRY_KEY, saveGeometry());
 
@@ -198,7 +198,7 @@ void MainWindow::saveLayoutSettings()
 void MainWindow::restoreLayoutSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-    settings.beginGroup(MAINWINDOW_GROUP);
+    settings.beginGroup(MAINWINDOW_SETTINGS_GROUP);
     // Restore window geometry
     if (settings.contains(GEOMETRY_KEY)) {
         restoreGeometry(settings.value(GEOMETRY_KEY).toByteArray());

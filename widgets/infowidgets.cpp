@@ -72,6 +72,11 @@ InfoWidgets::InfoWidgets(QWidget *parent)
 
     new QShortcut(QKeySequence("Ctrl+F"), this, SLOT(showDetailSearch()));
 
+    connect(m_model, &QAbstractItemModel::dataChanged, this,
+            [=](const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles) {
+
+        emit dataChanged(m_data_tb.at(topLeft.row()));
+    });
 }
 
 InfoWidgets::~InfoWidgets()
@@ -442,8 +447,6 @@ void InfoWidgets::showDetailSearch()
 
 void InfoWidgets::onDetailSearchCompleted()
 {
-    // if (!m_detailSearchDialog) return;
-    
     // Get search parameters from SearchWG
     QStringList selectedRanges = m_detailSearchDialog->getSelectedSearchRanges();
     QString searchText = ui->search_le->text().trimmed();

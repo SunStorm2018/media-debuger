@@ -12,6 +12,18 @@ GlobalConfingWG::GlobalConfingWG(QWidget *parent)
     setupButtonGroup();
     
     ui->genreral_tab_layout->addWidget(generalCfgWg);
+
+    connect(generalCfgWg, &InfoWidgets::dataChanged, [=](QStringList configs) {
+        if (configs.size() == 2) {
+            QStringList settingParts = configs.at(0).split("/", QString::SkipEmptyParts);
+            if (settingParts.size() == 2) {
+                QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+                settings.beginGroup(settingParts.at(0));
+                settings.setValue(settingParts.at(1), configs.at(1));
+                settings.endGroup();
+            }
+        }
+    });
 }
 
 GlobalConfingWG::~GlobalConfingWG()

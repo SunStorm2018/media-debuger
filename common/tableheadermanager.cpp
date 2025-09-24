@@ -58,7 +58,7 @@ void TableHeaderManager::saveState()
 {
     if (m_horizontalHeader && !m_objectName.isEmpty()) {
         QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-        settings.beginGroup(WINDOWHEAD_GROUP);
+        settings.beginGroup(WINDOWHEAD_SETTINGS_GROUP);
         settings.setValue(m_objectName, m_horizontalHeader->saveState());
         settings.endGroup();
         settings.sync();
@@ -69,7 +69,7 @@ void TableHeaderManager::restoreState()
 {
     if (m_horizontalHeader && !m_objectName.isEmpty()) {
         QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-        settings.beginGroup(WINDOWHEAD_GROUP);
+        settings.beginGroup(WINDOWHEAD_SETTINGS_GROUP);
         if (settings.contains(m_objectName)) {
             QByteArray columnOrder = settings.value(m_objectName).toByteArray();
             m_horizontalHeader->restoreState(columnOrder);

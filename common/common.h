@@ -20,11 +20,11 @@
 #define APPLICATION_NAME "DebuggerPro"
 #define APPLICATION_VERSION "1.0.0"
 
-constexpr auto LOG_GROUP = "LogSettings";
-constexpr auto GENERAL_GROUP = "GeneralSettings";
-constexpr auto MAINWINDOW_GROUP = "MainWindowSettings";
-constexpr auto WINDOWHEAD_GROUP = "WindowHeadSettings";
-constexpr auto RECENTFILES_GROUP = "RecentFilesSettings";
+constexpr auto LOG_SETTINGS_GROUP = "Log";
+constexpr auto GENERAL_SETTINGS_GROUP = "General";
+constexpr auto MAINWINDOW_SETTINGS_GROUP = "MainWindow";
+constexpr auto WINDOWHEAD_SETTINGS_GROUP = "WindowHead";
+constexpr auto RECENTFILES_SETTINGS_GROUP = "RecentFiles";
 
 extern const QStringList CONFIG_GROUPS;
 
@@ -52,32 +52,6 @@ constexpr int DEFAULT_MAX_FILES = 7;
 constexpr bool DEFAULT_CAPTURE_QT_MESSAGES = true;
 constexpr auto DEFAULT_FILE_NAME_PATTERN = "app_%1.log"; // %1 will be replaced by date
 constexpr auto DEFAULT_LOG_FORMAT = "[%{time yyyy-MM-dd hh:mm:ss.zzz}] [%{type}] [%{file}:%{line}] %{message}";
-
-/**
- * @brief String representation of log level enum
- */
-static QString logLevelToString(int level) {
-    switch (level) {
-    case 0: return "DEBUG";
-    case 1: return "INFO";
-    case 2: return "WARNING";
-    case 3: return "ERROR";
-    case 4: return "FATAL";
-    default: return "INFO";
-    }
-}
-
-/**
- * @brief Log level enum value from string
- */
-static int stringToLogLevel(const QString& levelStr) {
-    if (levelStr == "DEBUG") return 0;
-    if (levelStr == "INFO") return 1;
-    if (levelStr == "WARNING") return 2;
-    if (levelStr == "ERROR") return 3;
-    if (levelStr == "FATAL") return 4;
-    return 1; // Default to INFO
-}
 } // namespace LoggerConfig
 
 class Common

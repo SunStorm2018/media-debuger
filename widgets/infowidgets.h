@@ -35,6 +35,9 @@ public:
 
     void setHelpInfoKey(const QString& key);
 
+signals:
+    void dataChanged(QStringList line);
+
 public slots:
     void init_detail_tb(const QString& data, const QString &format_key);
 
@@ -62,6 +65,7 @@ private slots:
     // Column width management slots
     void onHeaderSectionResized(int logicalIndex, int oldSize, int newSize);
     void onResizeTimerTimeout();
+
 private:
     void setupSearchButton();
     void createDetailSearchDialog();
