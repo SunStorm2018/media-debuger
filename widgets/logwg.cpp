@@ -106,8 +106,8 @@ void LogWG::outLog(const QString &log)
 
     ui->log_tbv->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents); // Time
     ui->log_tbv->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents); // Level
-    ui->log_tbv->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive); // Function (可手动调整)
-    ui->log_tbv->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch); // Info (自动伸展)
+    ui->log_tbv->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive); // Function (manual adjust)
+    ui->log_tbv->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch); // Info (Auto Stretch)
 }
 
 void LogWG::on_expand_time_btn_clicked()
