@@ -61,10 +61,8 @@ bool HelpQueryWg::setHelpParams(const QString &category, const QString &value)
     ui->search_output_ple->clear();
 
     QStringList helpList {
-        QString("%1%2%3")
-        .arg(category)
-            .arg("=")
-            .arg(value)
+        QString("%1%2")
+            .arg(category).arg(value.isEmpty() ? "" : "=" + value)
     };
 
     QString helpText = m_probe.getHelp(helpList);

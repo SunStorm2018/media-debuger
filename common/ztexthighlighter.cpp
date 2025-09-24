@@ -16,7 +16,7 @@ ZTextHighlighter::ZTextHighlighter(QPlainTextEdit *parent)
 
 ZTextHighlighter::~ZTextHighlighter()
 {
-    clearHighlight();
+    // clearHighlight();
 }
 
 void ZTextHighlighter::highlight(const QString &searchText)
