@@ -24,6 +24,7 @@ SOURCES += \
     common/tableheadermanager.cpp \
     common/zffprobe.cpp \
     common/zlogger.cpp \
+    common/ztexteditor.cpp \
     common/ztexthighlighter.cpp \
     common/zwindowhelper.cpp \
     model/fileshistorymodel.cpp \
@@ -60,6 +61,7 @@ HEADERS += \
     common/tableheadermanager.h \
     common/zffprobe.h \
     common/zlogger.h \
+    common/ztexteditor.h \
     common/ztexthighlighter.h \
     common/zwindowhelper.h \
     model/fileshistorymodel.h \

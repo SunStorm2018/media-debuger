@@ -544,6 +544,7 @@ void InfoWidgets::showDetailInfo()
 
     HelpQueryWg *helpWindow = new HelpQueryWg;
     helpWindow->setAttribute(Qt::WA_DeleteOnClose);
+    helpWindow->setControlHeaderVisiable(false);
 
     helpWindow->setWindowTitle(tr("Help Query %1=%2").arg(m_helpKey).arg(m_data_tb[rowIndex][columnIndex]));
     helpWindow->setHelpParams(m_helpKey, m_data_tb[rowIndex][columnIndex]);

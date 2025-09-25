@@ -46,7 +46,7 @@ public:
     ~HelpQueryWg();
 
     bool setHelpParams(const QString &category, const QString &value);
-
+    void setControlHeaderVisiable(const bool &visiable = true);
 private slots:
 
     void on_category_combx_activated(int index);

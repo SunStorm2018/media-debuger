@@ -20,9 +20,14 @@ HelpQueryWg::HelpQueryWg(QWidget *parent)
     ui->verticalLayout->addWidget(m_searchWG);
     m_searchWG->setVisible(false);
 
-    QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+F"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
+    QShortcut *ctrl_f_shortcut = new QShortcut(QKeySequence("Ctrl+F"), this);
+    connect(ctrl_f_shortcut, &QShortcut::activated, this, [this]() {
         m_searchWG->setVisible(!m_searchWG->isVisible());
+    });
+
+    QShortcut *ctrl_d_shortcut = new QShortcut(QKeySequence("Ctrl+D"), this);
+    connect(ctrl_d_shortcut, &QShortcut::activated, this, [this]() {
+        ui->control_header_wg->setVisible(!ui->control_header_wg->isVisible());
     });
 
     connect(m_searchWG, &SearchWG::searchReady, this, &HelpQueryWg::on_searchReady);
@@ -47,6 +52,7 @@ HelpQueryWg::HelpQueryWg(QWidget *parent)
     });
 
     emit ui->category_combx->activated(0);
+
 }
 
 HelpQueryWg::~HelpQueryWg()
@@ -73,6 +79,11 @@ bool HelpQueryWg::setHelpParams(const QString &category, const QString &value)
     ui->search_output_ple->setPlainText(helpText);
         
     return !helpText.isEmpty();
+}
+
+void HelpQueryWg::setControlHeaderVisiable(const bool &visiable)
+{
+    ui->control_header_wg->setVisible(visiable);
 }
 
 void HelpQueryWg::on_category_combx_activated(int index)
