@@ -1,13 +1,10 @@
-QT       += core gui concurrent
+QT += core gui concurrent
+
+TARGET = media-debuger
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
-
-# Add X11 support for Linux
-unix:!macx {
-    LIBS += -lX11
-}
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -115,10 +112,35 @@ PKGCONFIG += \
     libswresample \
     libavfilter
 
+# Add X11 support for Linux
+unix:!macx {
+    LIBS += -lX11
+}
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    resources/resources.qrc
+    assets/resources.qrc
+
+isEmpty(PREFIX) {
+    PREFIX = /usr
+}
+
+isEmpty(BINDIR): BINDIR = $$PREFIX/bin
+isEmpty(ICONDIR): ICONDIR = $$PREFIX/share/icons/hicolor/scalable/apps
+isEmpty(APPDIR): APPDIR = $$PREFIX/share/applications
+isEmpty(DOCDIR): DOCDIR = $$PREFIX/share/doc/media-debuger
+
+target.path = $$BINDIR
+icon.path = $$ICONDIR
+desktop.path = $$APPDIR
+doc.path = $$DOCDIR
+
+icon.files = assets/128x128/media-debuger-logo.svg
+desktop.files = assets/media-debuger.desktop
+doc.files = README.md LICENSE
+
+INSTALLS += target icon desktop doc

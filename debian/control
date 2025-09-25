@@ -1,10 +1,10 @@
 Source: media-debuger
 Section: utils
 Priority: optional
-Maintainer: Your Name <your.email@example.com>
+Maintainer: zhanghongyuan <2063218120@qq.com>
 Build-Depends: debhelper (>= 11), qtbase5-dev, qt5-qmake, libqt5widgets5
 Standards-Version: 4.5.0
-Homepage: https://github.com/yourusername/media-debuger
+Homepage: https://gitee.com/sunstom/media-debuger.git
 
 Package: media-debuger
 Architecture: any
