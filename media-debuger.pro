@@ -43,8 +43,7 @@ SOURCES += \
     widgets/progressdlg.cpp \
     widgets/searchwg.cpp \
     widgets/tabelformatwg.cpp \
-    widgets/x11embedhelper.cpp \
-    zcodecflagparser.cpp
+    widgets/x11embedhelper.cpp
 
 HEADERS += \
     common/checkboxsynchronizer.h \
@@ -79,8 +78,7 @@ HEADERS += \
     widgets/progressdlg.h \
     widgets/searchwg.h \
     widgets/tabelformatwg.h \
-    widgets/x11embedhelper.h \
-    zcodecflagparser.h
+    widgets/x11embedhelper.h
 
 FORMS += \
     widgets/exportwg.ui \
@@ -97,7 +95,8 @@ FORMS += \
     widgets/tabelformatwg.ui
 
 TRANSLATIONS += \
-    media-debuger_zh_CN.ts
+    translations/media-debuger_zh_CN.ts
+
 CONFIG += lrelease
 CONFIG += embed_translations
 
