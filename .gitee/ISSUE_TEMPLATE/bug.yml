@@ -1,0 +1,52 @@
+name: Bug 报告
+description: 报告项目中的缺陷或问题
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **请确保你已经查阅过文档和现有issue**
+  - type: textarea
+    attributes:
+      label: 问题描述
+      description: 清晰简洁地描述bug是什么
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 重现步骤
+      description: 重现bug的步骤
+      placeholder: |
+        1. 进入 '...'
+        2. 点击 '....'
+        3. 看到错误
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 预期行为
+      description: 清晰简洁地描述你期望发生的事情
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 实际行为
+      description: 清晰简洁地描述实际发生了什么
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: 环境信息
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 附加信息
+      description: 添加关于问题的任何其他信息
+      render: markdown
