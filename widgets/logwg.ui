@@ -215,7 +215,7 @@
      <widget class="QWidget" name="log_text_wg">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QPlainTextEdit" name="log_ple">
+        <widget class="ZTextEditor" name="log_ple">
          <property name="plainText">
           <string/>
          </property>
@@ -227,6 +227,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ZTextEditor</class>
+   <extends>QPlainTextEdit</extends>
+   <header>common/ztexteditor.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

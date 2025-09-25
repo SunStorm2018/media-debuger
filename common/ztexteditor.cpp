@@ -16,10 +16,6 @@ ZTextEditor::ZTextEditor(QWidget *parent)
 {
     lineNumberArea = new ZLineNumberArea(this);
 
-    // Set editor background color to white (GitHub style)
-    setStyleSheet(QString("background-color: rgb(%1, %2, %3);")
-                      .arg(EDITOR_BG.red()).arg(EDITOR_BG.green()).arg(EDITOR_BG.blue()));
-
     // Connect signals and slots
     connect(this, &ZTextEditor::blockCountChanged,
             this, &ZTextEditor::updateLineNumberAreaWidth);

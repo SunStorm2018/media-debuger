@@ -85,10 +85,17 @@ QPushButton:checked {
     <widget class="QTableView" name="detail_tb"/>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="detail_raw_pte"/>
+    <widget class="ZTextEditor" name="detail_raw_pte"/>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ZTextEditor</class>
+   <extends>QPlainTextEdit</extends>
+   <header>common/ztexteditor.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
