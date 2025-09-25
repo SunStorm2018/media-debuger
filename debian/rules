@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --buildsystem=qmake
+
+override_dh_auto_configure:
+	qmake PREFIX=/usr media-debuger.pro
+
+override_dh_auto_install:
+	dh_auto_install -- INSTALL_ROOT=debian/media-debuger

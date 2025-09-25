@@ -1,0 +1,14 @@
+Source: media-debuger
+Section: utils
+Priority: optional
+Maintainer: Your Name <your.email@example.com>
+Build-Depends: debhelper (>= 11), qtbase5-dev, qt5-qmake, libqt5widgets5
+Standards-Version: 4.5.0
+Homepage: https://github.com/yourusername/media-debuger
+
+Package: media-debuger
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libqt5widgets5
+Description: Media file debug and analysis tool
+ A Qt-based application for debugging and analyzing media files,
+ providing detailed information about video/audio formats and codecs.
