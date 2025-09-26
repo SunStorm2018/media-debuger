@@ -13,6 +13,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 
+#include <common/zffprobe.h>
 #include <common/flowlayout.h>
 #include <common/commandexecutor.h>
 
@@ -22,6 +23,12 @@ namespace Ui {
 class ExportWG;
 }
 
+typedef enum {
+    BasicInfo = 1,
+    MediaInfo = 2,
+    BaseAndMediaInfo = 3
+} ExportModelType;
+
 class ExportWG : public QWidget
 {
     Q_OBJECT
@@ -30,22 +37,34 @@ public:
     explicit ExportWG(QWidget *parent = nullptr);
     ~ExportWG();
 
+    // set export model
+    void setExportModel(ExportModelType type);
+
     // Interface for managing search range checkboxes
-    void setExportFiledsOptions(const QStringList &options);
-    void clearExportFiledsOptions();
-    QStringList getSelectedExportFileds() const;
-    void setSelectedExportFileds(const QStringList &selectedOptions);
+    void setMediaInfoExportFiledsOptions(const QStringList &options);
+    void clearMediaInfoExportFiledsOptions();
+    QStringList getMediaInfoSelectedExportFileds() const;
+    void setMediaInfoSelectedExportFileds(const QStringList &selectedOptions);
+
+    void setBasicInfoExportFiledsOptions(const QStringList &options);
+    void clearBasicInfoExportFiledsOptions();
+    QStringList getBasicInfoSelectedExportFileds() const;
+    void setBasicInfoSelectedExportFileds(const QStringList &selectedOptions);
 
     // Input File Name
     void setInputMediaFilePath(const QString& fileName);
 
 signals:
-    void exportFiledsSelectionChanged(const QStringList &selectedOptions);
-
+    void exportMediaInfoFiledsSelectionChanged(const QStringList &selectedOptions);
+    void exportBasicInfoFiledsSelectionChanged(const QStringList &selectedOptions);
 private slots:
-    void onSelectAllClicked(bool checked);
-    void onSelectNoneClicked();
-    void onSearchRangeCheckboxToggled();
+    void onMediaInfoSelectAllClicked(bool checked);
+    void onMediaInfoSelectNoneClicked();
+    void onMediaInfoSearchRangeRBtnToggled();
+
+    void onBasicInfoSelectAllClicked(bool checked);
+    void onBasicInfoSelectNoneClicked();
+    void onBasicInfoSearchRangeRBtnToggled();
 
     void on_save_filename_le_textChanged(const QString &arg1);
 
@@ -59,14 +78,21 @@ private slots:
 private:
     Ui::ExportWG *ui;
 
-    FlowLayout *m_floatLayout = nullptr;
+    FlowLayout *m_mediaInfoFloatLayout = nullptr;
+    FlowLayout *m_basicInfoFloatLayout = nullptr;
     CommandExecutor *m_executor = nullptr;
 
-    // Export Fileds controls
-    QRadioButton *m_selectAllRadioBtn;
-    QRadioButton *m_selectNoneRadioBtn;
-    QList<QCheckBox*> m_exportFiledsCheckBoxes;
+    // Export Media Info Fileds controls
+    QRadioButton *m_selectAllMediaInfoRBtn;
+    QRadioButton *m_selectNoneMediaInfoRBtn;
+    QList<QCheckBox*> m_exportMediaInfoFiledsCBoxes;
 
+    // Export Media Info Fileds controls
+    QRadioButton *m_selectAllBasicInfoRBtn;
+    QRadioButton *m_selectNoneBasicInfoRBtn;
+    QList<QCheckBox*> m_exportBasicInfoFiledsCBoxes;
+
+    ExportModelType m_exportModel = BasicInfo;
     QString m_save_name;
     QString m_save_dir;
     QString m_input_fileName;

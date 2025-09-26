@@ -9,27 +9,38 @@ ExportWG::ExportWG(QWidget *parent)
     ui->setupUi(this);
 
     QDateTime currentTime = QDateTime::currentDateTime();
-    // Initialize the flow layout for search range
-    m_floatLayout = new FlowLayout();
-    ui->export_fileds_gbox->setLayout(m_floatLayout);
 
-    m_save_name = currentTime.toString("yyyy-MM-dd_HH-mm-ss");
+    // Initialize the flow layout for search range
+    m_mediaInfoFloatLayout = new FlowLayout();
+    ui->mediainfo_fileds_gbox->setLayout(m_mediaInfoFloatLayout);
+
+    m_basicInfoFloatLayout = new FlowLayout();
+    ui->baseinfo_fileds_gbox->setLayout(m_basicInfoFloatLayout);
 
     // Create select all and select none checkboxes
-    m_selectAllRadioBtn = new QRadioButton(tr("Select All"), this);
-    m_selectNoneRadioBtn = new QRadioButton(tr("Select None"), this);
+    m_selectAllMediaInfoRBtn = new QRadioButton(tr("Select All"), this);
+    m_selectNoneMediaInfoRBtn = new QRadioButton(tr("Select None"), this);
+
+    m_selectAllBasicInfoRBtn = new QRadioButton(tr("Select All"), this);
+    m_selectNoneBasicInfoRBtn = new QRadioButton(tr("Select None"), this);
 
     // Style the control checkboxes differently
-    m_selectAllRadioBtn->setObjectName("selectAllCheckBox");
-    m_selectNoneRadioBtn->setObjectName("selectNoneCheckBox");
+    m_selectAllMediaInfoRBtn->setObjectName("selectAllMediaInfoRbtn");
+    m_selectNoneMediaInfoRBtn->setObjectName("selectNoneMediaInfoRBtn");
+
+    m_selectAllBasicInfoRBtn->setObjectName("selectAllBasicInfoRBtn");
+    m_selectNoneBasicInfoRBtn->setObjectName("selectNoneBasicInfoRBtn");
 
     // Add them to the layout first
-    m_floatLayout->addWidget(m_selectAllRadioBtn);
-    m_floatLayout->addWidget(m_selectNoneRadioBtn);
+    m_mediaInfoFloatLayout->addWidget(m_selectAllMediaInfoRBtn);
+    m_mediaInfoFloatLayout->addWidget(m_selectNoneMediaInfoRBtn);
+
+    m_basicInfoFloatLayout->addWidget(m_selectAllBasicInfoRBtn);
+    m_basicInfoFloatLayout->addWidget(m_selectNoneBasicInfoRBtn);
 
     // Connect signals
-    connect(m_selectAllRadioBtn, &QCheckBox::toggled, this, &ExportWG::onSelectAllClicked);
-    connect(m_selectNoneRadioBtn, &QCheckBox::clicked, this, &ExportWG::onSelectNoneClicked);
+    connect(m_selectAllMediaInfoRBtn, &QCheckBox::toggled, this, &ExportWG::onMediaInfoSelectAllClicked);
+    connect(m_selectNoneMediaInfoRBtn, &QCheckBox::clicked, this, &ExportWG::onMediaInfoSelectNoneClicked);
 
     // Setup context menu for export button
     ui->export_btn->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -46,40 +57,58 @@ ExportWG::~ExportWG()
     delete ui;
 }
 
-void ExportWG::setExportFiledsOptions(const QStringList &options)
+void ExportWG::setExportModel(ExportModelType type)
+{
+    m_exportModel = type;
+
+    ui->baseinfo_fileds_gbox->setVisible(false);
+    ui->mediainfo_fileds_gbox->setVisible(false);
+    ui->media_format_gbox->setVisible(false);
+
+    if (m_exportModel & BasicInfo) {
+        ui->baseinfo_fileds_gbox->setVisible(true);
+    }
+
+    if (m_exportModel & MediaInfo) {
+        ui->mediainfo_fileds_gbox->setVisible(true);
+        ui->media_format_gbox->setVisible(true);
+    }
+}
+
+void ExportWG::setMediaInfoExportFiledsOptions(const QStringList &options)
 {
     // Clear existing checkboxes (except select all/none)
-    clearExportFiledsOptions();
+    clearMediaInfoExportFiledsOptions();
 
     // Create new checkboxes for each option
     for (const QString &option : options) {
         auto *checkBox = new QCheckBox(option, this);
         checkBox->setChecked(true);
-        m_exportFiledsCheckBoxes.append(checkBox);
-        m_floatLayout->addWidget(checkBox);
+        m_exportMediaInfoFiledsCBoxes.append(checkBox);
+        m_mediaInfoFloatLayout->addWidget(checkBox);
 
         // Connect to the toggle signal
-        connect(checkBox, &QCheckBox::toggled, this, &ExportWG::onSearchRangeCheckboxToggled);
+        connect(checkBox, &QCheckBox::toggled, this, &ExportWG::onMediaInfoSearchRangeRBtnToggled);
     }
 
     // Update the layout
-    m_floatLayout->update();
+    m_mediaInfoFloatLayout->update();
 }
 
-void ExportWG::clearExportFiledsOptions()
+void ExportWG::clearMediaInfoExportFiledsOptions()
 {
     // Remove and delete all search range checkboxes
-    for (auto *checkBox : m_exportFiledsCheckBoxes) {
-        m_floatLayout->removeWidget(checkBox);
+    for (auto *checkBox : m_exportMediaInfoFiledsCBoxes) {
+        m_mediaInfoFloatLayout->removeWidget(checkBox);
         checkBox->deleteLater();
     }
-    m_exportFiledsCheckBoxes.clear();
+    m_exportMediaInfoFiledsCBoxes.clear();
 }
 
-QStringList ExportWG::getSelectedExportFileds() const
+QStringList ExportWG::getMediaInfoSelectedExportFileds() const
 {
     QStringList selectedOptions;
-    for (const auto *checkBox : m_exportFiledsCheckBoxes) {
+    for (const auto *checkBox : m_exportMediaInfoFiledsCBoxes) {
         if (checkBox->isChecked()) {
             selectedOptions.append(checkBox->text());
         }
@@ -87,18 +116,72 @@ QStringList ExportWG::getSelectedExportFileds() const
     return selectedOptions;
 }
 
-void ExportWG::setSelectedExportFileds(const QStringList &selectedOptions)
+void ExportWG::setMediaInfoSelectedExportFileds(const QStringList &selectedOptions)
 {
-    for (auto *checkBox : m_exportFiledsCheckBoxes) {
+    for (auto *checkBox : m_exportMediaInfoFiledsCBoxes) {
         checkBox->setChecked(selectedOptions.contains(checkBox->text()));
     }
 
     // Update select all checkbox state
-    bool allSelected = !m_exportFiledsCheckBoxes.isEmpty() &&
-                       m_exportFiledsCheckBoxes.size() == getSelectedExportFileds().size();
-    m_selectAllRadioBtn->setChecked(allSelected);
+    bool allSelected = !m_exportMediaInfoFiledsCBoxes.isEmpty() &&
+                       m_exportMediaInfoFiledsCBoxes.size() == getMediaInfoSelectedExportFileds().size();
+    m_selectAllMediaInfoRBtn->setChecked(allSelected);
 
-    emit exportFiledsSelectionChanged(getSelectedExportFileds());
+    emit exportMediaInfoFiledsSelectionChanged(getMediaInfoSelectedExportFileds());
+}
+
+void ExportWG::setBasicInfoExportFiledsOptions(const QStringList &options)
+{
+    // Clear existing checkboxes (except select all/none)
+    clearBasicInfoExportFiledsOptions();
+
+    // Create new checkboxes for each option
+    for (const QString &option : options) {
+        auto *checkBox = new QCheckBox(option, this);
+        checkBox->setChecked(true);
+        m_exportBasicInfoFiledsCBoxes.append(checkBox);
+        m_basicInfoFloatLayout->addWidget(checkBox);
+
+        // Connect to the toggle signal
+        connect(checkBox, &QCheckBox::toggled, this, &ExportWG::onBasicInfoSearchRangeRBtnToggled);
+    }
+
+    // Update the layout
+    m_basicInfoFloatLayout->update();
+}
+
+void ExportWG::clearBasicInfoExportFiledsOptions()
+{
+    // Remove and delete all search range checkboxes
+    for (auto *checkBox : m_exportBasicInfoFiledsCBoxes) {
+        m_basicInfoFloatLayout->removeWidget(checkBox);
+        checkBox->deleteLater();
+    }
+    m_exportBasicInfoFiledsCBoxes.clear();
+}
+
+QStringList ExportWG::getBasicInfoSelectedExportFileds() const
+{
+    QStringList selectedOptions;
+    for (const auto *checkBox : m_exportBasicInfoFiledsCBoxes) {
+        if (checkBox->isChecked()) {
+            selectedOptions.append(checkBox->text());
+        }
+    }
+    return selectedOptions;
+}
+
+void ExportWG::setBasicInfoSelectedExportFileds(const QStringList &selectedOptions)
+{
+    for (auto *checkBox : m_exportBasicInfoFiledsCBoxes) {
+        checkBox->setChecked(selectedOptions.contains(checkBox->text()));
+    }
+
+    // Update select all checkbox state
+    bool allSelected = !m_exportBasicInfoFiledsCBoxes.isEmpty() &&
+                       m_exportBasicInfoFiledsCBoxes.size() == getBasicInfoSelectedExportFileds().size();
+    m_selectAllBasicInfoRBtn->setChecked(allSelected);
+
 }
 
 void ExportWG::setInputMediaFilePath(const QString &fileName)
@@ -111,62 +194,124 @@ void ExportWG::setInputMediaFilePath(const QString &fileName)
         ui->save_filename_le->setText(m_save_name);
         ui->save_dir_le->setText(fileInfo.absolutePath());
     } else {
-        qWarning() << fileName << tr("not exists!");
+        if (m_save_name.isEmpty()) {
+            m_save_name = QDateTime::currentTime().toString("yyyy-MM-dd_HH-mm-ss");
+            ui->save_filename_le->setText(m_save_name);
+        }
+        if (m_save_dir.isEmpty()) {
+            m_save_dir = QDir::currentPath();
+            ui->save_dir_le->setText(m_save_dir);
+        }
+
+
+        qWarning() << fileName << tr("not exists! will use default:") << m_save_dir << m_save_name;
     }
 }
 
-void ExportWG::onSelectAllClicked(bool checked)
+void ExportWG::onMediaInfoSelectAllClicked(bool checked)
 {
     // Block signals temporarily to avoid recursive calls
     const bool blocked = blockSignals(true);
 
-    for (auto *checkBox : m_exportFiledsCheckBoxes) {
+    for (auto *checkBox : m_exportMediaInfoFiledsCBoxes) {
         checkBox->setChecked(checked);
     }
 
     blockSignals(blocked);
-    emit exportFiledsSelectionChanged(getSelectedExportFileds());
+    emit exportMediaInfoFiledsSelectionChanged(getMediaInfoSelectedExportFileds());
 }
 
-void ExportWG::onSelectNoneClicked()
+void ExportWG::onMediaInfoSelectNoneClicked()
 {
     // Block signals temporarily to avoid recursive calls
     const bool blocked = blockSignals(true);
 
-    for (auto *checkBox : m_exportFiledsCheckBoxes) {
+    for (auto *checkBox : m_exportMediaInfoFiledsCBoxes) {
         checkBox->setChecked(false);
     }
 
     blockSignals(blocked);
-    emit exportFiledsSelectionChanged(getSelectedExportFileds());
+    emit exportMediaInfoFiledsSelectionChanged(getMediaInfoSelectedExportFileds());
 }
 
-void ExportWG::onSearchRangeCheckboxToggled()
+void ExportWG::onMediaInfoSearchRangeRBtnToggled()
 {
     // Update select all/none states based on current selection
-    const QStringList selected = getSelectedExportFileds();
-    const bool allSelected = !m_exportFiledsCheckBoxes.isEmpty() &&
-                             selected.size() == m_exportFiledsCheckBoxes.size();
+    const QStringList selected = getMediaInfoSelectedExportFileds();
+    const bool allSelected = !m_exportMediaInfoFiledsCBoxes.isEmpty() &&
+                             selected.size() == m_exportMediaInfoFiledsCBoxes.size();
     const bool noneSelected = selected.isEmpty();
 
     // Block signals to avoid recursive calls
     const bool blocked = blockSignals(true);
 
     if (!allSelected && !allSelected) {
-        m_selectAllRadioBtn->setAutoExclusive(false);
-        m_selectNoneRadioBtn->setAutoExclusive(false);
+        m_selectAllMediaInfoRBtn->setAutoExclusive(false);
+        m_selectNoneMediaInfoRBtn->setAutoExclusive(false);
 
-        m_selectAllRadioBtn->setChecked(false);
-        m_selectNoneRadioBtn->setChecked(false);
+        m_selectAllMediaInfoRBtn->setChecked(false);
+        m_selectNoneMediaInfoRBtn->setChecked(false);
     } else {
-        m_selectAllRadioBtn->setAutoExclusive(true);
-        m_selectNoneRadioBtn->setAutoExclusive(true);
-        m_selectAllRadioBtn->setChecked(allSelected);
-        m_selectNoneRadioBtn->setChecked(noneSelected);
+        m_selectAllMediaInfoRBtn->setAutoExclusive(true);
+        m_selectNoneMediaInfoRBtn->setAutoExclusive(true);
+        m_selectAllMediaInfoRBtn->setChecked(allSelected);
+        m_selectNoneMediaInfoRBtn->setChecked(noneSelected);
     }
-    blockSignals(blocked);
 
-    emit exportFiledsSelectionChanged(selected);
+    blockSignals(blocked);
+    emit exportMediaInfoFiledsSelectionChanged(selected);
+}
+
+void ExportWG::onBasicInfoSelectAllClicked(bool checked)
+{
+    const bool blocked = blockSignals(true);
+
+    for (auto *checkBox : m_exportBasicInfoFiledsCBoxes) {
+        checkBox->setChecked(false);
+    }
+
+    blockSignals(blocked);
+    emit exportBasicInfoFiledsSelectionChanged(getMediaInfoSelectedExportFileds());
+}
+
+void ExportWG::onBasicInfoSelectNoneClicked()
+{
+    const bool blocked = blockSignals(true);
+
+    for (auto *checkBox : m_exportBasicInfoFiledsCBoxes) {
+        checkBox->setChecked(false);
+    }
+
+    blockSignals(blocked);
+    emit exportBasicInfoFiledsSelectionChanged(getMediaInfoSelectedExportFileds());
+}
+
+void ExportWG::onBasicInfoSearchRangeRBtnToggled()
+{
+    // Update select all/none states based on current selection
+    const QStringList selected = getBasicInfoSelectedExportFileds();
+    const bool allSelected = !m_exportBasicInfoFiledsCBoxes.isEmpty() &&
+                             selected.size() == m_exportBasicInfoFiledsCBoxes.size();
+    const bool noneSelected = selected.isEmpty();
+
+    // Block signals to avoid recursive calls
+    const bool blocked = blockSignals(true);
+
+    if (!allSelected && !allSelected) {
+        m_selectAllBasicInfoRBtn->setAutoExclusive(false);
+        m_selectNoneBasicInfoRBtn->setAutoExclusive(false);
+
+        m_selectAllBasicInfoRBtn->setChecked(false);
+        m_selectNoneBasicInfoRBtn->setChecked(false);
+    } else {
+        m_selectAllBasicInfoRBtn->setAutoExclusive(true);
+        m_selectNoneBasicInfoRBtn->setAutoExclusive(true);
+        m_selectAllBasicInfoRBtn->setChecked(allSelected);
+        m_selectNoneBasicInfoRBtn->setChecked(noneSelected);
+    }
+
+    blockSignals(blocked);
+    emit exportBasicInfoFiledsSelectionChanged(selected);
 }
 
 void ExportWG::on_save_filename_le_textChanged(const QString &arg1)
@@ -179,76 +324,110 @@ void ExportWG::on_export_btn_clicked()
 {
     QStringList cmds;
 
-    // 1. default
-    if (ui->default_cbox->isChecked()) {
-        QString deault_Cmd = QString("ffprobe -loglevel quiet %1 -i %2 -of default=nk=%3:nw=%4 > %5")
-        .arg(getSelectedExportFileds().join(" "))
-            .arg(m_input_fileName)
-            .arg(ui->default_nokey_cbox->isChecked() ? "1" : "0")
-            .arg(ui->default_noprint_wrappers_cbox->isChecked() ? "1" : "0")
-            .arg(QDir(m_save_dir).filePath(m_save_name + "_default_" + ui->default_suffix_le->text().trimmed()));
+    if (m_exportModel & BasicInfo) {
+        // 0. basic info
+        for (auto it : m_exportBasicInfoFiledsCBoxes) {
+            QString basicInfo_Cmd = QString("%1 %2 %3 %4 > %5")
+            .arg(FFPROBE)
+                .arg(LOGLEVEL)
+                .arg(QUIET)
+                .arg(it->text())
+                .arg(QDir(m_save_dir).filePath(QString("%1%2.txt").arg(FFPROBE).arg(it->text())));
 
-        cmds << deault_Cmd;
+            cmds << basicInfo_Cmd;
+        }
     }
 
-    // 2. json
-    if (ui->json_cbox->isChecked()) {
-        QString json_Cmd = QString("ffprobe -loglevel quiet %1 -i %2 -of json=c=%3 > %4")
-        .arg(getSelectedExportFileds().join(" "))
-            .arg(m_input_fileName)
-            .arg(ui->json_compact_cbox->isChecked() ? "1" : "0")
-            .arg(QDir(m_save_dir).filePath(m_save_name + "_json_" + ui->json_suffix_le->text().trimmed()));
+    if (m_exportModel & MediaInfo) {
+        // 1. default
+        if (ui->default_cbox->isChecked()) {
+            QString deault_Cmd = QString("%1 %2 %3 %4 -i %5 -of default=nk=%6:nw=%7 > %8")
+            .arg(FFPROBE)
+                .arg(LOGLEVEL)
+                .arg(QUIET)
+                .arg(getMediaInfoSelectedExportFileds().join(" "))
+                .arg(m_input_fileName)
+                .arg(ui->default_nokey_cbox->isChecked() ? "1" : "0")
+                .arg(ui->default_noprint_wrappers_cbox->isChecked() ? "1" : "0")
+                .arg(QDir(m_save_dir).filePath(m_save_name + "_default_" + ui->default_suffix_le->text().trimmed()));
 
-        cmds << json_Cmd;
-    }
+            cmds << deault_Cmd;
+        }
 
-    // 3. ini
-    if (ui->ini_cbox->isChecked()) {
-        QString ini_Cmd = QString("ffprobe -loglevel quiet %1 -i %2 -of ini=h=%3 > %4")
-        .arg(getSelectedExportFileds().join(" "))
-            .arg(m_input_fileName)
-            .arg(ui->ini_hierarchical_cbox->isChecked() ? "1" : "0")
-            .arg(QDir(m_save_dir).filePath(m_save_name + "_ini_"  + ui->ini_suffix_le->text().trimmed()));
+        // 2. json
+        if (ui->json_cbox->isChecked()) {
+            QString json_Cmd = QString("%1 %2 %3 %4 -i %5 -of json=c=%6 > %7")
+            .arg(FFPROBE)
+                .arg(LOGLEVEL)
+                .arg(QUIET)
+                .arg(getMediaInfoSelectedExportFileds().join(" "))
+                .arg(m_input_fileName)
+                .arg(ui->json_compact_cbox->isChecked() ? "1" : "0")
+                .arg(QDir(m_save_dir).filePath(m_save_name + "_json_" + ui->json_suffix_le->text().trimmed()));
 
-        cmds << ini_Cmd;
-    }
+            cmds << json_Cmd;
+        }
 
-    // 4. xml
-    if (ui->xml_cbox->isChecked()) {
-        QString xml_Cmd = QString("ffprobe -loglevel quiet %1 -i %2 -of xml=q=%3:x=%4 > %5")
-        .arg(getSelectedExportFileds().join(" "))
-            .arg(m_input_fileName)
-            .arg(ui->xml_fully_qualified_cbox->isChecked() ? "1" : "0")
-            .arg(ui->xml_xsd_strict_cbox->isChecked() ? "1" : "0")
-            .arg(QDir(m_save_dir).filePath(m_save_name  + "_xml_" + ui->xml_suffix_le->text().trimmed()));
+        // 3. ini
+        if (ui->ini_cbox->isChecked()) {
+            QString ini_Cmd = QString("%1 %2 %3 %4 -i %5 -of ini=h=%6 > %7")
+            .arg(FFPROBE)
+                .arg(LOGLEVEL)
+                .arg(QUIET)
+                .arg(getMediaInfoSelectedExportFileds().join(" "))
+                .arg(m_input_fileName)
+                .arg(ui->ini_hierarchical_cbox->isChecked() ? "1" : "0")
+                .arg(QDir(m_save_dir).filePath(m_save_name + "_ini_"  + ui->ini_suffix_le->text().trimmed()));
 
-        cmds << xml_Cmd;
-    }
+            cmds << ini_Cmd;
+        }
 
-    // 5. flat
-    if (ui->flat_cbox->isChecked()) {
-        QString flat_Cmd = QString("ffprobe -loglevel quiet %1 -i %2 -of flat=s=%3:h=%4 > %5")
-        .arg(getSelectedExportFileds().join(" "))
-            .arg(m_input_fileName)
-            .arg(ui->flat_sep_char_le->text().trimmed())
-            .arg(ui->flat_hierarchical_cbox->isChecked() ? "1" : "0")
-            .arg(QDir(m_save_dir).filePath(m_save_name + "_flat_"  + ui->flat_suffix_le->text().trimmed()));
+        // 4. xml
+        if (ui->xml_cbox->isChecked()) {
+            QString xml_Cmd = QString("%1 %2 %3 %4 -i %5 -of xml=q=%6:x=%7 > %8")
+            .arg(FFPROBE)
+                .arg(LOGLEVEL)
+                .arg(QUIET)
+                .arg(getMediaInfoSelectedExportFileds().join(" "))
+                .arg(m_input_fileName)
+                .arg(ui->xml_fully_qualified_cbox->isChecked() ? "1" : "0")
+                .arg(ui->xml_xsd_strict_cbox->isChecked() ? "1" : "0")
+                .arg(QDir(m_save_dir).filePath(m_save_name  + "_xml_" + ui->xml_suffix_le->text().trimmed()));
 
-        cmds << flat_Cmd;
-    }
+            cmds << xml_Cmd;
+        }
 
-    // 6. compact, csv
-    if (ui->compact_cbox->isChecked()) {
-        QString compact_Cmd = QString("ffprobe -loglevel quiet %1 -i %2 -of compact=s=%3:nk=%4:e=%5:p=%6 > %7")
-        .arg(getSelectedExportFileds().join(" "))
-            .arg(m_input_fileName)
-            .arg(ui->compact_item_sep_le->text().trimmed())
-            .arg(ui->compact_nokey_cbox->isChecked() ? "1" : "0")
-            .arg(ui->compact_escape_combox->currentText().trimmed())
-            .arg(ui->compact_print_section_cbox->isChecked() ? "1" : "0")
-            .arg(QDir(m_save_dir).filePath(m_save_name + "_csv_"  + ui->compact_suffix_le->text().trimmed()));
+        // 5. flat
+        if (ui->flat_cbox->isChecked()) {
+            QString flat_Cmd = QString("%1 %2 %3 %4 -i %5 -of flat=s=%6:h=%7 > %8")
+            .arg(FFPROBE)
+                .arg(LOGLEVEL)
+                .arg(QUIET)
+                .arg(getMediaInfoSelectedExportFileds().join(" "))
+                .arg(m_input_fileName)
+                .arg(ui->flat_sep_char_le->text().trimmed())
+                .arg(ui->flat_hierarchical_cbox->isChecked() ? "1" : "0")
+                .arg(QDir(m_save_dir).filePath(m_save_name + "_flat_"  + ui->flat_suffix_le->text().trimmed()));
 
-        cmds << compact_Cmd;
+            cmds << flat_Cmd;
+        }
+
+        // 6. compact, csv
+        if (ui->compact_cbox->isChecked()) {
+            QString compact_Cmd = QString("%1 %2 %3 %4 -i %5 -of compact=s=%6:nk=%7:e=%8:p=%9 > %10")
+            .arg(FFPROBE)
+                .arg(LOGLEVEL)
+                .arg(QUIET)
+                .arg(getMediaInfoSelectedExportFileds().join(" "))
+                .arg(m_input_fileName)
+                .arg(ui->compact_item_sep_le->text().trimmed())
+                .arg(ui->compact_nokey_cbox->isChecked() ? "1" : "0")
+                .arg(ui->compact_escape_combox->currentText().trimmed())
+                .arg(ui->compact_print_section_cbox->isChecked() ? "1" : "0")
+                .arg(QDir(m_save_dir).filePath(m_save_name + "_csv_"  + ui->compact_suffix_le->text().trimmed()));
+
+            cmds << compact_Cmd;
+        }
     }
 
     // log out
@@ -338,11 +517,11 @@ void ExportWG::on_export_btn_clicked()
 
 void ExportWG::onSelectSaveDirectory()
 {
-    QString dir = QFileDialog::getExistingDirectory(this, 
+    QString dir = QFileDialog::getExistingDirectory(this,
                                                     tr("Select Save Directory"),
                                                     m_save_dir.isEmpty() ? QDir::homePath() : m_save_dir,
                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    
+
     if (!dir.isEmpty()) {
         m_save_dir = dir;
         ui->save_dir_le->setText(dir);
@@ -353,7 +532,7 @@ void ExportWG::onOpenSaveDirectory()
 {
     QString dir = m_save_dir.isEmpty() ? QDir::homePath() : m_save_dir;
     QDir checkDir(dir);
-    
+
     if (!checkDir.exists()) {
         // If directory doesn't exist, try to create it
         if (!checkDir.mkpath(dir)) {
@@ -361,7 +540,7 @@ void ExportWG::onOpenSaveDirectory()
             return;
         }
     }
-    
+
     QDesktopServices::openUrl(QUrl::fromLocalFile(dir));
 }
 
@@ -369,13 +548,13 @@ void ExportWG::showExportButtonContextMenu(const QPoint &pos)
 {
     QMenu *contextMenu = new QMenu(this);
     contextMenu->setAttribute(Qt::WA_DeleteOnClose);
-    
+
     QAction *selectDirAction = contextMenu->addAction(tr("Select Save Directory"));
     QAction *openDirAction = contextMenu->addAction(tr("Open Save Directory"));
-    
+
     connect(selectDirAction, &QAction::triggered, this, &ExportWG::onSelectSaveDirectory);
     connect(openDirAction, &QAction::triggered, this, &ExportWG::onOpenSaveDirectory);
-    
+
     QWidget *widget = static_cast<QWidget *>(QObject::sender()) ;
     if (widget) {
         contextMenu->exec(widget->mapToGlobal(pos));

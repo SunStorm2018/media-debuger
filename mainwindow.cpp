@@ -356,21 +356,32 @@ void MainWindow::slotMenuFileTriggered(QAction *action)
         return;
     }
     if (ui->actionExport == action) {
-        if (m_filesWG.getCurrentSelectFileName().isEmpty()) {
-            qWarning() << tr("No input file.");
-            return;
-        }
-
         ExportWG *exportDlg = new ExportWG;
         exportDlg->setWindowTitle(tr("Export Files"));
         exportDlg->setAttribute(Qt::WA_DeleteOnClose);
-        exportDlg->setExportFiledsOptions(QStringList{
-            SHOW_FORMAT, SHOW_STREAMS, SHOW_CHAPTERS,
-            SHOW_FRAMES, SHOW_PACKETS,
-            SHOW_PROGRAMS,
-            SHOW_VERSIONS, SHOW_PROGRAM_VERSION, SHOW_LIBRARY_VERSIONS,
-            SHOW_PIXEL_FORMATS
+
+        if (m_filesWG.getCurrentSelectFileName().isEmpty()) {
+            qWarning() << tr("No input file.");
+            exportDlg->setExportModel(BasicInfo);
+        } else {
+            exportDlg->setExportModel(ExportModelType(BasicInfo | MediaInfo));
+
+            exportDlg->setMediaInfoExportFiledsOptions(QStringList{
+                SHOW_FORMAT, SHOW_STREAMS, SHOW_CHAPTERS,
+                SHOW_FRAMES, SHOW_PACKETS,
+                SHOW_PROGRAMS,
+                SHOW_VERSIONS, SHOW_PROGRAM_VERSION, SHOW_LIBRARY_VERSIONS,
+                SHOW_PIXEL_FORMATS
+            });
+        }
+
+        exportDlg->setBasicInfoExportFiledsOptions(QStringList{
+            VERSION, BUILDCONF, FORMATS, MUXERS, DEMUXERS,
+            DEVICES, CODECS, DECODERS, ENCODERS, BSFS,
+            PROTOCOLS, FILTERS, PIX_FMTS, LAYOUTS,
+            SAMPLE_FMTS, COLORS
         });
+
         exportDlg->setInputMediaFilePath(m_filesWG.getCurrentSelectFileName());
         exportDlg->show();
         ZWindowHelper::centerToParent(exportDlg);

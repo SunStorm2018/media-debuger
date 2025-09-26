@@ -59,7 +59,7 @@ extern "C" {
 
 // log
 #define LOGLEVEL "-loglevel"             // set logging level
-#define V "-v"                           // set logging level
+#define VV "-v"                           // set logging level
 // log flags
 #define REPEAT "repeat"                  // Indicates that repeated log output should not be compressed to the first line and the "Last message repeated n times" line will be omitted.
 #define LEVEL "level"                    // Indicates that log output should add a [level] prefix to each message line. This can be used as an alternative to log coloring, e.g. when dumping the log to file.
@@ -86,7 +86,7 @@ extern "C" {
 #define HIDE_BANNER "-hide_banner"       // do not show program banner
 #define SOURCES "-sources"               // list sources of the input device
 #define SINKS "-sinks"                   // list sinks of the output device
-#define F "-f"                           // force format
+#define Ff "-f"                           // force format
 #define UNIT "-unit"                     // show unit of the displayed values
 #define PREFIX "-prefix"                 // use SI prefixes for the displayed values
 #define BYTE_BINARY_PREFIX "-byte_binary_prefix" // use binary prefixes for byte units
