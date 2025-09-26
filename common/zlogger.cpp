@@ -26,6 +26,9 @@ ZLogger::ZLogger(QObject *parent)
     m_config[LoggerConfig::CAPTURE_QT_MESSAGES_KEY] = LoggerConfig::DEFAULT_CAPTURE_QT_MESSAGES;
     m_config[LoggerConfig::FILE_NAME_PATTERN_KEY] = LoggerConfig::DEFAULT_FILE_NAME_PATTERN;
     m_config[LoggerConfig::LOG_FORMAT_KEY] = LoggerConfig::DEFAULT_LOG_FORMAT;
+    m_config[LoggerConfig::ENABLED_FILE] = true;
+    m_config[LoggerConfig::ENABLED_LINE] = true;
+    m_config[LoggerConfig::ENABLED_FUNCTION] = true;
 }
 
 ZLogger::~ZLogger()
@@ -150,11 +153,11 @@ void ZLogger::qtMessageHandler(QtMsgType type, const QMessageLogContext &context
     // Format Qt message
     QString formattedMsg;
     if (context.file && context.line && context.function) {
-        formattedMsg = QString("%1 [File] %2 [Line] %3 [Fun] %4")
+        formattedMsg = QString("%1%2%3%4")
         .arg(msg)
-            .arg(context.file)
-            .arg(context.line)
-            .arg(context.function);
+            .arg(logger->getConfigValue(LoggerConfig::ENABLED_FILE).toBool() ? QString(" [File] ") + context.file : "")
+            .arg(logger->getConfigValue(LoggerConfig::ENABLED_LINE).toBool() ? QString(" [Line] ") + QString::number(context.line) : "")
+            .arg(logger->getConfigValue(LoggerConfig::ENABLED_FUNCTION).toBool() ? QString(" [Fun] ") + context.function : "");
     } else {
         formattedMsg = msg;
     }
@@ -290,6 +293,21 @@ void ZLogger::loadConfig(QSettings &settings)
         m_config[LoggerConfig::LOG_FORMAT_KEY]
         );
 
+    m_config[LoggerConfig::ENABLED_FILE] = settings.value(
+        LoggerConfig::ENABLED_FILE,
+        m_config[LoggerConfig::ENABLED_FILE]
+        );
+
+    m_config[LoggerConfig::ENABLED_LINE] = settings.value(
+        LoggerConfig::ENABLED_LINE,
+        m_config[LoggerConfig::ENABLED_LINE]
+        );
+
+    m_config[LoggerConfig::ENABLED_FUNCTION] = settings.value(
+        LoggerConfig::ENABLED_FUNCTION,
+        m_config[LoggerConfig::ENABLED_FUNCTION]
+        );
+
     settings.endGroup();
 
     // Update log level
@@ -314,6 +332,9 @@ void ZLogger::saveConfig(QSettings& settings)
     settings.setValue(LoggerConfig::CAPTURE_QT_MESSAGES_KEY, m_config[LoggerConfig::CAPTURE_QT_MESSAGES_KEY]);
     settings.setValue(LoggerConfig::FILE_NAME_PATTERN_KEY, m_config[LoggerConfig::FILE_NAME_PATTERN_KEY]);
     settings.setValue(LoggerConfig::LOG_FORMAT_KEY, m_config[LoggerConfig::LOG_FORMAT_KEY]);
+    settings.setValue(LoggerConfig::ENABLED_FILE, m_config[LoggerConfig::ENABLED_FILE]);
+    settings.setValue(LoggerConfig::ENABLED_LINE, m_config[LoggerConfig::ENABLED_LINE]);
+    settings.setValue(LoggerConfig::ENABLED_FUNCTION, m_config[LoggerConfig::ENABLED_FUNCTION]);
 
     settings.endGroup();
 }
@@ -456,7 +477,7 @@ QString ZLogger::extractModuleFromPath(const char *file) const
 
     QString filePath = QString::fromUtf8(file);
     
-     int colonIndex = filePath.lastIndexOf(':');
+    int colonIndex = filePath.lastIndexOf(':');
     if (colonIndex != -1) {
         QString afterColon = filePath.mid(colonIndex + 1);
         bool isLineNumber = false;

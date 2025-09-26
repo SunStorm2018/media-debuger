@@ -121,6 +121,7 @@
     <addaction name="actionSetting_File"/>
     <addaction name="separator"/>
     <addaction name="actionHelp"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBasic_Info"/>
@@ -413,6 +414,11 @@
   <action name="actionHelp">
    <property name="text">
     <string>Help</string>
+   </property>
+  </action>
+  <action name="actionBuild">
+   <property name="text">
+    <string>Build</string>
    </property>
   </action>
  </widget>

@@ -42,6 +42,9 @@ constexpr auto MAX_FILES_KEY = "maxFiles";
 constexpr auto CAPTURE_QT_MESSAGES_KEY = "captureQtMessages";
 constexpr auto FILE_NAME_PATTERN_KEY = "fileNamePattern";
 constexpr auto LOG_FORMAT_KEY = "logFormat";
+constexpr auto ENABLED_FILE = "enable_file";
+constexpr auto ENABLED_LINE = "enable_line";
+constexpr auto ENABLED_FUNCTION = "enable_function";
 
 // Default values
 constexpr bool DEFAULT_ENABLED = true;

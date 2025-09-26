@@ -356,6 +356,11 @@ void MainWindow::slotMenuFileTriggered(QAction *action)
         return;
     }
     if (ui->actionExport == action) {
+        if (m_filesWG.getCurrentSelectFileName().isEmpty()) {
+            qWarning() << tr("No input file.");
+            return;
+        }
+
         ExportWG *exportDlg = new ExportWG;
         exportDlg->setWindowTitle(tr("Export Files"));
         exportDlg->setAttribute(Qt::WA_DeleteOnClose);
@@ -390,6 +395,7 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
     if (!action) {
         return;
     }
+
     if (ui->actionLog == action) {
         m_logWGDock->show();
         m_logWGDock->raise();
@@ -405,7 +411,8 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
                               "- Detailed media information display\n"
                               "- Multiple format views (JSON, Table)\n"
                               "- Real-time logging\n"
-                              "- Customizable layout\n\n"
+                              "- Customizable layout\n"
+                              "- FFmpeg compilation tool\n\n"
                               "Version 1.0"));
     }
 
