@@ -59,8 +59,8 @@ private slots:
 private:
     Ui::ExportWG *ui;
 
-    FlowLayout *m_floatLayout;
-    CommandExecutor *m_executor;
+    FlowLayout *m_floatLayout = nullptr;
+    CommandExecutor *m_executor = nullptr;
 
     // Export Fileds controls
     QRadioButton *m_selectAllRadioBtn;

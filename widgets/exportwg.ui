@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>861</width>
+    <width>869</width>
     <height>485</height>
    </rect>
   </property>
@@ -41,15 +41,16 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="preview_btn">
-        <property name="enabled">
-         <bool>true</bool>
+       <widget class="QCheckBox" name="open_dir_cbox">
+        <property name="text">
+         <string>Open Dir</string>
         </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="preview_cbox">
         <property name="text">
          <string>Preview</string>
-        </property>
-        <property name="checkable">
-         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -567,7 +568,6 @@
   <tabstop>xml_suffix_le</tabstop>
   <tabstop>save_dir_le</tabstop>
   <tabstop>save_filename_le</tabstop>
-  <tabstop>preview_btn</tabstop>
   <tabstop>export_btn</tabstop>
  </tabstops>
  <resources/>

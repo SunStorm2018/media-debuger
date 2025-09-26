@@ -31,11 +31,13 @@ ExportWG::ExportWG(QWidget *parent)
     connect(m_selectAllRadioBtn, &QCheckBox::toggled, this, &ExportWG::onSelectAllClicked);
     connect(m_selectNoneRadioBtn, &QCheckBox::clicked, this, &ExportWG::onSelectNoneClicked);
 
-    m_executor = new CommandExecutor(this);
-    
     // Setup context menu for export button
     ui->export_btn->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->export_btn, &QPushButton::customContextMenuRequested,
+            this, &ExportWG::showExportButtonContextMenu);
+
+    ui->save_dir_le->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->save_dir_le, &QPushButton::customContextMenuRequested,
             this, &ExportWG::showExportButtonContextMenu);
 }
 
@@ -226,7 +228,7 @@ void ExportWG::on_export_btn_clicked()
     // 5. flat
     if (ui->flat_cbox->isChecked()) {
         QString flat_Cmd = QString("ffprobe -loglevel quiet %1 -i %2 -of flat=s=%3:h=%4 > %5")
-            .arg(getSelectedExportFileds().join(" "))
+        .arg(getSelectedExportFileds().join(" "))
             .arg(m_input_fileName)
             .arg(ui->flat_sep_char_le->text().trimmed())
             .arg(ui->flat_hierarchical_cbox->isChecked() ? "1" : "0")
@@ -261,22 +263,41 @@ void ExportWG::on_export_btn_clicked()
     progressDlg->setAutoClose(true);
 
     progressDlg->start();
+
+    if (m_executor) {
+        delete m_executor;
+        m_executor = nullptr;
+    }
+
+    m_executor = new CommandExecutor(this);
+
     connect(m_executor, &CommandExecutor::progressUpdated,
             [=](int completed, int total, const QString &message){
-                progressDlg->setRange(1, total);
-                progressDlg->setValue(completed);
-                progressDlg->setMessage(message);
+                emit progressDlg->rangeChanged(1, total);
+                emit progressDlg->valueChanged(completed);
+                emit progressDlg->messageChanged(message);
             });
 
     connect(m_executor, &CommandExecutor::commandStarted,
             [=](const QString &command, int index){
-                progressDlg->setMessage(tr("Started: %1 %2").arg(index).arg(command));
+                emit progressDlg->messageChanged(tr("Started: %1 %2").arg(index).arg(command));
             });
 
     connect(m_executor, &CommandExecutor::commandFinished,
             [=](const QString &command, int index, int exitCode, QProcess::ExitStatus exitStatus){
                 QString status = (exitCode == 0 && exitStatus == QProcess::NormalExit) ? "Success" : "Failed";
                 qDebug() << index << command << status;
+
+                if (ui->preview_cbox->isChecked()) {
+                    QStringList cmdList = command.split(">", QString::SkipEmptyParts);
+                    if (cmdList.size() == 2) {
+                        QString fileName = cmdList.at(1).trimmed();
+                        QFile file(fileName);
+                        if (file.exists()) {
+                            QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));
+                        }
+                    }
+                }
             });
 
     connect(m_executor, &CommandExecutor::allCommandsFinished,
@@ -287,8 +308,13 @@ void ExportWG::on_export_btn_clicked()
                     qDebug() << tr("Some commands failed or were stopped");
                 }
 
+                QDir dir(ui->save_dir_le->text());
+                if (dir.exists()) {
+                    QDesktopServices::openUrl(QUrl::fromLocalFile(ui->save_dir_le->text()));
+                }
+
                 if (success) {
-                    progressDlg->setMessage("Finsh parse");
+                    emit progressDlg->messageChanged("Finsh parse");
                     progressDlg->finish();
                     progressDlg->deleteLater();
                 }
@@ -313,9 +339,9 @@ void ExportWG::on_export_btn_clicked()
 void ExportWG::onSelectSaveDirectory()
 {
     QString dir = QFileDialog::getExistingDirectory(this, 
-        tr("Select Save Directory"), 
-        m_save_dir.isEmpty() ? QDir::homePath() : m_save_dir,
-        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+                                                    tr("Select Save Directory"),
+                                                    m_save_dir.isEmpty() ? QDir::homePath() : m_save_dir,
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     
     if (!dir.isEmpty()) {
         m_save_dir = dir;
@@ -350,6 +376,8 @@ void ExportWG::showExportButtonContextMenu(const QPoint &pos)
     connect(selectDirAction, &QAction::triggered, this, &ExportWG::onSelectSaveDirectory);
     connect(openDirAction, &QAction::triggered, this, &ExportWG::onOpenSaveDirectory);
     
-    contextMenu->exec(ui->export_btn->mapToGlobal(pos));
+    QWidget *widget = static_cast<QWidget *>(QObject::sender()) ;
+    if (widget) {
+        contextMenu->exec(widget->mapToGlobal(pos));
+    }
 }
-

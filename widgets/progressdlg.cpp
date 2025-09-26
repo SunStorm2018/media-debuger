@@ -21,6 +21,10 @@ ProgressDialog::ProgressDialog(QWidget *parent, Qt::WindowFlags flags)
     setWindowTitle(tr("Processing..."));
     setMessage(tr("Please wait..."));
     setCancelButtonVisible(true);
+
+    connect(this, &ProgressDialog::messageChanged, this, &ProgressDialog::setMessage);
+    connect(this, &ProgressDialog::rangeChanged, this, &ProgressDialog::setRange);
+    connect(this, &ProgressDialog::valueChanged, this, &ProgressDialog::setValue);
 }
 
 ProgressDialog::~ProgressDialog()

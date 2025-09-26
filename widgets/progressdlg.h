@@ -64,6 +64,11 @@ signals:
     // Cancel signal
     void canceled();
 
+    // Progress update signals
+    void rangeChanged(int minimum, int maximum);
+    void valueChanged(int value);
+    void messageChanged(const QString &message);
+
 protected:
     void closeEvent(QCloseEvent *event) override;
 
