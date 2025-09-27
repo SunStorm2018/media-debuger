@@ -195,7 +195,7 @@ void ExportWG::setInputMediaFilePath(const QString &fileName)
         ui->save_dir_le->setText(fileInfo.absolutePath());
     } else {
         if (m_save_name.isEmpty()) {
-            m_save_name = QDateTime::currentTime().toString("yyyy-MM-dd_HH-mm-ss");
+            m_save_name = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss");
             ui->save_filename_le->setText(m_save_name);
         }
         if (m_save_dir.isEmpty()) {

@@ -59,7 +59,9 @@ private slots:
     void slotMenuConfigTriggered(QAction *action);
     void slotMenuHelpTriggered(QAction *action);
     void slotMenuPlayTriggered(QAction *action);
+    void slotMenuViewTriggered(QAction *action);
 
+    void slotMenuViewAboutToShow();
 private:
     void getMenuAllActions(QMenu* menu, QList<QAction*>& actionList);
     QList<QAction*> getMenuAllActions(QMenu* menu);
@@ -81,6 +83,8 @@ private:
     QDockWidget *m_logWGDock = nullptr;
     QDockWidget *m_playerWGDock = nullptr;
     QDockWidget *m_foldersWGDock = nullptr;
+
+    QMap<QAction*, QWidget*> m_actionWidgetMap;
 
     QString GEOMETRY_KEY = "mainWindowGeometry";
     QString STATE_KEY = "mainWindowState";

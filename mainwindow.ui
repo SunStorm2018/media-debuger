@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuBasic_Info">
@@ -93,7 +93,6 @@
     <property name="title">
      <string>Play</string>
     </property>
-    <addaction name="actionPlayer"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -103,9 +102,6 @@
     <addaction name="actionOpen_Files"/>
     <addaction name="actionOpen_Folder"/>
     <addaction name="separator"/>
-    <addaction name="actionFiles"/>
-    <addaction name="actionFolders"/>
-    <addaction name="separator"/>
     <addaction name="actionExport"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -114,8 +110,6 @@
     </property>
     <addaction name="actionAbout"/>
     <addaction name="separator"/>
-    <addaction name="actionLog"/>
-    <addaction name="separator"/>
     <addaction name="actionApp_Dir"/>
     <addaction name="actionSetting_Dir"/>
     <addaction name="actionSetting_File"/>
@@ -123,10 +117,21 @@
     <addaction name="actionHelp"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionFiles"/>
+    <addaction name="actionFolders"/>
+    <addaction name="separator"/>
+    <addaction name="actionLog"/>
+    <addaction name="actionPlayer"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBasic_Info"/>
    <addaction name="menuMedia_Info"/>
    <addaction name="menuPlay"/>
+   <addaction name="menuView"/>
    <addaction name="menuConfig"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -382,6 +387,9 @@
    </property>
   </action>
   <action name="actionFiles">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Files</string>
    </property>

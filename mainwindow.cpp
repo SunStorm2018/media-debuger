@@ -39,6 +39,13 @@ MainWindow::MainWindow(QWidget *parent)
     } else {
         m_playerWG.setMediaFile(m_filesWG.getCurrentSelectFileName());
     }
+
+    m_actionWidgetMap = {
+        {ui->actionPlayer, m_playerWGDock},
+        {ui->actionLog, m_logWGDock},
+        {ui->actionFiles, m_filesWGDock},
+        {ui->actionFolders, m_foldersWGDock}
+    };
 }
 
 MainWindow::~MainWindow()
@@ -53,10 +60,6 @@ QList<QAction *> MainWindow::getMediaInfoAvailableActions()
     tmpActions << ui->actionStreams;
     tmpActions << ui->actionFormat;
     tmpActions << ui->actionChapters;
-    // tmpActions << ui->actionFrames_Video;
-    // tmpActions << ui->actionFrames_Audio;
-    // tmpActions << ui->actionPackets_Video;
-    // tmpActions << ui->actionPackets_Audio;
 
     return tmpActions;
 }
@@ -91,6 +94,9 @@ void MainWindow::InitConnectation()
     connect(ui->menuConfig, &QMenu::triggered, this, &MainWindow::slotMenuConfigTriggered);
     connect(ui->menuHelp, &QMenu::triggered, this, &MainWindow::slotMenuHelpTriggered);
     connect(ui->menuPlay, &QMenu::triggered, this, &MainWindow::slotMenuPlayTriggered);
+    connect(ui->menuView, &QMenu::triggered, this, &MainWindow::slotMenuViewTriggered);
+
+    connect(ui->menuView, &QMenu::aboutToShow, this, &MainWindow::slotMenuViewAboutToShow);
 
     // media info
     QList<QAction*> mediaActions;
@@ -407,13 +413,6 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
         return;
     }
 
-    if (ui->actionLog == action) {
-        m_logWGDock->show();
-        m_logWGDock->raise();
-
-        return;
-    }
-
     if (ui->actionAbout == action) {
         QMessageBox::about(this,
                            tr("About MediaDebuger"),
@@ -471,11 +470,34 @@ void MainWindow::slotMenuPlayTriggered(QAction *action)
     if (!action) {
         return;
     }
+}
 
-    if (ui->actionPlayer == action) {
-        m_playerWGDock->show();
-        m_playerWGDock->raise();
+void MainWindow::slotMenuViewTriggered(QAction *action)
+{
+    if (!action) {
         return;
+    }
+
+    QWidget *wg = m_actionWidgetMap.value(action);
+    if (wg) {
+        if (action->isChecked()) {
+            wg->show();
+            wg->raise();
+        } else {
+            wg->hide();
+        }
+    }
+}
+
+void MainWindow::slotMenuViewAboutToShow()
+{
+    for (auto action : getMenuAllActions(ui->menuView)) {
+        action->setCheckable(true);
+        action->setChecked(false);
+        QWidget *wg = m_actionWidgetMap.value(action);
+        if (wg && wg->isVisible()) {
+            action->setChecked(true);
+        }
     }
 }
 
