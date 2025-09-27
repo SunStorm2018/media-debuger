@@ -2,8 +2,12 @@
 #define LOGWG_H
 
 #include <QWidget>
+
 #include <common/singleton.h>
 #include <common/tableheadermanager.h>
+#include <common/ztexthighlighter.h>
+
+#include <widgets/searchwg.h>
 
 class LogModel;
 
@@ -24,18 +28,18 @@ public slots:
     void outLog(const QString &log);
 
 private slots:
-    void on_expand_time_btn_clicked();
-    void on_use_regular_express_cbx_clicked(bool checked);
-
-private slots:
     void showContextMenu(const QPoint &pos);
     void toggleSearchDetail();
     void toggleView();
+    void on_searchReady();
 
 private:
     Ui::LogWG *ui;
     LogModel *m_logModel;
     TableHeaderManager *m_headerManager;
+
+    ZTextHighlighter *m_highLighter;
+    SearchWG *m_searchWG;
 };
 
 #endif // LOGWG_H

@@ -631,7 +631,6 @@ void InfoWidgets::restoreColumnWidthRatios()
     }
     
     m_lastTableWidth = availableWidth;
-    qDebug() << "Restored column widths with available width:" << availableWidth;
 }
 
 void InfoWidgets::resizeColumnsProportionally()

@@ -10,9 +10,7 @@ LogWG::LogWG(QWidget *parent)
     , m_logModel(new LogModel(this))
 {
     ui->setupUi(this);
-    ui->end_time_dte->setVisible(false);
     ui->stackedWidget->setCurrentWidget(ui->log_text_wg);
-    ui->search_detail_wg->setVisible(false);
     
     // Setup log table view
     ui->log_tbv->setModel(m_logModel);
@@ -29,13 +27,46 @@ LogWG::LogWG(QWidget *parent)
     m_headerManager->setObjectName(this->objectName());
     m_headerManager->enableHeaderContextMenu(true);
     m_headerManager->setTotalCountVisible(false);
-    
+
+    m_highLighter = new ZTextHighlighter(ui->log_ple);
+
+    m_searchWG = new SearchWG(this);
+    m_searchWG->setWindowTitle(tr("Detail Search"));
+
+    // Configure to show only the required group boxes for InfoWidgets
+    auto requiredBoxes = SearchWG::MatchControl | SearchWG::Operation;
+    m_searchWG->setVisibleGroupBoxes(requiredBoxes);
+
+    ui->mainVerticalLayout->addWidget(m_searchWG);
+    m_searchWG->setVisible(false);
+
+    connect(m_searchWG, &SearchWG::searchReady, this, &LogWG::on_searchReady);
+    connect(m_searchWG, &SearchWG::searchClear, this, [this]() {
+        m_highLighter->clearHighlight();
+        m_searchWG->setSearchText("");
+        m_searchWG->setSearchStatus("");
+    });
+    connect(m_searchWG, &SearchWG::searchBefore, m_highLighter, &ZTextHighlighter::gotoPreviousHighlight);
+    connect(m_searchWG, &SearchWG::searchNext, m_highLighter, &ZTextHighlighter::gotoNextHighlight);
+
+    connect(m_highLighter, &ZTextHighlighter::highlightCountChanged, [=](int count) {
+        m_searchWG->setSearchStatus(QString("Found %1 results").arg(count));
+    });
+    connect(m_highLighter, &ZTextHighlighter::currentHighlightChanged, [=](int index) {
+        if (index >= 0) {
+            m_searchWG->setSearchStatus(QString("Result %1 of %2").arg(index + 1).arg(m_highLighter->highlightCount()));
+        }
+    });
+    connect(m_highLighter, &ZTextHighlighter::searchTextNotFound, [=](const QString &searchText) {
+        m_searchWG->setSearchStatus(QString("Text '%1' not found").arg(searchText));
+    });
+
     // Setup context menu
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &LogWG::customContextMenuRequested, this, &LogWG::showContextMenu);
 
     // Setup shortcuts
-    new QShortcut(QKeySequence("Ctrl+D"), this, SLOT(toggleSearchDetail()));
+    new QShortcut(QKeySequence("Ctrl+F"), this, SLOT(toggleSearchDetail()));
     new QShortcut(QKeySequence("Ctrl+T"), this, SLOT(toggleView()));
     
     // Restore header state
@@ -47,7 +78,7 @@ void LogWG::showContextMenu(const QPoint &pos)
     QMenu contextMenu(this);
     
     // Add search detail action
-    QAction *searchAction = contextMenu.addAction("Toggle Search Detail (Ctrl+D)");
+    QAction *searchAction = contextMenu.addAction("Toggle Search Detail (Ctrl+F)");
     connect(searchAction, &QAction::triggered, this, &LogWG::toggleSearchDetail);
     
     // Add view toggle action
@@ -68,8 +99,7 @@ void LogWG::showContextMenu(const QPoint &pos)
 
 void LogWG::toggleSearchDetail()
 {
-    // Toggle search detail widget visibility search_detail_wg
-    ui->search_detail_wg->setVisible(!ui->search_detail_wg->isVisible());
+    m_searchWG->setVisible(!m_searchWG->isVisible());
 }
 
 void LogWG::toggleView()
@@ -80,6 +110,27 @@ void LogWG::toggleView()
     } else {
         ui->stackedWidget->setCurrentWidget(ui->log_text_wg);
     }
+}
+
+void LogWG::on_searchReady()
+{
+    QString searchText = m_searchWG->getSearchText().trimmed();
+    if (searchText.isEmpty()) {
+        m_searchWG->setSearchStatus(tr("Search text is empty"));
+        return;
+    }
+
+    // Check if there's content to search
+    if (ui->log_ple->toPlainText().isEmpty()) {
+        m_searchWG->setSearchStatus(tr("No content to search"));
+        return;
+    }
+
+    m_highLighter->setCaseSensitive(m_searchWG->isCaseSensitive());
+    m_highLighter->setWholeWord(m_searchWG->isMatchWholewords());
+    m_highLighter->setUseRegex(m_searchWG->isUseRegularExpression());
+
+    m_highLighter->highlight(searchText);
 }
 
 LogWG::~LogWG()
@@ -110,14 +161,4 @@ void LogWG::outLog(const QString &log)
     ui->log_tbv->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch); // Info (Auto Stretch)
 }
 
-void LogWG::on_expand_time_btn_clicked()
-{
-    ui->end_time_dte->setVisible(ui->expand_time_btn->isChecked());
-}
-
-
-void LogWG::on_use_regular_express_cbx_clicked(bool checked)
-{
-
-}
 
