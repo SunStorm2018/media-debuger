@@ -15,6 +15,7 @@ SOURCES += \
     common/commandexecutor.cpp \
     common/common.cpp \
     common/flowlayout.cpp \
+    common/functioninterface.cpp \
     common/lineeditsynchronizer.cpp \
     common/spinboxsynchronizer.cpp \
     common/statesynchronizer.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
     common/commandexecutor.h \
     common/common.h \
     common/flowlayout.h \
+    common/functioninterface.h \
     common/lineeditsynchronizer.h \
     common/spinboxsynchronizer.h \
     common/statesynchronizer.h \

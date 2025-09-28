@@ -86,6 +86,22 @@ QList<QMenu *> MainWindow::getMediaInfoAvailableMenus()
     return tmpMenus;
 }
 
+void MainWindow::showBasicInfo(const QString &function, const QString &windwowTitle, const QString &formatKey)
+{
+    QString retVal;
+
+    QMetaObject::invokeMethod(&m_probe, function.toUtf8(), Qt::DirectConnection,
+                              Q_RETURN_ARG(QString, retVal));
+
+    PopBasicInfoWindow(windwowTitle,
+                       retVal,
+                       formatKey);
+}
+
+void MainWindow::showMediaInfo(const QString &function, const QString &windwowTitle, const QString &formatKey)
+{
+}
+
 void MainWindow::InitConnectation()
 {
     // menu connection
@@ -230,13 +246,10 @@ void MainWindow::slotMenuBasic_InfoTriggered(QAction *action)
     }
 
     QString function = action->objectName().replace("action", "get");
-    QString retVal;
-    QMetaObject::invokeMethod(&m_probe, function.toUtf8(), Qt::DirectConnection,
-                              Q_RETURN_ARG(QString, retVal));
 
-    PopBasicInfoWindow(action->objectName().replace("action", "Detail Info : ") + m_filesWG.getCurrentSelectFileName(),
-                       retVal,
-                       action->objectName().replace("action", ""));
+    showBasicInfo(function,
+                  action->objectName().replace("action", "Detail Info : ") + m_filesWG.getCurrentSelectFileName(),
+                  action->objectName().replace("action", ""));
 }
 
 void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
