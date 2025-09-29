@@ -219,8 +219,8 @@ void translateConfig(const QApplication& app) {
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
-        const QString baseName = "MediaDebuger_" + QLocale(locale).name();
-        if (translator.load(":/i18n/" + baseName)) {
+        const QString baseName = "media-debuger_" + QLocale(locale).name();
+        if (translator.load("./translations/" + baseName)) {
             app.installTranslator(&translator);
             break;
         }

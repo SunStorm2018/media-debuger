@@ -97,6 +97,7 @@ FORMS += \
     widgets/tabelformatwg.ui
 
 TRANSLATIONS += \
+    translations/media-debuger_en_US.ts \
     translations/media-debuger_zh_CN.ts
 
 CONFIG += lrelease
