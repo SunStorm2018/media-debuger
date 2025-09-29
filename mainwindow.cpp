@@ -88,18 +88,41 @@ QList<QMenu *> MainWindow::getMediaInfoAvailableMenus()
 
 void MainWindow::showBasicInfo(const QString &function, const QString &windwowTitle, const QString &formatKey)
 {
-    QString retVal;
+    bool sucess = false;
+    QString retVal = m_probe.getBasicInfo(function, &sucess);
 
-    QMetaObject::invokeMethod(&m_probe, function.toUtf8(), Qt::DirectConnection,
-                              Q_RETURN_ARG(QString, retVal));
-
+    if (!sucess) {
+        qWarning() << tr("Basic info get error");
+        return;
+    }
     PopBasicInfoWindow(windwowTitle,
                        retVal,
                        formatKey);
 }
 
-void MainWindow::showMediaInfo(const QString &function, const QString &windwowTitle, const QString &formatKey)
+void MainWindow::showMediaInfo(const QString fileName, const QString &function, const QString &windwowTitle, const QString &formatKey)
 {
+    ProgressDialog *progressDlg = new ProgressDialog;
+    progressDlg->setWindowTitle(tr("Parse Media: %1").arg(fileName));
+    progressDlg->setProgressMode(ProgressDialog::Indeterminate);
+    progressDlg->setMessage("Parsing...");
+    progressDlg->setAutoClose(true);
+
+    progressDlg->start();
+    QtConcurrent::run([=](){
+        QString formats = m_probe.getMediaInfoJsonFormat(function, fileName);
+        bool ok = QMetaObject::invokeMethod(this, "PopMediaInfoWindow",
+                                  Qt::QueuedConnection,
+                                  Q_ARG(QString, windwowTitle),
+                                  Q_ARG(QString, formats),
+                                  Q_ARG(QString, formatKey)
+                                  );
+        qDebug() << "Media info query: " << ok;
+        emit progressDlg->messageChanged("Finsh parse");
+        emit progressDlg->toFinish();
+        progressDlg->deleteLater();
+    });
+    progressDlg->exec();
 }
 
 void MainWindow::InitConnectation()
@@ -303,27 +326,10 @@ void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
             tmpFunction += tr(" %1 v:0").arg(SELECT_STREAMS);
         }
         QString fileName = m_filesWG.getCurrentSelectFileName();
-        if (!fileName.isEmpty()) {
-            ProgressDialog *progressDlg = new ProgressDialog;
-            progressDlg->setWindowTitle(tr("Parse Media: %1").arg(fileName));
-            progressDlg->setProgressMode(ProgressDialog::Indeterminate);
-            progressDlg->setMessage("Parsing...");
-            progressDlg->setAutoClose(true);
 
-            progressDlg->start();
-            QtConcurrent::run([=](){
-                QString formats = m_probe.getMediaInfoJsonFormat(tmpFunction, fileName);
-                QMetaObject::invokeMethod(this, "PopMediaInfoWindow",
-                                          Qt::QueuedConnection,
-                                          Q_ARG(QString, senderAction->objectName().replace("action", "Detail Info : ")),
-                                          Q_ARG(QString, formats),
-                                          Q_ARG(QString, "table")
-                                          );
-                progressDlg->setMessage("Finsh parse");
-                progressDlg->finish();
-                progressDlg->deleteLater();
-            });
-            progressDlg->exec();
+
+        if (!fileName.isEmpty()) {
+            showMediaInfo(fileName, tmpFunction, senderAction->objectName().replace("action", "Detail Info : "), "table");
         } else {
             qWarning() << CURRENTFILE << fileName  << "is empty, please retray";
         }

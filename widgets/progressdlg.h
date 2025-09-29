@@ -69,6 +69,7 @@ signals:
     void valueChanged(int value);
     void messageChanged(const QString &message);
 
+    void toFinish();
 protected:
     void closeEvent(QCloseEvent *event) override;
 

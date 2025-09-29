@@ -185,6 +185,7 @@ public:
     Q_INVOKABLE QString getL();                     // show license.
     Q_INVOKABLE QString getHelp(const QStringList& helpList);      // show help info.
 
+    Q_INVOKABLE QString getBasicInfo(const QString& function, bool *sucess = nullptr);
 /*
  * Media Info
  */

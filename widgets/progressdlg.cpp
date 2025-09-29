@@ -25,6 +25,7 @@ ProgressDialog::ProgressDialog(QWidget *parent, Qt::WindowFlags flags)
     connect(this, &ProgressDialog::messageChanged, this, &ProgressDialog::setMessage);
     connect(this, &ProgressDialog::rangeChanged, this, &ProgressDialog::setRange);
     connect(this, &ProgressDialog::valueChanged, this, &ProgressDialog::setValue);
+    connect(this, &ProgressDialog::toFinish, this, &ProgressDialog::finish);
 }
 
 ProgressDialog::~ProgressDialog()

@@ -99,6 +99,25 @@ QString ZFfprobe::getHelp(const QStringList& helpList)
     return getFFprobeCommandOutput(HELP, helpList);
 }
 
+QString ZFfprobe::getBasicInfo(const QString &function, bool *sucess)
+{
+    QString retVal;
+
+    QString funWrapper = function;
+    if (!funWrapper.startsWith("get")) {
+        funWrapper.replace(0, 1, function[0].toUpper());
+        funWrapper.prepend("get");
+    }
+
+    bool tmp_sucess = QMetaObject::invokeMethod(this, funWrapper.toUtf8(), Qt::DirectConnection,
+                                                Q_RETURN_ARG(QString, retVal));
+    if (sucess) {
+        *sucess = tmp_sucess;
+    }
+
+    return retVal;
+}
+
 QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& fileName)
 {
     QProcess process;
@@ -255,7 +274,7 @@ QString ZFfprobe::getFFprobeCommandOutput(const QString &command, const QStringL
                                LOGLEVEL << QUIET <<
                                command << otherParms);
 
-    qDebug() << process.arguments().join(" ").prepend(" ").prepend(FFPROBE);
+    qDebug() << "cmd: " << process.arguments().join(" ").prepend(" ").prepend(FFPROBE);
     process.waitForFinished();
     return process.readAll();
 }

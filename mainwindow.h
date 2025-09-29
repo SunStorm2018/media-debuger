@@ -25,7 +25,6 @@
 #include <widgets/folderswg.h>
 #include <widgets/exportwg.h>
 #include <widgets/helpquerywg.h>
-#include <widgets/cmdinfowg.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -46,7 +45,8 @@ public:
     QList<QMenu *> getMediaInfoAvailableMenus();
 
     void showBasicInfo(const QString& function, const QString& windwowTitle, const QString& formatKey);
-    void showMediaInfo(const QString& function, const QString& windwowTitle, const QString& formatKey);
+    void showMediaInfo(const QString fileName, const QString& function, const QString& windwowTitle, const QString& formatKey);
+
 private slots:
     void InitConnectation();
     void PopBasicInfoWindow(QString title, const QString &info, const QString &format_key);
@@ -65,6 +65,7 @@ private slots:
     void slotMenuViewTriggered(QAction *action);
 
     void slotMenuViewAboutToShow();
+
 private:
     void getMenuAllActions(QMenu* menu, QList<QAction*>& actionList);
     QList<QAction*> getMenuAllActions(QMenu* menu);

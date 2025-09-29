@@ -75,8 +75,16 @@ int commandConfig(const QApplication& app) {
                                        "Query media file audio and video stream information",
                                        "file");
 
+    QCommandLineOption mediaInfoStreamTypeOption(QStringList() << "s" << "stream-type",
+                                                 "Set available stream type (audio, video, a, v) ",
+                                                 "type");
+
+    QCommandLineOption mediaInfoFrameTypeOption(QStringList() << "f" << "frame-type",
+                                                "Set available frame or packet type (frame, packet, f, p) ",
+                                                "type");
+
     QCommandLineOption basicInfoOption(QStringList() << "b" << "basic-info",
-                                       "Query basic infp (version, buildconf, formats, muxers, demuxers, devices, codecs, "
+                                       "Query basic info (version, buildconf, formats, muxers, demuxers, devices, codecs, "
                                        "decoders, encoders, bsfs, protocols, filters, pixfmts, layouts, samplefmts, colors, license)",
                                        "type");
 
@@ -90,55 +98,86 @@ int commandConfig(const QApplication& app) {
     parser.addVersionOption();
     parser.addOption(basicInfoOption);
     parser.addOption(mediaInfoOption);
+    parser.addOption(mediaInfoStreamTypeOption);
+    parser.addOption(mediaInfoFrameTypeOption);
     parser.addOption(cliOption);
     parser.addOption(mainOption);
 
     parser.process(app);
 
-    // cli options
-    if (parser.isSet(cliOption)) {
-        ZFfprobe ffprobe;
+    QString streamType, frameType, filePath, mediaCmd;
 
-        // media info
-        if (parser.isSet(mediaInfoOption)) {
-            QString filePath = parser.value(mediaInfoOption);
-            if (filePath.isEmpty()) {
-                qDebug() << "Error: Please specify the path of the media file";
-                return 1;
-            }
+    // media info
+    if (parser.isSet(mediaInfoOption)) {
+        filePath = parser.value(mediaInfoOption);
 
-            qDebug() << "The media file information is being queried:" << filePath;
+        if (!QFileInfo(filePath).exists()) {
+            qDebug() << "Error: Please specify the path of the media file" << filePath;
+            return 1;
+        }
 
-            QString mediaInfo = ffprobe.getMediaInfoJsonFormat(SHOW_FORMAT, filePath);
+        if (parser.isSet(mediaInfoStreamTypeOption)) {
+            streamType = parser.value(mediaInfoStreamTypeOption);
+        }
+
+        if (parser.isSet(mediaInfoFrameTypeOption)) {
+            frameType = parser.value(mediaInfoFrameTypeOption);
+        }
+
+        if (!QStringList{"audio", "video", "a", "v"}.contains(streamType)) {
+            qDebug() << "Error: Please specify the frame type, (audio, video, a, v)";
+            return 1;
+        }
+        streamType = streamType.left(1);
+
+        if (!QStringList{"frame", "packet", "f", "p"}.contains(frameType)) {
+            qDebug() << "Error: Please specify the frame type, (frame, packet, f, p)";
+            return 1;
+        }
+        if (frameType.startsWith("f")) {
+            frameType = SHOW_FRAMES;
+        } else {
+            frameType = SHOW_PACKETS;
+        }
+
+        mediaCmd = QString("%1 -select_streams %2:0").arg(frameType).arg(streamType);
+
+        // cli options
+        if (parser.isSet(cliOption)) {
+            ZFfprobe ffprobe;
+
+            QString mediaInfo = ffprobe.getMediaInfoJsonFormat(mediaCmd, filePath);
             if (mediaInfo.isEmpty()) {
                 qDebug() << "Error: Media file information cannot be obtained. "
                             "Please check if the file path is correct";
                 return 1;
             }
 
-            printf("\nMedai Info:\n%s", mediaInfo.toUtf8());
+            printf("\nMedai Info:\n%s", mediaInfo.toUtf8().data());
+            return 0;
         }
+    }
 
-        // basic info
-        if (parser.isSet(basicInfoOption)) {
-            QString function = parser.value(basicInfoOption).toLower();
-            QString basicinfo;
+    // basic info
+    if (parser.isSet(basicInfoOption) && parser.isSet(cliOption)) {
+        ZFfprobe ffprobe;
 
-            bool sucess = QMetaObject::invokeMethod(&ffprobe, function.toUtf8(), Qt::DirectConnection,
-                                                    Q_RETURN_ARG(QString, basicinfo));
+        QString function = parser.value(basicInfoOption).toLower();
+        QString basicinfo;
 
-            if (!sucess) {
-                qDebug() << "Error: Unsupported basic information type. The supported types include: \n" <<
-                    "version, buildconf, formats, muxers, demuxers, devices, codecs, decoders, encoders, bsfs, protocols, "
-                    "filters, pixfmts, layouts, samplefmts, colors, license";
+        bool sucess = false;
 
-                return 1;
-            }
+        basicinfo = ffprobe.getBasicInfo(function, &sucess);
 
-            printf("\Basic Info:\n%s", basicinfo.toUtf8());
+        if (!sucess) {
+            qDebug() << "Error: Unsupported basic information type. The supported types include: \n" <<
+                "version, buildconf, formats, muxers, demuxers, devices, codecs, decoders, encoders, bsfs, protocols, "
+                "filters, pixfmts, layouts, samplefmts, colors, license";
+
             return 1;
         }
 
+        printf("\nBasic Info:\n%s", basicinfo.toUtf8().data());
         return 0;
     }
 
@@ -157,12 +196,13 @@ int commandConfig(const QApplication& app) {
     if (parser.isSet(mediaInfoOption)) {
         QString filePath = parser.value(mediaInfoOption);
 
+        w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), "table");
     }
 
     if (parser.isSet(basicInfoOption)) {
         QString function = parser.value(basicInfoOption);
 
-        w.showBasicInfo("get" + function.replace(0, 1, function[0].toUpper()), function, function);
+        w.showBasicInfo(function, function, function);
     }
 
     if (parser.isSet(cliOption) || parser.isSet(mediaInfoOption) || parser.isSet(basicInfoOption)) {
