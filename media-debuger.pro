@@ -135,14 +135,17 @@ isEmpty(BINDIR): BINDIR = $$PREFIX/bin
 isEmpty(ICONDIR): ICONDIR = $$PREFIX/share/icons/hicolor/scalable/apps
 isEmpty(APPDIR): APPDIR = $$PREFIX/share/applications
 isEmpty(DOCDIR): DOCDIR = $$PREFIX/share/doc/media-debuger
+isEmpty(CONTEXTMENUDIR): CONTEXTMENUDIR = $$PREFIX/share/applications/context-menus
 
 target.path = $$BINDIR
 icon.path = $$ICONDIR
 desktop.path = $$APPDIR
 doc.path = $$DOCDIR
+contextmenu.path = $$CONTEXTMENUDIR
 
 icon.files = assets/128x128/media-debuger-logo.svg
 desktop.files = assets/media-debuger.desktop
 doc.files = README.md LICENSE
+contextmenu.files = assets/media-debuger.conf
 
-INSTALLS += target icon desktop doc
+INSTALLS += target icon desktop doc contextmenu
