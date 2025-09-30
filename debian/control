@@ -2,13 +2,20 @@ Source: media-debuger
 Section: utils
 Priority: optional
 Maintainer: zhanghongyuan <2063218120@qq.com>
-Build-Depends: debhelper (>= 11), qtbase5-dev, qt5-qmake, libqt5widgets5
+Build-Depends: debhelper (>= 11), qtbase5-dev, qt5-qmake, libqt5widgets5, qttools5-dev-tools
 Standards-Version: 4.5.0
 Homepage: https://gitee.com/sunstom/media-debuger.git
+Vcs-Browser: https://github.com/yourusername/media-debuger
+Vcs-Git: https://github.com/yourusername/media-debuger.git
 
 Package: media-debuger
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libqt5widgets5
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends},
+	libqt5widgets5,
+	python3-gi,
+        gir1.2-nautilus-3.0,
+        nautilus-python,
+        nautilus,
 Description: Media file debug and analysis tool
  A Qt-based application for debugging and analyzing media files,
  providing detailed information about video/audio formats and codecs.
