@@ -1,0 +1,3 @@
+# install dde-filemanager-contextmenu.conf
+assets/dde-filemanager-contextmenu.conf /usr/share/applications/context-menus/
+

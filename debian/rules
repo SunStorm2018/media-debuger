@@ -8,3 +8,11 @@ override_dh_auto_configure:
 
 override_dh_auto_install:
 	dh_auto_install -- INSTALL_ROOT=debian/media-debuger
+
+
+override_dh_install:
+	dh_install
+	
+	# chang mode
+	chmod 644 debian/media-debuger-dde-filemanager-contextmenu/usr/share/applications/context-menus/dde-filemanager-contextmenu.conf
+	chmod 755 debian/media-debuger-nautilus-contextmenu/usr/share/nautilus-python/extensions/nautilus-contextmenu.py

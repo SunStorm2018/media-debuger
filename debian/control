@@ -10,12 +10,25 @@ Vcs-Git: https://github.com/yourusername/media-debuger.git
 
 Package: media-debuger
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends},
-	libqt5widgets5,
-	python3-gi,
-        gir1.2-nautilus-3.0,
-        nautilus-python,
-        nautilus,
+Depends: ${shlibs:Depends}, ${misc:Depends}
+        libqt5widgets5
 Description: Media file debug and analysis tool
  A Qt-based application for debugging and analyzing media files,
  providing detailed information about video/audio formats and codecs.
+
+# dde-file-manager-contextmenu install
+Package: media-debuger-dde-filemanager-contextmenu
+Architecture: all
+Depends: media-debuger (= ${source:Version}), dde-filemanager, ${misc:Depends}
+Description: DDE file manager context menu integration for media-debuger
+ Adds media-debuger options to the context menu of DDE file manager.
+ 
+# nautilus-contextmenu install
+Package: media-debuger-nautilus-contextmenu
+Architecture: all
+Depends: media-debuger (= ${source:Version}),
+         nautilus (>= 42),
+         python3-gi,
+         gir1.2-nautilus-3.0
+Description: Nautilus file manager context menu integration for media-debuger
+ Adds Media Debuger options to the right-click menu in Nautilus file manager.

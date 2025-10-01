@@ -1,0 +1,5 @@
+# install nautilus-contextmenu.py to /usr/share/nautilus-python/extensions/
+# ~/.local/share/nautilus-python/extensions/
+# /usr/share/nautilus-python/extensions/
+
+assets/nautilus-contextmenu.py /usr/share/nautilus-python/extensions/
