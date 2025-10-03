@@ -35,6 +35,16 @@ public:
 
     void setHelpInfoKey(const QString& key);
 
+    void setSearchTitleVisiable(const bool& visiable);
+
+    void addContextMenu(QMenu *menu);
+
+    void addContextAction(QAction *action);
+
+    QList <QStringList> getSelectLines();
+
+    const QList<QStringList> *getTableData();
+
 signals:
     void dataChanged(QStringList line);
 
@@ -44,6 +54,14 @@ public slots:
     void init_header_detail_tb(const QStringList &headers, QString format_join = "");
 
     void update_data_detail_tb(const QList<QStringList> &data_tb, QString format_join = "");
+
+    void update_data_detail_tb(const QMap<QString, QList<QStringList>>&data_tb, QString format_join = "");
+
+    void remove_data_from_row_indexs(const QList<int>& indexs);
+
+    void append_data_detail_tb(const QList<QStringList> &data_tb, QString format_join = "");
+
+    void remove_selected_row();
 
     void clear_detail_tb();
 

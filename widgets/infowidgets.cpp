@@ -91,6 +91,43 @@ void InfoWidgets::setHelpInfoKey(const QString &key)
     m_helpKey = key;
 }
 
+void InfoWidgets::setSearchTitleVisiable(const bool &visiable)
+{
+    ui->search_title_wg->setVisible(visiable);
+}
+
+void InfoWidgets::addContextMenu(QMenu *menu)
+{
+    m_tableContextMenu->addMenu(menu);
+}
+
+void InfoWidgets::addContextAction(QAction *action)
+{
+    m_tableContextMenu->addAction(action);
+}
+
+QList<QStringList> InfoWidgets::getSelectLines()
+{
+    QList<QStringList> tmp;
+    QSet<int> availableRow;
+    QModelIndexList selectedRows = ui->detail_tb->selectionModel()->selectedIndexes();
+    foreach (const QModelIndex &it, selectedRows) {
+        auto index = multiColumnSearchModel->mapToSource(it);
+        availableRow.insert(index.row());
+    }
+
+    foreach (auto &row, availableRow) {
+        tmp.append(m_data_tb.at(row));
+    }
+
+    return tmp;
+}
+
+const QList<QStringList> *InfoWidgets::getTableData()
+{
+    return &m_data_tb;
+}
+
 void InfoWidgets::on_search_btn_clicked()
 {
     onDetailSearchCompleted();
@@ -105,7 +142,7 @@ void InfoWidgets::init_header_detail_tb(const QStringList &headers, QString form
 {
     m_headers = headers;
     
-    m_model->setColumn(headers.count());
+    m_model->setColumn(m_headers.count());
     m_model->setTableHeader(&m_headers);
 
     // Initial resize mode will be set in setupInitialColumnWidths()
@@ -117,29 +154,106 @@ void InfoWidgets::init_header_detail_tb(const QStringList &headers, QString form
 
 void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb, QString format_join)
 {
-    m_model->setRow(data_tb.count());
     m_data_tb = data_tb;
+
+    m_model->setRow(m_data_tb.count());
     m_model->setTableData(const_cast<QList<QStringList>*>(&m_data_tb));
 
-    // Don't change the model here - keep whatever model is currently active
-    // Only set the model if no model is currently set
     if (!ui->detail_tb->model()) {
         ui->detail_tb->setModel(multiColumnSearchModel);
     }
     
     ui->detail_tb->setShowGrid(true);
-    
-    // Update using the helper method
+
     updateCurrentModel();
 
-    // Setup column widths after data is loaded
     if (m_headers.size() > 0) {
         setupInitialColumnWidths();
     }
     ui->detail_raw_pte->clear();
-    for (auto it : data_tb) {
+    for (auto it : m_data_tb) {
         ui->detail_raw_pte->appendPlainText(it.join(format_join));
     }
+}
+
+void InfoWidgets::update_data_detail_tb(const QMap<QString, QList<QStringList> > &data_tb, QString format_join)
+{
+    m_data_tb.clear();
+    for (auto key: data_tb.keys()) {
+        m_data_tb.append(data_tb.value(key));
+    }
+
+    m_model->setRow(m_data_tb.count());
+    m_model->setTableData(const_cast<QList<QStringList>*>(&m_data_tb));
+
+    if (!ui->detail_tb->model()) {
+        ui->detail_tb->setModel(multiColumnSearchModel);
+    }
+
+    ui->detail_tb->setShowGrid(true);
+
+    updateCurrentModel();
+
+    if (m_headers.size() > 0) {
+        setupInitialColumnWidths();
+    }
+    ui->detail_raw_pte->clear();
+    for (auto it : m_data_tb) {
+        ui->detail_raw_pte->appendPlainText(it.join(format_join));
+    }
+}
+
+void InfoWidgets::remove_data_from_row_indexs(const QList<int> &indexs)
+{
+    QList<int> sortedRows = indexs;
+    std::sort(sortedRows.begin(), sortedRows.end(), std::greater<int>());
+    foreach (int row, sortedRows) {
+        m_data_tb.removeAt(row);
+    }
+}
+
+void InfoWidgets::append_data_detail_tb(const QList<QStringList> &data_tb, QString format_join)
+{
+    m_data_tb.append(data_tb);
+
+    m_model->setRow(m_data_tb.count());
+    m_model->setTableData(const_cast<QList<QStringList>*>(&m_data_tb));
+
+    if (!ui->detail_tb->model()) {
+        ui->detail_tb->setModel(multiColumnSearchModel);
+    }
+
+    ui->detail_tb->setShowGrid(true);
+
+    updateCurrentModel();
+
+    if (m_headers.size() > 0) {
+        setupInitialColumnWidths();
+    }
+    ui->detail_raw_pte->clear();
+    for (auto it : m_data_tb) {
+        ui->detail_raw_pte->appendPlainText(it.join(format_join));
+    }
+}
+
+void InfoWidgets::remove_selected_row()
+{
+    QSet<int> availableRow;
+    QModelIndexList selectedRows = ui->detail_tb->selectionModel()->selectedIndexes();
+    foreach (const QModelIndex &index, selectedRows) {
+        availableRow.insert(index.row());
+    }
+
+    QList<int> rowsToDelete = availableRow.values();
+    std::sort(rowsToDelete.begin(), rowsToDelete.end(), std::greater<int>());
+
+    foreach (int row, rowsToDelete) {
+        if (row >= 0 && row < m_data_tb.size()) {
+            m_data_tb.removeAt(row);
+        }
+    }
+
+    m_model->setRow(m_data_tb.count());
 }
 
 void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, QStringList &headers, QString format_key)
@@ -434,6 +548,9 @@ void InfoWidgets::createDetailSearchDialog()
 
 void InfoWidgets::showDetailSearch()
 {
+    // Show search title
+    ui->search_title_wg->setVisible(!ui->search_title_wg->isVisible());
+
     // Update search range options with current headers
     if (!m_headers.isEmpty()) {
         m_detailSearchDialog->setSearchRangeOptions(m_headers);
@@ -566,7 +683,7 @@ void InfoWidgets::exportSelectedData()
 void InfoWidgets::setupColumnWidthManagement()
 {
     // Setup resize timer for performance optimization
-    m_resizeTimer->setSingleShot(true);
+    // m_resizeTimer->setSingleShot(true);
     m_resizeTimer->setInterval(100); // 100ms delay
     connect(m_resizeTimer, &QTimer::timeout, this, &InfoWidgets::onResizeTimerTimeout);
     
@@ -604,7 +721,7 @@ void InfoWidgets::saveColumnWidthRatios()
     }
     
     m_lastTableWidth = ui->detail_tb->viewport()->width();
-    qDebug() << "Saved column width ratios:" << m_columnWidthRatios;
+    // qDebug() << "Saved column width ratios:" << m_columnWidthRatios;
 }
 
 void InfoWidgets::restoreColumnWidthRatios()

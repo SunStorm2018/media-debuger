@@ -116,6 +116,7 @@
     <addaction name="separator"/>
     <addaction name="actionHelp"/>
     <addaction name="separator"/>
+    <addaction name="actionFFmpeg_Builder"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -427,6 +428,11 @@
   <action name="actionBuild">
    <property name="text">
     <string>Build</string>
+   </property>
+  </action>
+  <action name="actionFFmpeg_Builder">
+   <property name="text">
+    <string>FFmpeg Builder</string>
    </property>
   </action>
  </widget>

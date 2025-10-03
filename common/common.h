@@ -25,8 +25,11 @@ constexpr auto GENERAL_SETTINGS_GROUP = "General";
 constexpr auto MAINWINDOW_SETTINGS_GROUP = "MainWindow";
 constexpr auto WINDOWHEAD_SETTINGS_GROUP = "WindowHead";
 constexpr auto RECENTFILES_SETTINGS_GROUP = "RecentFiles";
+constexpr auto FFMPEGBUILDER_SETTINGS_GROUP = "FFmpegBuilder";
 
 extern const QStringList CONFIG_GROUPS;
+
+constexpr auto FFMPEGBUILDER_RECENTFOLDERS_KEY = "RecentFolders";
 
 // config
 /**

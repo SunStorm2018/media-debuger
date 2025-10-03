@@ -31,6 +31,7 @@ SOURCES += \
     model/multicolumnsearchproxymodel.cpp \
     widgets/baseformatwg.cpp \
     widgets/exportwg.cpp \
+    widgets/ffmpegbuildtool.cpp \
     widgets/fileswg.cpp \
     widgets/folderswg.cpp \
     widgets/globalconfingwg.cpp \
@@ -43,6 +44,7 @@ SOURCES += \
     widgets/playerwg.cpp \
     widgets/progressdlg.cpp \
     widgets/searchwg.cpp \
+    widgets/tabconfigwg.cpp \
     widgets/tabelformatwg.cpp \
     widgets/x11embedhelper.cpp
 
@@ -68,6 +70,7 @@ HEADERS += \
     model/multicolumnsearchproxymodel.h \
     widgets/baseformatwg.h \
     widgets/exportwg.h \
+    widgets/ffmpegbuildtool.h \
     widgets/fileswg.h \
     widgets/folderswg.h \
     widgets/globalconfingwg.h \
@@ -79,11 +82,13 @@ HEADERS += \
     widgets/playerwg.h \
     widgets/progressdlg.h \
     widgets/searchwg.h \
+    widgets/tabconfigwg.h \
     widgets/tabelformatwg.h \
     widgets/x11embedhelper.h
 
 FORMS += \
     widgets/exportwg.ui \
+    widgets/ffmpegbuildtool.ui \
     widgets/fileswg.ui \
     widgets/folderswg.ui \
     widgets/globalconfingwg.ui \
@@ -94,6 +99,7 @@ FORMS += \
     widgets/logwg.ui \
     widgets/playerwg.ui \
     widgets/searchwg.ui \
+    widgets/tabconfigwg.ui \
     widgets/tabelformatwg.ui
 
 TRANSLATIONS += \

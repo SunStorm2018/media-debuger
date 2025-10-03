@@ -482,6 +482,16 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
         helpWindow->show();
         ZWindowHelper::centerToParent(helpWindow);
     }
+
+    if (ui->actionFFmpeg_Builder == action) {
+        FFmpegBuildTool *ffbuilder = new FFmpegBuildTool;
+        ffbuilder->setAttribute(Qt::WA_DeleteOnClose);
+
+        ffbuilder->setWindowTitle("FFmpeg Builder");
+        ffbuilder->setMinimumSize(1200, 900);
+        ffbuilder->show();
+        ZWindowHelper::centerToParent(ffbuilder);
+    }
 }
 
 void MainWindow::slotMenuPlayTriggered(QAction *action)

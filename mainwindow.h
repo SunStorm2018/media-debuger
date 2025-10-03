@@ -25,6 +25,7 @@
 #include <widgets/folderswg.h>
 #include <widgets/exportwg.h>
 #include <widgets/helpquerywg.h>
+#include <widgets/ffmpegbuildtool.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
