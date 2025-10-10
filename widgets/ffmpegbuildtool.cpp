@@ -260,7 +260,7 @@ void FFmpegBuildTool::on_build_btn_clicked()
         process->start("cd", QStringList{ ui->local_ffmpeg_combx->currentText()});
     }
     QString command = ui->cmd_ple->toPlainText().trimmed();
-    QStringList arguments = command.split("\\", Qt::SkipEmptyParts);
+    QStringList arguments = command.split("\\", QString::SkipEmptyParts);
 
     for (auto &it : arguments) {
         it = it.trimmed();

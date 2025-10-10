@@ -19,7 +19,7 @@ Description: Media file debug and analysis tool
 # dde-file-manager-contextmenu install
 Package: media-debuger-dde-filemanager-contextmenu
 Architecture: all
-Depends: media-debuger (= ${source:Version}), dde-filemanager, ${misc:Depends}
+Depends: media-debuger (= ${source:Version}), dde-file-manager, ${misc:Depends}
 Description: DDE file manager context menu integration for media-debuger
  Adds media-debuger options to the context menu of DDE file manager.
  
