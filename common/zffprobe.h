@@ -3,6 +3,10 @@
 
 #include <QObject>
 #include <QProcess>
+#include <QMap>
+#include <QVariantMap>
+#include <QColor>
+#include <QRgb>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -186,6 +190,7 @@ public:
     Q_INVOKABLE QString getHelp(const QStringList& helpList);      // show help info.
 
     Q_INVOKABLE QString getBasicInfo(const QString& function, bool *sucess = nullptr);
+
 /*
  * Media Info
  */
@@ -196,6 +201,13 @@ public:
     QStringList getFiltersFromLibav();
     QStringList getBsfFromLibav();
     QStringList getProtocolFromLibav();
+
+/*
+ * Utilities Info
+ */
+    Q_INVOKABLE QMap<QString, QList<QVariant>> getVideoSize(const QString &key = "");             // get video size.
+    Q_INVOKABLE QMap<QString, QList<QVariant>> getVideoRate(const QString &key = "");             // get video rate.
+    Q_INVOKABLE QMap<QString, QList<QVariant>> getColor(const QString &key);                      // get color.
 signals:
 
 private:

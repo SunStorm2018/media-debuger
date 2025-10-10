@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.media.mediadebuger
+Exec=/usr/bin/media-debuger-dbus-service
+

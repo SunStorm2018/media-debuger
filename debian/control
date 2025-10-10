@@ -32,3 +32,13 @@ Depends: media-debuger (= ${source:Version}),
          gir1.2-nautilus-3.0
 Description: Nautilus file manager context menu integration for media-debuger
  Adds Media Debuger options to the right-click menu in Nautilus file manager.
+ 
+# media-debuger-dbus install
+Package: media-debuger-dbus
+Architecture: all
+Depends: media-debuger (= ${source:Version}),
+         python3-gi,
+         python3-pydbus,
+         python3
+Description: dbus integration for media-debuger
+ Adds Media Debuger options to the session dbus.
