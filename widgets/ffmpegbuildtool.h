@@ -32,6 +32,12 @@ private slots:
 
     void on_build_btn_clicked();
 
+    void on_configure_btn_clicked();
+
+    void on_install_btn_clicked();
+
+    void on_clean_btn_clicked();
+
 private:
     void loadSettings();
     void saveSettings();
@@ -44,6 +50,7 @@ private:
     QAction *m_RemoveRecordAction;
 
     QStringList m_filePaths;
+    QProcess *m_process = nullptr;
 
     QMap<QString, QStringList> m_optionMaps;
 };

@@ -48,6 +48,51 @@ FFmpegBuildTool::FFmpegBuildTool(QWidget *parent)
 
     emit ui->show_cmd_cbx->toggled(false);
     ui->select_option_tb->setSearchTitleVisiable(false);
+
+    m_process = new QProcess(this);
+
+    ui->complie_output_ple->clear();
+
+    QString startTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    ui->complie_output_ple->appendHtml(
+        QString("<font color='blue'>=== Progress start at: %1 ===</font>").arg(startTime)
+        );
+
+    connect(m_process, &QProcess::readyReadStandardOutput, this, [=]() {
+        QByteArray output = m_process->readAllStandardOutput();
+        QString text = QString::fromLocal8Bit(output);
+
+        QString timestamp = QTime::currentTime().toString("hh:mm:ss");
+        ui->complie_output_ple->appendPlainText("[" + timestamp + "] " + text.trimmed());
+
+    });
+
+    connect(m_process, &QProcess::readyReadStandardError, this, [=]() {
+        QByteArray error = m_process->readAllStandardError();
+        QString text = QString::fromLocal8Bit(error);
+
+        QString timestamp = QTime::currentTime().toString("hh:mm:ss");
+        ui->complie_output_ple->appendHtml(
+            "<font color='red'>[" + timestamp + "] " + text+ text.trimmed() + "</font>"
+            );
+
+    });
+
+    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, [=](int exitCode, QProcess::ExitStatus exitStatus) {
+                QString endTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+                QString color = (exitCode == 0) ? "green" : "red";
+                QString status = (exitStatus == QProcess::NormalExit) ? "Normal exit" : "Crush exit";
+
+                ui->build_btn->setEnabled(true);
+
+                ui->complie_output_ple->appendHtml(
+                    QString("<font color='%1'>=== Progress end at: %2 ===</font>").arg(color).arg(endTime)
+                    );
+                ui->complie_output_ple->appendHtml(
+                    QString("<font color='%1'>Exit code: %2, statue: %3</font>").arg(color).arg(exitCode).arg(status)
+                    );
+            });
 }
 
 FFmpegBuildTool::~FFmpegBuildTool()
@@ -206,59 +251,35 @@ void FFmpegBuildTool::saveSettings()
 
 void FFmpegBuildTool::on_build_btn_clicked()
 {
-    ui->build_btn->setEnabled(false);
-    QProcess *process = new QProcess(this);
-
-    ui->complie_output_ple->clear();
-
-    QString startTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-    ui->complie_output_ple->appendHtml(
-        QString("<font color='blue'>=== Progress start at: %1 ===</font>").arg(startTime)
-        );
-
-    connect(process, &QProcess::readyReadStandardOutput, this, [this, process]() {
-        QByteArray output = process->readAllStandardOutput();
-        QString text = QString::fromLocal8Bit(output);
-
-        QString timestamp = QTime::currentTime().toString("hh:mm:ss");
-        ui->complie_output_ple->appendPlainText("[" + timestamp + "] " + text);
-
-    });
-
-    connect(process, &QProcess::readyReadStandardError, this, [this, process]() {
-        QByteArray error = process->readAllStandardError();
-        QString text = QString::fromLocal8Bit(error);
-
-        QString timestamp = QTime::currentTime().toString("hh:mm:ss");
-        ui->complie_output_ple->appendHtml(
-            "<font color='red'>[" + timestamp + "] " + text + "</font>"
-            );
-
-    });
-
-    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this, process](int exitCode, QProcess::ExitStatus exitStatus) {
-                QString endTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-                QString color = (exitCode == 0) ? "green" : "red";
-                QString status = (exitStatus == QProcess::NormalExit) ? "Normal exit" : "Crush exit";
-
-                ui->build_btn->setEnabled(true);
-
-                ui->complie_output_ple->appendHtml(
-                    QString("<font color='%1'>=== Progress end at: %2 ===</font>").arg(color).arg(endTime)
-                    );
-                ui->complie_output_ple->appendHtml(
-                    QString("<font color='%1'>Exit code: %2, statue: %3</font>").arg(color).arg(exitCode).arg(status)
-                    );
-
-                process->deleteLater();
-            });
-
-    process->setWorkingDirectory(ui->local_ffmpeg_combx->currentText());
-
-    if (process->workingDirectory() != ui->local_ffmpeg_combx->currentText()) {
-        process->start("cd", QStringList{ ui->local_ffmpeg_combx->currentText()});
+    m_process->setWorkingDirectory(ui->local_ffmpeg_combx->currentText());
+    if (m_process->workingDirectory() != ui->local_ffmpeg_combx->currentText()) {
+        m_process->start("cd", QStringList{ ui->local_ffmpeg_combx->currentText()});
     }
+    qDebug() << m_process->workingDirectory();
+
+    QString cmd = "make";
+    QStringList arguments = {"-j", QString::number(std::thread::hardware_concurrency())};
+
+    for (auto &it : arguments) {
+        it = it.trimmed();
+    }
+
+    if (arguments.isEmpty()) return;
+    qDebug() << cmd << arguments;
+    m_process->start(cmd, arguments);
+}
+
+void FFmpegBuildTool::on_configure_btn_clicked()
+{
+    ui->build_btn->setEnabled(false);
+
+    m_process->setWorkingDirectory(ui->local_ffmpeg_combx->currentText());
+    if (m_process->workingDirectory() != ui->local_ffmpeg_combx->currentText()) {
+        m_process->start("cd", QStringList{ ui->local_ffmpeg_combx->currentText()});
+    }
+    qDebug() << m_process->workingDirectory();
+
+    QString cmd = "bash";
     QString command = ui->cmd_ple->toPlainText().trimmed();
     QStringList arguments = command.split("\\", QString::SkipEmptyParts);
 
@@ -267,9 +288,50 @@ void FFmpegBuildTool::on_build_btn_clicked()
     }
 
     if (arguments.isEmpty()) return;
-    qDebug() << "bash" << arguments;
-    qDebug() << process->workingDirectory();
-    process->start("bash", arguments);
+    qDebug() << cmd << arguments;
+    m_process->start(cmd, arguments);
+}
+
+void FFmpegBuildTool::on_install_btn_clicked()
+{
+    m_process->setWorkingDirectory(ui->local_ffmpeg_combx->currentText());
+    if (m_process->workingDirectory() != ui->local_ffmpeg_combx->currentText()) {
+        m_process->start("cd", QStringList{ ui->local_ffmpeg_combx->currentText()});
+    }
+    qDebug() << m_process->workingDirectory();
+
+    QString cmd = "make";
+    QStringList arguments = {"install"};
+
+    for (auto &it : arguments) {
+        it = it.trimmed();
+    }
+
+    if (arguments.isEmpty()) return;
+    qDebug() << cmd << arguments;
+    m_process->start(cmd, arguments);
+}
+
+void FFmpegBuildTool::on_clean_btn_clicked()
+{
+    m_process->kill();
+
+    m_process->setWorkingDirectory(ui->local_ffmpeg_combx->currentText());
+    if (m_process->workingDirectory() != ui->local_ffmpeg_combx->currentText()) {
+        m_process->start("cd", QStringList{ ui->local_ffmpeg_combx->currentText()});
+    }
+    qDebug() << m_process->workingDirectory();
+
+    QString cmd = "make";
+    QStringList arguments = {"clean"};
+
+    for (auto &it : arguments) {
+        it = it.trimmed();
+    }
+
+    if (arguments.isEmpty()) return;
+    qDebug() << cmd << arguments;
+    m_process->start(cmd, arguments);
 }
 
 void FFmpegBuildTool::parseOptionLineFast(const QString& line, QString& option, QString& description, QString& defaultValue) {
@@ -299,3 +361,4 @@ void FFmpegBuildTool::loadFFmpegOptions()
     auto config = getOptions();
     ui->ffmpeg_complie_options_tb->setupConfigs(QStringList{"Option", "Description", "Default Value"}, config);
 }
+

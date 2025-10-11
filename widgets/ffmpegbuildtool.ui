@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>972</width>
-    <height>533</height>
+    <width>971</width>
+    <height>588</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -105,32 +105,8 @@
        <attribute name="title">
         <string>Select Options</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,1,1" columnstretch="1,0">
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="show_cmd_cbx">
-          <property name="text">
-           <string>Show Cmd</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QPushButton" name="build_btn">
-          <property name="text">
-           <string>Build</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="InfoWidgets" name="select_option_tb" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
+       <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,1,1" columnstretch="1,0,0,0,0,0,0">
+        <item row="2" column="0" colspan="7">
          <widget class="ZTextEditor" name="cmd_ple">
           <property name="enabled">
            <bool>true</bool>
@@ -140,6 +116,51 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="build_btn">
+          <property name="text">
+           <string>Build</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QPushButton" name="install_btn">
+          <property name="text">
+           <string>Install</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="show_cmd_cbx">
+          <property name="text">
+           <string>Show Cmd</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="7">
+         <widget class="InfoWidgets" name="select_option_tb" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="configure_btn">
+          <property name="text">
+           <string>Configure</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5">
+         <widget class="QPushButton" name="clean_btn">
+          <property name="text">
+           <string>Clean</string>
           </property>
          </widget>
         </item>
