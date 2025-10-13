@@ -128,7 +128,7 @@ QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& 
                                command.split(" ", QString::SkipEmptyParts)
                                          << fileName);
     qDebug() << process.arguments().join(" ").prepend(" ").prepend(FFPROBE);
-    process.waitForFinished();
+    process.waitForFinished(-1);
     return process.readAll();
 }
 
@@ -540,7 +540,7 @@ QString ZFfprobe::getFFprobeCommandOutput(const QString &command, const QStringL
                                command << otherParms);
 
     qDebug() << "cmd: " << process.arguments().join(" ").prepend(" ").prepend(FFPROBE);
-    process.waitForFinished();
+    process.waitForFinished(-1);
     return process.readAll();
 }
 
