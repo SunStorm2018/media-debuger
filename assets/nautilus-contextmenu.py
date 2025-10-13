@@ -62,6 +62,35 @@ class MediaDebuggerExtension(GObject.GObject, Nautilus.MenuProvider):
         """为媒体文件创建菜单项"""
         menu_items = []
         
+        # meida Info 子菜单
+        meida_info_menu = Nautilus.Menu()
+        meida_info_menu_item = Nautilus.MenuItem(
+            name="MediaDebuggerExtension::MediaInfo",
+            label=self._t("Meida Info", "媒体信息"),
+            tip=self._t("Show media information", "显示媒体信息")
+        )
+        
+        # streams Info
+        streams_item = Nautilus.MenuItem(
+            name="MediaDebuggerExtension::Streams",
+            label=self._t("Streams", "流信息"),
+            tip=self._t("Show video streams information", "显示流信息")
+        )
+        streams_item.connect('activate', self._show_streams_info, file)
+        meida_info_menu.append_item(streams_item)
+        
+        # Frame Info - Audio
+        format_item = Nautilus.MenuItem(
+            name="MediaDebuggerExtension::FrameAudio",
+            label=self._t("Formats", "格式"),
+            tip=self._t("Show audio frame information", "显示格式信息")
+        )
+        format_item.connect('activate', self._show_format_info, file)
+        meida_info_menu.append_item(format_item)
+        
+        meida_info_menu_item.set_submenu(meida_info_menu)
+        menu_items.append(meida_info_menu_item)
+        
         # Frame Info 子菜单
         frame_info_menu = Nautilus.Menu()
         frame_info_menu_item = Nautilus.MenuItem(
@@ -186,6 +215,18 @@ class MediaDebuggerExtension(GObject.GObject, Nautilus.MenuProvider):
     def _show_basic_info(self, menu, basic_type):
         """显示基础信息（使用 GUI）"""
         args = ["-b", basic_type]
+        self._execute_media_debuger(args)
+
+    def _show_streams_info(self, menu, file):
+        """显示视频流信息（使用 GUI）"""
+        file_path = file.get_location().get_path()
+        args = ["-m", file_path, "--streams"]
+        self._execute_media_debuger(args)
+    
+    def _show_format_info(self, menu, file):
+        """显示视频格式信息（使用 GUI）"""
+        file_path = file.get_location().get_path()
+        args = ["-m", file_path, "--format"]
         self._execute_media_debuger(args)
     
     def _show_frame_video_info(self, menu, file):

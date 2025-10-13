@@ -83,6 +83,12 @@ int commandConfig(const QApplication& app) {
                                                 "Set available frame or packet type (frame, packet, f, p) ",
                                                 "type");
 
+    QCommandLineOption mediaInfoStreamsOption(QStringList() << "stms" << "streams",
+                                              "media file streams info");
+
+    QCommandLineOption mediaInfoFormatOption(QStringList() << "fmt" << "format",
+                                             "media file format info");
+
     QCommandLineOption basicInfoOption(QStringList() << "b" << "basic-info",
                                        "Query basic info (version, buildconf, formats, muxers, demuxers, devices, codecs, "
                                        "decoders, encoders, bsfs, protocols, filters, pixfmts, layouts, samplefmts, colors, license)",
@@ -100,6 +106,8 @@ int commandConfig(const QApplication& app) {
     parser.addOption(mediaInfoOption);
     parser.addOption(mediaInfoStreamTypeOption);
     parser.addOption(mediaInfoFrameTypeOption);
+    parser.addOption(mediaInfoStreamsOption);
+    parser.addOption(mediaInfoFormatOption);
     parser.addOption(cliOption);
     parser.addOption(mainOption);
 
@@ -113,34 +121,42 @@ int commandConfig(const QApplication& app) {
 
         if (!QFileInfo(filePath).exists()) {
             qDebug() << "Error: Please specify the path of the media file" << filePath;
+            parser.showHelp();
             return 1;
         }
 
-        if (parser.isSet(mediaInfoStreamTypeOption)) {
+        if (parser.isSet(mediaInfoStreamTypeOption) && parser.isSet(mediaInfoFrameTypeOption)) {
             streamType = parser.value(mediaInfoStreamTypeOption);
-        }
-
-        if (parser.isSet(mediaInfoFrameTypeOption)) {
             frameType = parser.value(mediaInfoFrameTypeOption);
+
+            if (!QStringList{"audio", "video", "a", "v"}.contains(streamType)) {
+                qDebug() << "Error: Please specify the frame type, (audio, video, a, v)";
+                parser.showHelp();
+                return 1;
+            }
+            streamType = streamType.left(1);
+
+            if (!QStringList{"frame", "packet", "f", "p"}.contains(frameType)) {
+                qDebug() << "Error: Please specify the frame type, (frame, packet, f, p)";
+                parser.showHelp();
+                return 1;
+            }
+            if (frameType.startsWith("f")) {
+                frameType = SHOW_FRAMES;
+            } else {
+                frameType = SHOW_PACKETS;
+            }
+
+            mediaCmd = QString("%1 -select_streams %2:0").arg(frameType).arg(streamType);
         }
 
-        if (!QStringList{"audio", "video", "a", "v"}.contains(streamType)) {
-            qDebug() << "Error: Please specify the frame type, (audio, video, a, v)";
-            return 1;
-        }
-        streamType = streamType.left(1);
-
-        if (!QStringList{"frame", "packet", "f", "p"}.contains(frameType)) {
-            qDebug() << "Error: Please specify the frame type, (frame, packet, f, p)";
-            return 1;
-        }
-        if (frameType.startsWith("f")) {
-            frameType = SHOW_FRAMES;
-        } else {
-            frameType = SHOW_PACKETS;
+        if (parser.isSet(mediaInfoStreamsOption)) {
+            mediaCmd.append(SHOW_STREAMS + QString(" "));
         }
 
-        mediaCmd = QString("%1 -select_streams %2:0").arg(frameType).arg(streamType);
+        if (parser.isSet(mediaInfoFormatOption)) {
+            mediaCmd.append(SHOW_FORMAT + QString(" "));
+        }
 
         // cli options
         if (parser.isSet(cliOption)) {
@@ -150,6 +166,7 @@ int commandConfig(const QApplication& app) {
             if (mediaInfo.isEmpty()) {
                 qDebug() << "Error: Media file information cannot be obtained. "
                             "Please check if the file path is correct";
+                parser.showHelp();
                 return 1;
             }
 
@@ -174,6 +191,7 @@ int commandConfig(const QApplication& app) {
                 "version, buildconf, formats, muxers, demuxers, devices, codecs, decoders, encoders, bsfs, protocols, "
                 "filters, pixfmts, layouts, samplefmts, colors, license";
 
+            parser.showHelp();
             return 1;
         }
 
@@ -193,10 +211,18 @@ int commandConfig(const QApplication& app) {
 
     MainWindow w;
 
-    if (parser.isSet(mediaInfoOption)) {
+    if (parser.isSet(mediaInfoOption) &&
+        parser.isSet(mediaInfoStreamTypeOption) &&
+        parser.isSet(mediaInfoFrameTypeOption)) {
         QString filePath = parser.value(mediaInfoOption);
 
         w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), "table");
+    }
+
+    if (parser.isSet(mediaInfoFormatOption) || parser.isSet(mediaInfoStreamsOption)) {
+        QString filePath = parser.value(mediaInfoOption);
+
+        w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), "json");
     }
 
     if (parser.isSet(basicInfoOption)) {
