@@ -2,7 +2,12 @@ Source: media-debuger
 Section: utils
 Priority: optional
 Maintainer: zhanghongyuan <2063218120@qq.com>
-Build-Depends: debhelper (>= 11), qtbase5-dev, qt5-qmake, libqt5widgets5, qttools5-dev-tools
+Build-Depends: debhelper (>= 11), 
+ qt6-base-dev,
+ qt6-base-dev-tools,
+ qt6-base-private-dev,
+ qt6-tools-dev-tools,
+ qt6-tools-dev
 Standards-Version: 4.5.0
 Homepage: https://gitee.com/sunstom/media-debuger.git
 Vcs-Browser: https://github.com/yourusername/media-debuger

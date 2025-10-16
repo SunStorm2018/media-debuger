@@ -4,7 +4,12 @@
 	dh $@ --buildsystem=qmake
 
 override_dh_auto_configure:
-	qmake PREFIX=/usr media-debuger.pro
+	# 优先使用Qt5的qmake，若不存在则使用Qt6的qmake6
+	if which qmake-qt5 >/dev/null; then \
+		qmake-qt5 PREFIX=/usr media-debuger.pro; \
+	else \
+		qmake6 PREFIX=/usr media-debuger.pro; \
+	fi
 
 override_dh_auto_install:
 	dh_auto_install -- INSTALL_ROOT=debian/media-debuger
@@ -13,6 +18,6 @@ override_dh_auto_install:
 override_dh_install:
 	dh_install
 	
-	# chang mode
+	# 更改权限
 	chmod 644 debian/media-debuger-dde-filemanager-contextmenu/usr/share/applications/context-menus/dde-filemanager-contextmenu.conf
 	chmod 755 debian/media-debuger-nautilus-contextmenu/usr/share/nautilus-python/extensions/nautilus-contextmenu.py
