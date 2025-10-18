@@ -20,16 +20,16 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
-    <number>1</number>
+    <number>9</number>
    </property>
    <property name="topMargin">
-    <number>1</number>
+    <number>9</number>
    </property>
    <property name="rightMargin">
-    <number>1</number>
+    <number>9</number>
    </property>
    <property name="bottomMargin">
-    <number>1</number>
+    <number>9</number>
    </property>
    <item>
     <widget class="QWidget" name="search_title_wg" native="true">

@@ -174,6 +174,10 @@ void InfoWidgets::update_data_detail_tb(const QList<QStringList> &data_tb, QStri
     for (auto it : m_data_tb) {
         ui->detail_raw_pte->appendPlainText(it.join(format_join));
     }
+
+    QTimer::singleShot(50, this, [this]() {
+        resizeColumnsProportionally();
+    });
 }
 
 void InfoWidgets::update_data_detail_tb(const QMap<QString, QList<QStringList> > &data_tb, QString format_join)
@@ -269,8 +273,8 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
     if (rawStringLines.at(0).contains(":"))
         rawStringLines.removeFirst();
 
-    // -L
-    if (QStringList{"L"}.contains(format_key, Qt::CaseInsensitive)){
+    // -L -sources -sinks
+    if (QStringList{"L", "sources", "sinks"}.contains(format_key, Qt::CaseInsensitive)){
         headers << tr("Info");
         for (auto it : rawStringLines) {
             data_tb << QStringList{it};
@@ -395,8 +399,8 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
         return;
     }
 
-    // -colors -sample_fmts -layouts
-    if (QStringList{"colors", "samplefmts", "layouts"}.contains(format_key, Qt::CaseInsensitive)) {
+    // -colors -sample_fmts -layouts (inner: videorate, videosize)
+    if (QStringList{"colors", "samplefmts", "layouts", "videorate", "videosize"}.contains(format_key, Qt::CaseInsensitive)) {
         headers << tr("Name") << "Value";
 
         for (int i = 1; i < rawStringLines.size(); ++i) {
@@ -459,7 +463,7 @@ void InfoWidgets::format_data(const QString &data, QList<QStringList> &data_tb, 
 
     // -bsfs -buildconf
     if (QStringList{"bsfs", "buildconf"}.contains(format_key, Qt::CaseInsensitive)) {
-        headers << tr("Bitstream filters");
+        headers.append(tr("name"));
 
         for (int i = 0; i < rawStringLines.size(); i++) {
             data_tb.append(QStringList{rawStringLines.at(i).trimmed()});

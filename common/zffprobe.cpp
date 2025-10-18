@@ -100,14 +100,56 @@ QString ZFfprobe::getHelp(const QStringList& helpList)
     return getFFprobeCommandOutput(HELP, helpList);
 }
 
+QString ZFfprobe::getVideoSize()
+{
+    QString videoSize;
+
+    QMapIterator<QString, QList<QVariant>> i(getVideoSizeMap());
+    while (i.hasNext()) {
+        i.next();
+        videoSize.append(i.key() + " " + i.value().at(0).toString() + "\n");
+    }
+
+    return videoSize;
+}
+
+QString ZFfprobe::getVideoRate()
+{
+    QString videoRate;
+
+    QMapIterator<QString, QList<QVariant>> i(getVideoRateMap());
+    while (i.hasNext()) {
+        i.next();
+        videoRate.append(i.key() + " " + i.value().at(0).toString() + "\n");
+    }
+
+    return videoRate;
+}
+
+QString ZFfprobe::getSources()
+{
+    QString sources;
+    sources.append(getFFprobeCommandOutput(SOURCES, QStringList{V4L2}));
+    sources.append(getFFprobeCommandOutput(SOURCES, QStringList{ALSA}));
+    return sources;
+}
+
+QString ZFfprobe::getSinks()
+{
+    QString sinks;
+    sinks.append(getFFprobeCommandOutput(SINKS, QStringList{V4L2}));
+    sinks.append(getFFprobeCommandOutput(SINKS, QStringList{ALSA}));
+    return sinks;
+}
+
 QString ZFfprobe::getBasicInfo(const QString &function, bool *sucess)
 {
     QString retVal;
 
     QString funWrapper = function;
-    if (!funWrapper.startsWith("get")) {
+    if (!funWrapper.startsWith(GET)) {
         funWrapper.replace(0, 1, function[0].toUpper());
-        funWrapper.prepend("get");
+        funWrapper.prepend(GET);
     }
 
     bool tmp_sucess = QMetaObject::invokeMethod(this, funWrapper.toUtf8(), Qt::DirectConnection,
@@ -125,8 +167,8 @@ QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& 
     process.start(FFPROBE, QStringList() << HIDEBANNER <<
                                LOGLEVEL << QUIET <<
                                OF << JSON <<
-                               command.split(" ", QString::SkipEmptyParts)
-                                         << fileName);
+                               command.split(" ", QString::SkipEmptyParts) <<
+                               I  << fileName);
     qDebug() << process.arguments().join(" ").prepend(" ").prepend(FFPROBE);
     process.waitForFinished(-1);
     return process.readAll();
@@ -268,7 +310,7 @@ QStringList ZFfprobe::getProtocolFromLibav()
     return protocolNames;
 }
 
-QMap<QString, QList<QVariant>> ZFfprobe::getVideoSize(const QString &key)
+QMap<QString, QList<QVariant>> ZFfprobe::getVideoSizeMap(const QString &key)
 {
     static const QMap<QString, QList<QVariant>> videoSizes = {
         {"ntsc", {"720x480", 720, 480}},
@@ -340,7 +382,7 @@ QMap<QString, QList<QVariant>> ZFfprobe::getVideoSize(const QString &key)
     return result;
 }
 
-QMap<QString, QList<QVariant>> ZFfprobe::getVideoRate(const QString &key)
+QMap<QString, QList<QVariant>> ZFfprobe::getVideoRateMap(const QString &key)
 {
     static const QMap<QString, QList<QVariant>> videoRates = {
         {"ntsc", {"30000/1001", 30000, 1001}},

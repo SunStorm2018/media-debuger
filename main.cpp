@@ -216,13 +216,13 @@ int commandConfig(const QApplication& app) {
         parser.isSet(mediaInfoFrameTypeOption)) {
         QString filePath = parser.value(mediaInfoOption);
 
-        w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), "table");
+        w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), FORMAT_TABLE);
     }
 
     if (parser.isSet(mediaInfoFormatOption) || parser.isSet(mediaInfoStreamsOption)) {
         QString filePath = parser.value(mediaInfoOption);
 
-        w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), "json");
+        w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), FORMAT_JSON);
     }
 
     if (parser.isSet(basicInfoOption)) {

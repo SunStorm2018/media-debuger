@@ -47,6 +47,12 @@
     <addaction name="actionSamplefmts"/>
     <addaction name="actionColors"/>
     <addaction name="separator"/>
+    <addaction name="actionVideoRate"/>
+    <addaction name="actionVideoSize"/>
+    <addaction name="separator"/>
+    <addaction name="actionSources"/>
+    <addaction name="actionSinks"/>
+    <addaction name="separator"/>
     <addaction name="actionL"/>
    </widget>
    <widget class="QMenu" name="menuMedia_Info">
@@ -57,32 +63,35 @@
      <property name="title">
       <string>Frames</string>
      </property>
-     <addaction name="actionFrames_Video"/>
-     <addaction name="actionFrames_Audio"/>
+     <addaction name="actionShow_Frames_Video"/>
+     <addaction name="actionShow_Frames_Audio"/>
     </widget>
     <widget class="QMenu" name="menuPackets">
      <property name="title">
       <string>Packets</string>
      </property>
-     <addaction name="actionPackets_Video"/>
-     <addaction name="actionPackets_Audio"/>
+     <addaction name="actionShow_Packets_Video"/>
+     <addaction name="actionShow_Packets_Audio"/>
     </widget>
-    <addaction name="actionStreams"/>
-    <addaction name="actionFormat"/>
+    <addaction name="actionShow_Streams"/>
+    <addaction name="actionShow_Format"/>
     <addaction name="separator"/>
     <addaction name="menuFrames"/>
     <addaction name="menuPackets"/>
     <addaction name="separator"/>
-    <addaction name="actionChapters"/>
-    <addaction name="actionCount_Frames"/>
-    <addaction name="actionCount_Packets"/>
     <addaction name="actionShow_Entries"/>
     <addaction name="separator"/>
-    <addaction name="actionVersions"/>
-    <addaction name="actionProgram_Version"/>
-    <addaction name="actionLibrary_Versions"/>
+    <addaction name="actionShow_Chapters"/>
+    <addaction name="actionPrograms"/>
     <addaction name="separator"/>
-    <addaction name="actionPixel_Formats"/>
+    <addaction name="actionCount_Frames"/>
+    <addaction name="actionCount_Packets"/>
+    <addaction name="separator"/>
+    <addaction name="actionShow_Versions"/>
+    <addaction name="actionShow_Program_Version"/>
+    <addaction name="actionShow_Library_Versions"/>
+    <addaction name="separator"/>
+    <addaction name="actionShow_Pixel_Formats"/>
    </widget>
    <widget class="QMenu" name="menuConfig">
     <property name="title">
@@ -109,6 +118,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionDocs_Viewer"/>
     <addaction name="separator"/>
     <addaction name="actionApp_Dir"/>
     <addaction name="actionSetting_Dir"/>
@@ -232,7 +242,7 @@
     <string>Video Frame</string>
    </property>
   </action>
-  <action name="actionChapters">
+  <action name="actionShow_Chapters">
    <property name="checkable">
     <bool>false</bool>
    </property>
@@ -240,7 +250,7 @@
     <string>Chapters</string>
    </property>
   </action>
-  <action name="actionFormat">
+  <action name="actionShow_Format">
    <property name="checkable">
     <bool>false</bool>
    </property>
@@ -269,7 +279,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Show Entries</string>
+    <string>Entries</string>
    </property>
   </action>
   <action name="actionOpen">
@@ -292,7 +302,7 @@
     <string>Open Files</string>
    </property>
   </action>
-  <action name="actionStreams">
+  <action name="actionShow_Streams">
    <property name="checkable">
     <bool>false</bool>
    </property>
@@ -300,7 +310,7 @@
     <string>Streams</string>
    </property>
   </action>
-  <action name="actionProgram_Version">
+  <action name="actionShow_Program_Version">
    <property name="checkable">
     <bool>false</bool>
    </property>
@@ -308,7 +318,7 @@
     <string>Program Version</string>
    </property>
   </action>
-  <action name="actionLibrary_Versions">
+  <action name="actionShow_Library_Versions">
    <property name="checkable">
     <bool>false</bool>
    </property>
@@ -316,7 +326,7 @@
     <string>Library Versions</string>
    </property>
   </action>
-  <action name="actionVersions">
+  <action name="actionShow_Versions">
    <property name="checkable">
     <bool>false</bool>
    </property>
@@ -324,7 +334,7 @@
     <string>Versions</string>
    </property>
   </action>
-  <action name="actionPixel_Formats">
+  <action name="actionShow_Pixel_Formats">
    <property name="checkable">
     <bool>false</bool>
    </property>
@@ -352,22 +362,22 @@
     <string>General</string>
    </property>
   </action>
-  <action name="actionFrames_Video">
+  <action name="actionShow_Frames_Video">
    <property name="text">
     <string>Video</string>
    </property>
   </action>
-  <action name="actionFrames_Audio">
+  <action name="actionShow_Frames_Audio">
    <property name="text">
     <string>Audio</string>
    </property>
   </action>
-  <action name="actionPackets_Video">
+  <action name="actionShow_Packets_Video">
    <property name="text">
     <string>Video</string>
    </property>
   </action>
-  <action name="actionPackets_Audio">
+  <action name="actionShow_Packets_Audio">
    <property name="text">
     <string>Audio</string>
    </property>
@@ -433,6 +443,36 @@
   <action name="actionFFmpeg_Builder">
    <property name="text">
     <string>FFmpeg Builder</string>
+   </property>
+  </action>
+  <action name="actionDocs_Viewer">
+   <property name="text">
+    <string>Docs Viewer</string>
+   </property>
+  </action>
+  <action name="actionPrograms">
+   <property name="text">
+    <string>Programs</string>
+   </property>
+  </action>
+  <action name="actionVideoRate">
+   <property name="text">
+    <string>VideoRate</string>
+   </property>
+  </action>
+  <action name="actionVideoSize">
+   <property name="text">
+    <string>VideoSize</string>
+   </property>
+  </action>
+  <action name="actionSources">
+   <property name="text">
+    <string>Sources</string>
+   </property>
+  </action>
+  <action name="actionSinks">
+   <property name="text">
+    <string>Sinks</string>
    </property>
   </action>
  </widget>

@@ -142,6 +142,10 @@ extern "C" {
 #define SHOW_PACKETS_VIDEO "-show_packets_video"       // show packets info of video
 #define SHOW_PACKETS_AUDIO "-show_packets_audio"       // show packets info of audio
 
+#define GET "get"
+#define V4L2 "v4l2"
+#define ALSA "alsa"
+
 #define EXECUTE_FFPROBE_COMMAND(command) \
 []() -> QByteArray { \
         QProcess process; \
@@ -187,8 +191,12 @@ public:
     Q_INVOKABLE QString getSamplefmts ();           // show available audio sample formats
     Q_INVOKABLE QString getColors();                // show available color names
     Q_INVOKABLE QString getL();                     // show license.
-    Q_INVOKABLE QString getHelp(const QStringList& helpList);      // show help info.
+    Q_INVOKABLE QString getVideoSize();             // show video size.
+    Q_INVOKABLE QString getVideoRate();             // show video rate
+    Q_INVOKABLE QString getSources();               // show Sources alsa, v4l2
+    Q_INVOKABLE QString getSinks();                 // show Sinks alsa, v4l2
 
+    Q_INVOKABLE QString getHelp(const QStringList& helpList);      // show help info.
     Q_INVOKABLE QString getBasicInfo(const QString& function, bool *sucess = nullptr);
 
 /*
@@ -205,8 +213,8 @@ public:
 /*
  * Utilities Info
  */
-    Q_INVOKABLE QMap<QString, QList<QVariant>> getVideoSize(const QString &key = "");             // get video size.
-    Q_INVOKABLE QMap<QString, QList<QVariant>> getVideoRate(const QString &key = "");             // get video rate.
+    Q_INVOKABLE QMap<QString, QList<QVariant>> getVideoSizeMap(const QString &key = "");             // get video size.
+    Q_INVOKABLE QMap<QString, QList<QVariant>> getVideoRateMap(const QString &key = "");             // get video rate.
     Q_INVOKABLE QMap<QString, QList<QVariant>> getColor(const QString &key);                      // get color.
 signals:
 

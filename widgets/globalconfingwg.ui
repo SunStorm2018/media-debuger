@@ -44,7 +44,20 @@
      <property name="title">
       <string/>
      </property>
-     <layout class="QVBoxLayout" name="genreral_tab_layout"/>
+     <layout class="QVBoxLayout" name="genreral_tab_layout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+     </layout>
     </widget>
    </item>
   </layout>

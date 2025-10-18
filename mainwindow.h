@@ -27,6 +27,9 @@
 #include <widgets/helpquerywg.h>
 #include <widgets/ffmpegbuildtool.h>
 
+#define FORMAT_JSON "json"
+#define FORMAT_TABLE "table"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -51,7 +54,7 @@ public:
 private slots:
     void InitConnectation();
     void PopBasicInfoWindow(QString title, const QString &info, const QString &format_key);
-    void PopMediaInfoWindow(QString title, const QString &info, const QString &format_key = "json");
+    void PopMediaInfoWindow(QString title, const QString &info, const QString &format_key = FORMAT_JSON);
 
     void createDockWidgets();
     void saveLayoutSettings();

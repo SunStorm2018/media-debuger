@@ -57,9 +57,9 @@ QList<QAction *> MainWindow::getMediaInfoAvailableActions()
 {
     QList<QAction *> tmpActions;
 
-    tmpActions << ui->actionStreams;
-    tmpActions << ui->actionFormat;
-    tmpActions << ui->actionChapters;
+    tmpActions << ui->actionShow_Streams;
+    tmpActions << ui->actionShow_Format;
+    tmpActions << ui->actionShow_Chapters;
 
     return tmpActions;
 }
@@ -173,9 +173,9 @@ void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QS
 void MainWindow::PopMediaInfoWindow(QString title, const QString &info, const QString &format_key)
 {
     BaseFormatWG *mediaInfoWindow = nullptr;
-    if (format_key == "json") {
+    if (format_key == FORMAT_JSON) {
         mediaInfoWindow = new JsonFormatWG;
-    } else if (format_key == "table") {
+    } else if (format_key == FORMAT_TABLE) {
         mediaInfoWindow = new TabelFormatWG;
     }
 
@@ -285,7 +285,7 @@ void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
         return;
     }
 
-    QString function = senderAction->objectName().replace("action", "-show_").toLower();
+    QString function = senderAction->objectName().replace("action", "-").toLower();
     if (function.isEmpty()) {
         function = QObject::sender()->objectName();
     }
@@ -327,9 +327,33 @@ void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
         }
         QString fileName = m_filesWG.getCurrentSelectFileName();
 
+        if (!fileName.isEmpty()) {
+            showMediaInfo(fileName, tmpFunction, senderAction->objectName().replace("action", "Detail Info : "), FORMAT_TABLE);
+        } else {
+            qWarning() << CURRENTFILE << fileName  << "is empty, please retray";
+        }
+
+        return;
+    }
+
+    if (QStringList{
+            COUNT_FRAMES, COUNT_PACKETS
+        }.contains(function)) {
+
+        QString tmpFunction = function;
+
+        if (function == COUNT_FRAMES) {
+            tmpFunction = "-count_frames -show_entries stream=index,codec_type,nb_read_frames,nb_frames";
+        }
+
+        if (function == COUNT_PACKETS) {
+            tmpFunction = "-count_packets -show_entries stream=index,codec_type,nb_packets,nb_read_packets";
+        }
+
+        QString fileName = m_filesWG.getCurrentSelectFileName();
 
         if (!fileName.isEmpty()) {
-            showMediaInfo(fileName, tmpFunction, senderAction->objectName().replace("action", "Detail Info : "), "table");
+            showMediaInfo(fileName, tmpFunction, senderAction->objectName().replace("action", "Detail Info : "), FORMAT_JSON);
         } else {
             qWarning() << CURRENTFILE << fileName  << "is empty, please retray";
         }
