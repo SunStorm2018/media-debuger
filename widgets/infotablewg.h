@@ -1,5 +1,5 @@
-#ifndef INFOWIDGETS_H
-#define INFOWIDGETS_H
+#ifndef INFOTABLEWG_H
+#define INFOTABLEWG_H
 
 #include <QWidget>
 #include <QAction>
@@ -65,8 +65,10 @@ public slots:
 
     void clear_detail_tb();
 
-    void exportSelectedData();
     void copySelectedText();
+
+    void copySelectedTextWithHeader();
+
     void showDetailInfo();
 
 private slots:
@@ -88,6 +90,7 @@ private:
     void setupSearchButton();
     void createDetailSearchDialog();
     void updateCurrentModel(); // Helper method to update the current active model
+    QString getSelectedText(bool includeHeader = false);
 
 private:
     void format_data(const QString& data, QList<QStringList> &data_tb, QStringList &headers, QString format_key);
@@ -105,6 +108,8 @@ private:
     // Detail search components
     QMenu *m_searchButtonMenu;
     QAction *m_detailSearchAction;
+    QAction *m_copySelectedTextAction;
+    QAction *m_copySelectedTextWithHeaderAction;
     SearchWG *m_detailSearchDialog;
 
     QMenu *m_tableContextMenu;
@@ -128,5 +133,4 @@ private:
     bool eventFilter(QObject *obj, QEvent *event) override;
 };
 
-
-#endif // INFOWIDGETS_H
+#endif // INFOTABLEWG_H

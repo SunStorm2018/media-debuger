@@ -1,5 +1,5 @@
-#ifndef TABELFORMATWG_H
-#define TABELFORMATWG_H
+#ifndef TABELFMTWG_H
+#define TABELFMTWG_H
 
 #include <QWidget>
 #include <QJsonDocument>
@@ -7,8 +7,8 @@
 #include <QJsonArray>
 #include <QDebug>
 
-#include <widgets/infowidgets.h>
-#include <widgets/baseformatwg.h>
+#include <widgets/infotablewg.h>
+#include <widgets/basefmtwg.h>
 
 #include <model/mediainfotabelmodel.h>
 
@@ -39,4 +39,4 @@ protected:
     bool loadJson(const QByteArray &json);
 };
 
-#endif // TABELFORMATWG_H
+#endif // TABELFMTWG_H

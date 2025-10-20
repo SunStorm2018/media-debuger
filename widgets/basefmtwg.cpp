@@ -1,4 +1,4 @@
-#include "baseformatwg.h"
+#include "basefmtwg.h"
 
 BaseFormatWG::BaseFormatWG(QWidget *parent)
     : QWidget{parent}

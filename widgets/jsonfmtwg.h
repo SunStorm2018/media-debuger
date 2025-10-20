@@ -1,5 +1,5 @@
-#ifndef JSONFORMATWG_H
-#define JSONFORMATWG_H
+#ifndef JSONFMTWG_H
+#define JSONFMTWG_H
 
 #include <QWidget>
 #include <QShortcut>
@@ -8,7 +8,7 @@
 #include <QClipboard>
 #include <QApplication>
 
-#include <widgets/baseformatwg.h>
+#include <widgets/basefmtwg.h>
 #include <widgets/searchwg.h>
 
 #include <third_part/QJsonModel/include/QJsonModel.hpp>
@@ -55,4 +55,4 @@ private:
     QJsonTreeItem* getItemForIndex(const QModelIndex &index);
 };
 
-#endif // JSONFORMATWG_H
+#endif // JSONFMTWG_H

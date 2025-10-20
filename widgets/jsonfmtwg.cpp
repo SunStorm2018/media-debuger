@@ -1,5 +1,5 @@
-#include "jsonformatwg.h"
-#include "ui_jsonformatwg.h"
+#include "jsonfmtwg.h"
+#include "ui_jsonfmtwg.h"
 
 JsonFormatWG::JsonFormatWG(QWidget *parent)
     : BaseFormatWG(parent)

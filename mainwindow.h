@@ -14,10 +14,10 @@
 #include <common/common.h>
 #include <common/zlogger.h>
 
-#include <widgets/infowidgets.h>
-#include <widgets/jsonformatwg.h>
+#include <widgets/infotablewg.h>
+#include <widgets/jsonfmtwg.h>
 #include <widgets/globalconfingwg.h>
-#include <widgets/tabelformatwg.h>
+#include <widgets/tabelfmtwg.h>
 #include <widgets/logwg.h>
 #include <widgets/fileswg.h>
 #include <widgets/playerwg.h>

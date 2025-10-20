@@ -29,23 +29,23 @@ SOURCES += \
     model/logmodel.cpp \
     model/mediainfotabelmodel.cpp \
     model/multicolumnsearchproxymodel.cpp \
-    widgets/baseformatwg.cpp \
+    widgets/basefmtwg.cpp \
     widgets/exportwg.cpp \
     widgets/ffmpegbuildtool.cpp \
     widgets/fileswg.cpp \
     widgets/folderswg.cpp \
     widgets/globalconfingwg.cpp \
     widgets/helpquerywg.cpp \
-    widgets/infowidgets.cpp \
     main.cpp \
     mainwindow.cpp \
-    widgets/jsonformatwg.cpp \
+    widgets/infotablewg.cpp \
+    widgets/jsonfmtwg.cpp \
     widgets/logwg.cpp \
     widgets/playerwg.cpp \
     widgets/progressdlg.cpp \
     widgets/searchwg.cpp \
     widgets/tabconfigwg.cpp \
-    widgets/tabelformatwg.cpp \
+    widgets/tabelfmtwg.cpp \
     widgets/x11embedhelper.cpp
 
 HEADERS += \
@@ -68,22 +68,22 @@ HEADERS += \
     model/logmodel.h \
     model/mediainfotabelmodel.h \
     model/multicolumnsearchproxymodel.h \
-    widgets/baseformatwg.h \
+    widgets/basefmtwg.h \
     widgets/exportwg.h \
     widgets/ffmpegbuildtool.h \
     widgets/fileswg.h \
     widgets/folderswg.h \
     widgets/globalconfingwg.h \
     widgets/helpquerywg.h \
-    widgets/infowidgets.h \
     mainwindow.h \
-    widgets/jsonformatwg.h \
+    widgets/infotablewg.h \
+    widgets/jsonfmtwg.h \
     widgets/logwg.h \
     widgets/playerwg.h \
     widgets/progressdlg.h \
     widgets/searchwg.h \
     widgets/tabconfigwg.h \
-    widgets/tabelformatwg.h \
+    widgets/tabelfmtwg.h \
     widgets/x11embedhelper.h
 
 FORMS += \
@@ -93,14 +93,14 @@ FORMS += \
     widgets/folderswg.ui \
     widgets/globalconfingwg.ui \
     widgets/helpquerywg.ui \
-    widgets/infowidgets.ui \
     mainwindow.ui \
-    widgets/jsonformatwg.ui \
+    widgets/infotablewg.ui \
+    widgets/jsonfmtwg.ui \
     widgets/logwg.ui \
     widgets/playerwg.ui \
     widgets/searchwg.ui \
     widgets/tabconfigwg.ui \
-    widgets/tabelformatwg.ui
+    widgets/tabelfmtwg.ui
 
 TRANSLATIONS += \
     translations/media-debuger_en_US.ts \

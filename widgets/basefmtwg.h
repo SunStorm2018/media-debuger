@@ -1,5 +1,5 @@
-#ifndef BASEFORMATWG_H
-#define BASEFORMATWG_H
+#ifndef BASEFMTWG_H
+#define BASEFMTWG_H
 
 #include <QWidget>
 
@@ -18,4 +18,4 @@ public:
     virtual bool loadJson(const QByteArray &json) = 0;
 };
 
-#endif // BASEFORMATWG_H
+#endif // BASEFMTWG_H

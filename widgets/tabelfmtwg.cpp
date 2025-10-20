@@ -1,5 +1,5 @@
-#include "tabelformatwg.h"
-#include "ui_tabelformatwg.h"
+#include "tabelfmtwg.h"
+#include "ui_tabelfmtwg.h"
 
 TabelFormatWG::TabelFormatWG(QWidget *parent)
     : BaseFormatWG(parent)

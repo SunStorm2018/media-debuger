@@ -8,7 +8,7 @@
 #include <QButtonGroup>
 #include <QPushButton>
 
-#include <widgets/infowidgets.h>
+#include <widgets/infotablewg.h>
 
 namespace Ui {
 class GlobalConfingWG;

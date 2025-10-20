@@ -1,6 +1,6 @@
-#include "infowidgets.h"
+#include "infotablewg.h"
 #include "qdebug.h"
-#include "ui_infowidgets.h"
+#include "ui_infotablewg.h"
 #include <QtGlobal>
 #include <QPoint>
 
@@ -9,6 +9,8 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     , ui(new Ui::InfoWidgets)
     , m_searchButtonMenu(nullptr)
     , m_detailSearchAction(nullptr)
+    , m_copySelectedTextAction(nullptr)
+    , m_copySelectedTextWithHeaderAction(nullptr)
     , m_detailSearchDialog(nullptr)
     , m_tableContextMenu(new QMenu(this))
     , m_isUserAdjusted(false)
@@ -30,10 +32,13 @@ InfoWidgets::InfoWidgets(QWidget *parent)
             m_tableContextMenu->exec(ui->detail_tb->viewport()->mapToGlobal(pos));
         }
     });
+
+    // detail info action
     m_detailAction = new QAction("Detail Info", this);
     connect(m_detailAction, &QAction::triggered, this, &InfoWidgets::showDetailInfo);
     m_tableContextMenu->addAction(m_detailAction);
 
+    // restore order action
     m_restoreOrderAction = new QAction("Restore Order", this);
     connect(m_restoreOrderAction, &QAction::triggered, [=](){
         QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->detail_tb->model());
@@ -44,6 +49,18 @@ InfoWidgets::InfoWidgets(QWidget *parent)
         ui->detail_tb->horizontalHeader()->setSortIndicatorShown(false);
     });
     m_tableContextMenu->addAction(m_restoreOrderAction);
+
+    m_tableContextMenu->addSeparator();
+
+    // copy selected text action
+    m_copySelectedTextAction = new QAction("Coyp Select Text", this);
+    connect(m_copySelectedTextAction, &QAction::triggered, this, &InfoWidgets::copySelectedText);
+    m_tableContextMenu->addAction(m_copySelectedTextAction);
+
+    // copy selected text with header action
+    m_copySelectedTextWithHeaderAction = new QAction("Coyp Select Text With Header", this);
+    connect(m_copySelectedTextWithHeaderAction, &QAction::triggered, this, &InfoWidgets::copySelectedTextWithHeader);
+    m_tableContextMenu->addAction(m_copySelectedTextWithHeaderAction);
 
     // model
     m_model = new MediaInfoTabelModel(this);
@@ -614,6 +631,34 @@ void InfoWidgets::updateCurrentModel()
     m_headerManager->updateTotalCount(multiColumnSearchModel->rowCount());
 }
 
+QString InfoWidgets::getSelectedText(bool includeHeader)
+{
+    QModelIndexList selected = ui->detail_tb->selectionModel()->selectedIndexes();
+    if (selected.isEmpty()) {
+        return QString();
+    }
+
+    QString text;
+    QItemSelectionRange range = ui->detail_tb->selectionModel()->selection().first();
+
+    if (includeHeader) {
+        QStringList headerContents;
+        for (int j = range.left(); j <= range.right(); ++j) {
+            headerContents << ui->detail_tb->model()->headerData(j, Qt::Horizontal).toString();
+        }
+        text += headerContents.join("\t") + "\n";
+    }
+
+    for (int i = range.top(); i <= range.bottom(); ++i) {
+        QStringList rowContents;
+        for (int j = range.left(); j <= range.right(); ++j) {
+            rowContents << ui->detail_tb->model()->index(i,j).data().toString();
+        }
+        text += rowContents.join("\t") + "\n";
+    }
+
+    return text;
+}
 
 void InfoWidgets::on_search_le_textChanged(const QString &arg1)
 {
@@ -624,23 +669,18 @@ void InfoWidgets::on_search_le_textChanged(const QString &arg1)
 
 void InfoWidgets::copySelectedText()
 {
-    QModelIndexList selected = ui->detail_tb->selectionModel()->selectedIndexes();
-    if (selected.isEmpty()) {
-        return;
+    QString text = getSelectedText(false);
+    if (!text.isEmpty()) {
+        QApplication::clipboard()->setText(text);
     }
+}
 
-    QString text;
-    QItemSelectionRange range = ui->detail_tb->selectionModel()->selection().first();
-    for (int i = range.top(); i <= range.bottom(); ++i) {
-        QStringList rowContents;
-        for (int j = range.left(); j <= range.right(); ++j) {
-            rowContents << ui->detail_tb->model()->index(i,j).data().toString();
-        }
-        text += rowContents.join("\t");
-        text += "\n";
+void InfoWidgets::copySelectedTextWithHeader()
+{
+    QString text = getSelectedText(true);
+    if (!text.isEmpty()) {
+        QApplication::clipboard()->setText(text);
     }
-
-    QApplication::clipboard()->setText(text);
 }
 
 void InfoWidgets::showDetailInfo()
@@ -671,17 +711,6 @@ void InfoWidgets::showDetailInfo()
     helpWindow->setHelpParams(m_helpKey, m_data_tb[rowIndex][columnIndex]);
     helpWindow->show();
     ZWindowHelper::centerToParent(helpWindow);
-}
-
-void InfoWidgets::exportSelectedData()
-{
-    QModelIndexList selected = ui->detail_tb->selectionModel()->selectedIndexes();
-    if (selected.isEmpty()) {
-        return;
-    }
-
-    // TODO: Implement actual export functionality
-    qDebug() << "Exporting selected data";
 }
 
 void InfoWidgets::setupColumnWidthManagement()
