@@ -234,7 +234,7 @@
   <customwidget>
    <class>InfoWidgets</class>
    <extends>QWidget</extends>
-   <header>widgets/infowidgets.h</header>
+   <header location="global">widgets/infotablewg.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
