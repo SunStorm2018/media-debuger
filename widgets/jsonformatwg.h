@@ -4,6 +4,9 @@
 #include <QWidget>
 #include <QShortcut>
 #include <QSortFilterProxyModel>
+#include <QMenu>
+#include <QClipboard>
+#include <QApplication>
 
 #include <widgets/baseformatwg.h>
 #include <widgets/searchwg.h>
@@ -28,6 +31,7 @@ private:
     QJsonModel * m_model;
     QSortFilterProxyModel * m_proxyModel;
     SearchWG * m_searchWG;
+    QMenu *m_contextMenu;
 
 protected:
     bool loadJson(const QByteArray &json) override;
@@ -36,9 +40,19 @@ private slots:
     void on_searchReady();
     void on_searchTextChanged(const QString &text);
     void on_searchClear();
+    void showContextMenu(const QPoint &pos);
+    void copyValue();
+    void copyKeyValue();
+    void copyKey();
+    void copyAllData();
+    void expandAll();
+    void collapseAll();
 
 private:
     void countVisibleAndTotalItems(QAbstractItemModel *model, const QModelIndex &parent, int &visibleCount, int &totalCount);
+    QString getKeyForIndex(const QModelIndex &index);
+    QString getValueForIndex(const QModelIndex &index);
+    QJsonTreeItem* getItemForIndex(const QModelIndex &index);
 };
 
 #endif // JSONFORMATWG_H

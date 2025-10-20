@@ -17,6 +17,20 @@ JsonFormatWG::JsonFormatWG(QWidget *parent)
     ui->treeView->setModel(m_proxyModel);
     ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
+    m_contextMenu = new QMenu(this);
+    m_contextMenu->addAction(tr("Copy Value"), this, &JsonFormatWG::copyValue);
+    m_contextMenu->addAction(tr("Copy Key-Value"), this, &JsonFormatWG::copyKeyValue);
+    m_contextMenu->addAction(tr("Copy Key"), this, &JsonFormatWG::copyKey);
+    m_contextMenu->addAction(tr("Copy All Data"), this, &JsonFormatWG::copyAllData);
+    m_contextMenu->addSeparator();
+    m_contextMenu->addAction(tr("Expand All"), this, &JsonFormatWG::expandAll);
+    m_contextMenu->addAction(tr("Collapse All"), this, &JsonFormatWG::collapseAll);
+
+    ui->treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->treeView, &QTreeView::customContextMenuRequested, this, &JsonFormatWG::showContextMenu);
+
     m_searchWG = new SearchWG(this);
     m_searchWG->setWindowTitle(tr("JSON Search"));
 
@@ -47,6 +61,142 @@ bool JsonFormatWG::loadJson(const QByteArray &json)
     bool res = m_model->loadJson(json);
     ui->treeView->expandAll();
     return res;
+}
+
+void JsonFormatWG::showContextMenu(const QPoint &pos)
+{
+    QModelIndex index = ui->treeView->indexAt(pos);
+    if (index.isValid() || !ui->treeView->selectionModel()->selectedIndexes().isEmpty()) {
+        m_contextMenu->exec(ui->treeView->viewport()->mapToGlobal(pos));
+    }
+}
+
+void JsonFormatWG::copyValue()
+{
+    QModelIndexList selectedIndexes = ui->treeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.isEmpty()) return;
+
+    QStringList values;
+    for (const QModelIndex &proxyIndex : selectedIndexes) {
+        if (proxyIndex.column() == 0) {
+            QString value = getValueForIndex(proxyIndex);
+            if (!value.isEmpty()) {
+                values.append(value);
+            }
+        }
+    }
+
+    if (!values.isEmpty()) {
+        QApplication::clipboard()->setText(values.join("\n"));
+    }
+}
+
+void JsonFormatWG::copyKeyValue()
+{
+    QModelIndexList selectedIndexes = ui->treeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.isEmpty()) return;
+
+    QStringList keyValues;
+    for (const QModelIndex &proxyIndex : selectedIndexes) {
+        if (proxyIndex.column() == 0) {
+            QString key = getKeyForIndex(proxyIndex);
+            QString value = getValueForIndex(proxyIndex);
+            if (!key.isEmpty() && !value.isEmpty()) {
+                keyValues.append(QString("%1: %2").arg(key).arg(value));
+            } else if (!key.isEmpty()) {
+                keyValues.append(key);
+            } else if (!value.isEmpty()) {
+                keyValues.append(value);
+            }
+        }
+    }
+
+    if (!keyValues.isEmpty()) {
+        QApplication::clipboard()->setText(keyValues.join("\n"));
+    }
+}
+
+void JsonFormatWG::copyKey()
+{
+    QModelIndexList selectedIndexes = ui->treeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.isEmpty()) return;
+
+    QStringList keys;
+    for (const QModelIndex &proxyIndex : selectedIndexes) {
+        if (proxyIndex.column() == 0) {
+            QString key = getKeyForIndex(proxyIndex);
+            if (!key.isEmpty()) {
+                keys.append(key);
+            }
+        }
+    }
+
+    if (!keys.isEmpty()) {
+        QApplication::clipboard()->setText(keys.join("\n"));
+    }
+}
+
+void JsonFormatWG::copyAllData()
+{
+    QByteArray jsonData = m_model->json(false); // false表示不压缩，格式化输出
+    if (!jsonData.isEmpty()) {
+        QApplication::clipboard()->setText(QString::fromUtf8(jsonData));
+    }
+}
+
+void JsonFormatWG::expandAll()
+{
+    ui->treeView->expandAll();
+}
+
+void JsonFormatWG::collapseAll()
+{
+    ui->treeView->collapseAll();
+}
+
+QJsonTreeItem* JsonFormatWG::getItemForIndex(const QModelIndex &proxyIndex)
+{
+    QModelIndex sourceIndex = m_proxyModel->mapToSource(proxyIndex);
+    if (sourceIndex.isValid()) {
+        return static_cast<QJsonTreeItem*>(sourceIndex.internalPointer());
+    }
+    return nullptr;
+}
+
+QString JsonFormatWG::getKeyForIndex(const QModelIndex &proxyIndex)
+{
+    QJsonTreeItem* item = getItemForIndex(proxyIndex);
+    if (item) {
+        return item->key();
+    }
+    return QString();
+}
+
+QString JsonFormatWG::getValueForIndex(const QModelIndex &proxyIndex)
+{
+    QJsonTreeItem* item = getItemForIndex(proxyIndex);
+    if (item) {
+        QVariant value = item->value();
+        if (value.isValid()) {
+            switch (item->type()) {
+            case QJsonValue::Bool:
+                return value.toBool() ? "true" : "false";
+            case QJsonValue::Double:
+                return QString::number(value.toDouble());
+            case QJsonValue::String:
+                return value.toString();
+            case QJsonValue::Array:
+                return "[Array]";
+            case QJsonValue::Object:
+                return "[Object]";
+            case QJsonValue::Null:
+                return "null";
+            default:
+                return value.toString();
+            }
+        }
+    }
+    return QString();
 }
 
 void JsonFormatWG::on_searchReady()
@@ -124,7 +274,7 @@ void JsonFormatWG::countVisibleAndTotalItems(QAbstractItemModel *model, const QM
     for (int i = 0; i < model->rowCount(parent); ++i) {
         QModelIndex index = model->index(i, 0, parent);
         totalCount++;
-        
+
         // Check if the item is visible in the proxy model
         bool itemVisible = false;
         if (model == m_proxyModel) {
@@ -135,14 +285,14 @@ void JsonFormatWG::countVisibleAndTotalItems(QAbstractItemModel *model, const QM
             QModelIndex proxyIndex = m_proxyModel->mapFromSource(index);
             itemVisible = proxyIndex.isValid();
         }
-        
+
         // Check children
         int childVisibleCount = 0;
         int childTotalCount = 0;
         if (model->hasChildren(index)) {
             QAbstractItemModel *childModel = model;
             QModelIndex childParent = index;
-            
+
             // If we're using the source model, we need to work with the proxy model for children
             if (model == m_model) {
                 QModelIndex proxyIndex = m_proxyModel->mapFromSource(index);
@@ -153,12 +303,12 @@ void JsonFormatWG::countVisibleAndTotalItems(QAbstractItemModel *model, const QM
                     childModel = nullptr; // Skip children if parent is not visible
                 }
             }
-            
+
             if (childModel) {
                 countVisibleAndTotalItems(childModel, childParent, childVisibleCount, childTotalCount);
             }
         }
-        
+
         if (itemVisible) {
             visibleCount += 1 + childVisibleCount;
         }
