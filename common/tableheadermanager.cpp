@@ -184,6 +184,8 @@ void TableHeaderManager::toggleColumnVisibility()
     } else {
         m_horizontalHeader->hideSection(logicalIndex);
     }
+
+    emit headerToggleVisiable(logicalIndex, action->isChecked());
 }
 
 void TableHeaderManager::showAllColumns()

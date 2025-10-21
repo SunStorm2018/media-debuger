@@ -70,6 +70,8 @@ public slots:
 
     void copySelectedTextWithHeader();
 
+    void fitTableColumnToContent();
+
     void showDetailInfo();
 
 private slots:
@@ -119,6 +121,7 @@ private:
     QString m_helpKey;
     QAction *m_detailAction;
     QAction *m_restoreOrderAction;
+    QAction *m_fitTableColumnAction;
     
     // Column width management
     QVector<double> m_columnWidthRatios;

@@ -62,6 +62,13 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     connect(m_copySelectedTextWithHeaderAction, &QAction::triggered, this, &InfoWidgets::copySelectedTextWithHeader);
     m_tableContextMenu->addAction(m_copySelectedTextWithHeaderAction);
 
+    m_tableContextMenu->addSeparator();
+
+    // copy selected text with header action
+    m_fitTableColumnAction = new QAction("Fit Column Width", this);
+    connect(m_fitTableColumnAction, &QAction::triggered, this, &InfoWidgets::fitTableColumnToContent);
+    m_tableContextMenu->addAction(m_fitTableColumnAction);
+
     // model
     m_model = new MediaInfoTabelModel(this);
 
@@ -76,10 +83,15 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     ui->detail_tb->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->detail_tb->setSortingEnabled(true);
 
+    // header manager
     m_headerManager = new TableHeaderManager(ui->detail_tb->horizontalHeader(), ui->detail_tb->verticalHeader(), this);
     m_headerManager->setObjectName(this->objectName());
     m_headerManager->setTotalCountVisible(false);
     m_headerManager->restoreState();
+
+    connect(m_headerManager, &TableHeaderManager::headerToggleVisiable, [=]() {
+        fitTableColumnToContent();
+    });
     
     // Setup column width management
     setupColumnWidthManagement();
@@ -683,6 +695,13 @@ void InfoWidgets::copySelectedTextWithHeader()
     }
 }
 
+void InfoWidgets::fitTableColumnToContent()
+{
+    QTimer::singleShot(50, this, [this]() {
+        resizeColumnsProportionally();
+    });
+}
+
 void InfoWidgets::showDetailInfo()
 {
     QModelIndex currentIndex = ui->detail_tb->currentIndex();
@@ -765,7 +784,7 @@ void InfoWidgets::restoreColumnWidthRatios()
     
     QHeaderView *header = ui->detail_tb->horizontalHeader();
     int availableWidth = ui->detail_tb->viewport()->width();
-    
+
     if (availableWidth <= 0) {
         return;
     }
@@ -789,7 +808,7 @@ void InfoWidgets::resizeColumnsProportionally()
         setupInitialColumnWidths();
         return;
     }
-    
+
     restoreColumnWidthRatios();
 }
 

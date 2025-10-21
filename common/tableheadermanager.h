@@ -29,6 +29,9 @@ public:
     void setTotalCountVisible(bool visible);
     void updateTotalCount(int count);
 
+signals:
+    void headerToggleVisiable(int index, bool visiable);
+
 private slots:
     void onHeaderContextMenuRequested(const QPoint &pos);
     void toggleColumnVisibility();
