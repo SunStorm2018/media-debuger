@@ -15,7 +15,7 @@ GlobalConfingWG::GlobalConfingWG(QWidget *parent)
 
     connect(generalCfgWg, &InfoWidgets::dataChanged, [=](QStringList configs) {
         if (configs.size() == 2) {
-            QStringList settingParts = configs.at(0).split("/", QString::SkipEmptyParts);
+            QStringList settingParts = configs.at(0).split("/", QT_SKIP_EMPTY_PARTS);
             if (settingParts.size() == 2) {
                 QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
                 settings.beginGroup(settingParts.at(0));

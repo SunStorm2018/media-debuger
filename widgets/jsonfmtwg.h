@@ -11,6 +11,8 @@
 #include <widgets/basefmtwg.h>
 #include <widgets/searchwg.h>
 
+#include <common/qtcompat.h>
+
 #include <third_part/QJsonModel/include/QJsonModel.hpp>
 
 namespace Ui {

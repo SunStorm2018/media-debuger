@@ -14,6 +14,7 @@
 #include <common/common.h>
 #include <common/tableheadermanager.h>
 #include <common/zwindowhelper.h>
+#include <common/qtcompat.h>
 
 #include <model/mediainfotabelmodel.h>
 #include <model/multicolumnsearchproxymodel.h>

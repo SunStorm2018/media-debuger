@@ -16,6 +16,7 @@
 #include <common/zffprobe.h>
 #include <common/flowlayout.h>
 #include <common/commandexecutor.h>
+#include <common/qtcompat.h>
 
 #include <widgets/progressdlg.h>
 

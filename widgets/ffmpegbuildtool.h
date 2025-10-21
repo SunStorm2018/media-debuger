@@ -10,6 +10,9 @@
 #include <QDateTime>
 #include <QTextCursor>
 
+
+#include <common/qtcompat.h>
+
 namespace Ui {
 class FFmpegBuildTool;
 }

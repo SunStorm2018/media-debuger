@@ -123,7 +123,7 @@ QMap<QString, QList<QStringList>> FFmpegBuildTool::getOptions()
         qDebug() << "Process timeout or error:" << process.errorString();
     }
 
-    QStringList optionsLines = optionText.split("\n", QString::SkipEmptyParts);
+    QStringList optionsLines = optionText.split("\n", QT_SKIP_EMPTY_PARTS);
 
     QString option, description, defaultValue, lastkey;
     for (auto line: optionsLines) {
@@ -170,7 +170,7 @@ QString FFmpegBuildTool::getConfigCmd()
     QString cmd = "./configure \\\n";
 
     for (auto it: *ui->select_option_tb->getTableData()) {
-        QStringList optionList = it.at(0).split("=", QString::SkipEmptyParts);
+        QStringList optionList = it.at(0).split("=", QT_SKIP_EMPTY_PARTS);
 
         QString value = it.at(2);
 
@@ -281,7 +281,7 @@ void FFmpegBuildTool::on_configure_btn_clicked()
 
     QString cmd = "bash";
     QString command = ui->cmd_ple->toPlainText().trimmed();
-    QStringList arguments = command.split("\\", QString::SkipEmptyParts);
+    QStringList arguments = command.split("\\", QT_SKIP_EMPTY_PARTS);
 
     for (auto &it : arguments) {
         it = it.trimmed();

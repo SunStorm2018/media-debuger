@@ -10,6 +10,8 @@
 
 #include <widgets/infotablewg.h>
 
+#include <common/qtcompat.h>
+
 namespace Ui {
 class GlobalConfingWG;
 }

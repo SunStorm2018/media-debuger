@@ -63,7 +63,7 @@ extern "C" {
 
 // log
 #define LOGLEVEL "-loglevel"             // set logging level
-#define VV "-v"                           // set logging level
+#define FV "-v"                           // set logging level
 // log flags
 #define REPEAT "repeat"                  // Indicates that repeated log output should not be compressed to the first line and the "Last message repeated n times" line will be omitted.
 #define LEVEL "level"                    // Indicates that log output should add a [level] prefix to each message line. This can be used as an alternative to log coloring, e.g. when dumping the log to file.
@@ -123,7 +123,7 @@ extern "C" {
 #define BITEXACT "-bitexact"             // force bitexact output
 #define READ_INTERVALS "-read_intervals" // set read intervals
 #define DEFAULT "-default"               // generic catch all option
-#define I "-i"                           // read specified file
+#define FI "-i"                           // read specified file
 #define PRINT_FILENAME "-print_filename" // override the printed input filename
 #define FIND_STREAM_INFO "-find_stream_info" // read and decode the streams to fill missing information with heuristi
 

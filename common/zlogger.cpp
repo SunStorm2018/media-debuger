@@ -1,4 +1,5 @@
 #include "zlogger.h"
+#include "qtcompat.h"
 #include <QCoreApplication>
 #include <QDebug>
 #include <QRegularExpression>
@@ -80,7 +81,7 @@ bool ZLogger::initialize(const QString& logDir, quint64 maxSize, int maxFiles, b
     }
 
     m_textStream = new QTextStream(m_logFile);
-    m_textStream->setCodec("UTF-8");
+    QT_SET_TEXT_STREAM_CODEC(m_textStream, "UTF-8");
     m_initialized = true;
 
     // Install Qt message handler
@@ -355,7 +356,7 @@ bool ZLogger::initializeWithConfig()
 
     // Set log format
     QString logFormat = m_config[LoggerConfig::LOG_FORMAT_KEY].toString();
-    qSetMessagePattern(logFormat);
+    QT_SET_MESSAGE_PATTERN(logFormat);
 
     return initialize(logDir, maxSize, maxFiles, captureQtMsg);
 }
@@ -449,7 +450,7 @@ bool ZLogger::rolloverLogFile()
     }
 
     m_textStream = new QTextStream(m_logFile);
-    m_textStream->setCodec("UTF-8");
+    QT_SET_TEXT_STREAM_CODEC(m_textStream, "UTF-8");
 
     // Clean up old files
     cleanupOldFiles();

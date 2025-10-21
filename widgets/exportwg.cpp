@@ -468,7 +468,7 @@ void ExportWG::on_export_btn_clicked()
                 qDebug() << index << command << status;
 
                 if (ui->preview_cbox->isChecked()) {
-                    QStringList cmdList = command.split(">", QString::SkipEmptyParts);
+                    QStringList cmdList = command.split(">", QT_SKIP_EMPTY_PARTS);
                     if (cmdList.size() == 2) {
                         QString fileName = cmdList.at(1).trimmed();
                         QFile file(fileName);

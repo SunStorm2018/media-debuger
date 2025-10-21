@@ -1,4 +1,5 @@
 #include "zffprobe.h"
+#include "qtcompat.h"
 #include "qdebug.h"
 #include "qrgb.h"
 
@@ -167,8 +168,9 @@ QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& 
     process.start(FFPROBE, QStringList() << HIDEBANNER <<
                                LOGLEVEL << QUIET <<
                                OF << JSON <<
-                               command.split(" ", QString::SkipEmptyParts) <<
-                               I  << fileName);
+                               command.split(" ", QT_SKIP_EMPTY_PARTS) <<
+                               FI  << fileName);
+
     qDebug() << process.arguments().join(" ").prepend(" ").prepend(FFPROBE);
     process.waitForFinished(-1);
     return process.readAll();

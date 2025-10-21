@@ -182,8 +182,7 @@ void MultiColumnSearchProxyModel::updateRegularExpression()
         options |= QRegularExpression::CaseInsensitiveOption;
     }
     
-    // Optimize regex
-    options |= QRegularExpression::OptimizeOnFirstUsageOption;
+    // Note: OptimizeOnFirstUsageOption was removed in Qt6 as the regex engine is optimized by default
     
     m_regex.setPattern(pattern);
     m_regex.setPatternOptions(options);

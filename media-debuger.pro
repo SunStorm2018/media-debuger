@@ -55,6 +55,7 @@ HEADERS += \
     common/flowlayout.h \
     common/functioninterface.h \
     common/lineeditsynchronizer.h \
+    common/qtcompat.h \
     common/spinboxsynchronizer.h \
     common/statesynchronizer.h \
     common/synchronizermacros.h \
