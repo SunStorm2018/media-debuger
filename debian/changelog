@@ -1,4 +1,10 @@
-media-debuger (1.0.0-1) unstable; urgency=medium
+media-debuger-qt6 (1.0.1-1) unstable; urgency=medium
+
+  * fix some bugs.
+
+ -- zhanghongyuan <2063218120@qq.com>  Wed, 29 Oct 2025 14:08:24 +0800
+
+media-debuger-qt6 (1.0.0-1) unstable; urgency=medium
 
   * Initial release.
 

@@ -5,14 +5,14 @@
 
 override_dh_auto_configure:
 	# Prioritize the use of qmake in Qt5. If it does not exist, use qmake6 in Qt6
-	if which qmake >/dev/null; then \
-		qmake PREFIX=/usr media-debuger.pro; \
+	if which qmake6 >/dev/null; then \
+	        qmake6 PREFIX=/usr media-debuger.pro; \
 	else \
-		qmake6 PREFIX=/usr media-debuger.pro; \
+	        qmake PREFIX=/usr media-debuger.pro; \
 	fi
 
 override_dh_auto_install:
-	dh_auto_install -- INSTALL_ROOT=debian/media-debuger
+	dh_auto_install -- INSTALL_ROOT=debian/media-debuger-qt6
 
 
 override_dh_install:
