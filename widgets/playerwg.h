@@ -11,6 +11,8 @@
 #include <QApplication>
 #include <common/singleton.h>
 
+#include "x11embedhelper.h"
+
 class X11EmbedHelper;
 
 namespace Ui {
@@ -47,7 +49,7 @@ private slots:
     void onPlayPauseClicked();
     void onStopClicked();
     void onPositionSliderChanged(int value);
-    void onVolumeSliderChanged(int value);
+    void onVolumeSpinBoxChanged(int value);
     void onFfplayFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void updatePosition();
 
@@ -58,6 +60,7 @@ private:
     void embedFfplayWindow();
     void resizeFfplayWindow();
     void sendKeyToFfplay(const QString &key);
+    void sendMouseToFfplay(const QPoint pos, const MouseButton button);
 
     Ui::PlayerWG *ui;
     QProcess *m_ffplayProcess;
@@ -72,6 +75,9 @@ private:
     X11EmbedHelper *m_embedHelper;
     bool m_windowEmbedded;
     int m_embedRetryCount;
+
+protected:
+    void mousePressEvent(QMouseEvent *event) override;
 };
 
 #endif // PLAYERWG_H

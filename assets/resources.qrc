@@ -4,5 +4,6 @@
         <file>128x128/arrow-right.png</file>
         <file>128x128/search.png</file>
         <file>128x128/layers.png</file>
+        <file>128x128/volumn.png</file>
     </qresource>
 </RCC>

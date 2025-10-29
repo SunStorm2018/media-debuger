@@ -243,3 +243,67 @@ bool X11EmbedHelper::showWindow(unsigned long window)
     return false;
 #endif
 }
+
+bool X11EmbedHelper::sendMouseClick(unsigned long window, int x, int y, MouseButton button)
+{
+#ifdef Q_OS_LINUX
+    if (!m_display || window == 0) {
+        return false;
+    }
+
+    Display *display = static_cast<Display*>(m_display);
+    Window win = static_cast<Window>(window);
+
+    unsigned int x11Button;
+    unsigned int x11StateMask;
+
+    switch (button) {
+    case LeftButton:
+        x11Button = Button1;
+        x11StateMask = Button1Mask;
+        break;
+    case MiddleButton:
+        x11Button = Button2;
+        x11StateMask = Button2Mask;
+        break;
+    case RightButton:
+        x11Button = Button3;
+        x11StateMask = Button3Mask;
+        break;
+    default:
+        return false;
+    }
+
+    XButtonEvent pressEvent;
+    pressEvent.display = display;
+    pressEvent.window = win;
+    pressEvent.root = DefaultRootWindow(display);
+    pressEvent.subwindow = None;
+    pressEvent.time = CurrentTime;
+    pressEvent.x = x;
+    pressEvent.y = y;
+    pressEvent.x_root = 1;
+    pressEvent.y_root = 1;
+    pressEvent.same_screen = True;
+    pressEvent.button = x11Button;
+    pressEvent.state = 0;
+
+    pressEvent.type = ButtonPress;
+    XSendEvent(display, win, True, ButtonPressMask, (XEvent*)&pressEvent);
+
+    XButtonEvent releaseEvent = pressEvent;
+    releaseEvent.type = ButtonRelease;
+    releaseEvent.state = x11StateMask;
+
+    XSendEvent(display, win, True, ButtonReleaseMask, (XEvent*)&releaseEvent);
+
+    XFlush(display);
+    return true;
+#else
+    Q_UNUSED(window)
+    Q_UNUSED(x)
+    Q_UNUSED(y)
+    Q_UNUSED(button)
+    return false;
+#endif
+}

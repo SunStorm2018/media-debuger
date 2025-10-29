@@ -10,6 +10,12 @@ typedef struct _XDisplay Display;
 typedef unsigned long Window;
 #endif
 
+enum MouseButton {
+    LeftButton,
+    MiddleButton,
+    RightButton
+};
+
 class X11EmbedHelper : public QObject
 {
     Q_OBJECT
@@ -25,6 +31,7 @@ public:
     bool resizeWindow(unsigned long window, int width, int height);
     bool sendKey(unsigned long window, const QString &key);
     bool showWindow(unsigned long window);
+    bool sendMouseClick(unsigned long window, int x, int y, MouseButton button);
 
 private:
 #ifdef Q_OS_LINUX

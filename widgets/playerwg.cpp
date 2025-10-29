@@ -1,6 +1,5 @@
 #include "playerwg.h"
 #include "ui_playerwg.h"
-#include "x11embedhelper.h"
 #include <QFileInfo>
 #include <QDebug>
 
@@ -28,7 +27,7 @@ PlayerWG::PlayerWG(QWidget *parent)
     
     ui->positionSlider->setMinimum(0);
     ui->positionSlider->setMaximum(100);
-    ui->volumeSlider->setValue(m_volume);
+    ui->volumeSpinBox->setValue(m_volume);
     
     m_positionTimer->setInterval(1000);
     connect(m_positionTimer, &QTimer::timeout, this, &PlayerWG::updatePosition);
@@ -45,7 +44,7 @@ void PlayerWG::initConnections()
     connect(ui->playPauseBtn, &QPushButton::clicked, this, &PlayerWG::onPlayPauseClicked);
     connect(ui->stopBtn, &QPushButton::clicked, this, &PlayerWG::onStopClicked);
     connect(ui->positionSlider, &QSlider::valueChanged, this, &PlayerWG::onPositionSliderChanged);
-    connect(ui->volumeSlider, &QSlider::valueChanged, this, &PlayerWG::onVolumeSliderChanged);
+    connect(ui->volumeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &PlayerWG::onVolumeSpinBoxChanged);
 }
 
 void PlayerWG::setMediaFile(const QString &filePath)
@@ -104,7 +103,7 @@ void PlayerWG::stop()
 void PlayerWG::seek(int position)
 {
     if (m_ffplayProcess && m_duration > 0) {
-        int seekTime = (position * m_duration) / 100;
+        int s = (position * m_duration) / 100;
         sendKeyToFfplay(QString("s"));
         m_position = position;
         emit positionChanged(position);
@@ -113,18 +112,19 @@ void PlayerWG::seek(int position)
 
 void PlayerWG::setVolume(int volume)
 {
-    m_volume = volume;
     if (m_ffplayProcess) {
         if (volume > m_volume) {
-            for (int i = 0; i < (volume - m_volume) / 5; i++) {
+            for (int i = 0; i < (volume - m_volume); i++) {
                 sendKeyToFfplay("0");
             }
         } else {
-            for (int i = 0; i < (m_volume - volume) / 5; i++) {
+            for (int i = 0; i < (m_volume - volume); i++) {
                 sendKeyToFfplay("9");
             }
         }
     }
+
+    m_volume = volume;
 }
 
 void PlayerWG::onPlayPauseClicked()
@@ -143,13 +143,15 @@ void PlayerWG::onStopClicked()
 
 void PlayerWG::onPositionSliderChanged(int value)
 {
-    if (!ui->positionSlider->isSliderDown()) {
-        return;
-    }
-    seek(value);
+    // if (!ui->positionSlider->isSliderDown()) {
+    //     return;
+    // }
+    // seek(value);
+
+    sendMouseToFfplay(QPoint(value*5, 100), RightButton);
 }
 
-void PlayerWG::onVolumeSliderChanged(int value)
+void PlayerWG::onVolumeSpinBoxChanged(int value)
 {
     setVolume(value);
 }
@@ -192,10 +194,10 @@ void PlayerWG::updatePosition()
     int totalSec = m_duration % 60;
     
     QString timeText = QString("%1:%2 / %3:%4")
-                       .arg(currentMin, 2, 10, QChar('0'))
-                       .arg(currentSec, 2, 10, QChar('0'))
-                       .arg(totalMin, 2, 10, QChar('0'))
-                       .arg(totalSec, 2, 10, QChar('0'));
+                           .arg(currentMin, 2, 10, QChar('0'))
+                           .arg(currentSec, 2, 10, QChar('0'))
+                           .arg(totalMin, 2, 10, QChar('0'))
+                           .arg(totalSec, 2, 10, QChar('0'));
     
     ui->timeLabel->setText(timeText);
     emit positionChanged(m_position);
@@ -337,6 +339,30 @@ void PlayerWG::sendKeyToFfplay(const QString &key)
     if (!m_embedHelper->sendKey(m_ffplayWindow, key)) {
         qWarning() << "Failed to send key to FFplay: " + key;
     }
+}
+
+void PlayerWG::sendMouseToFfplay(const QPoint pos, const MouseButton button)
+{
+    if (m_ffplayWindow == 0) {
+        return;
+    }
+    qDebug() << "send mouse click to FFplay: " << pos << button;
+    if (!m_embedHelper->sendMouseClick(m_ffplayWindow, pos.x(), pos.y(), button)) {
+        qWarning() << "Failed to send mouse click to FFplay: " << pos << button;
+    }
+}
+
+void PlayerWG::mousePressEvent(QMouseEvent *event)
+{
+    // 获取鼠标位置和窗口尺寸
+    QPoint mousePos = event->pos();
+    QSize windowSize = this->size();
+
+    // 打印详细信息
+    qDebug() << "=== 鼠标点击事件 ===";
+    qDebug() << "鼠标位置 - X:" << mousePos.x() << "Y:" << mousePos.y();
+    qDebug() << "窗口尺寸 - 宽度:" << windowSize.width() << "高度:" << windowSize.height();
+    qDebug() << "相对位置:" << (double)mousePos.x() / windowSize.width() * 100 << "%";
 }
 
 void PlayerWG::resizeEvent(QResizeEvent *event)
