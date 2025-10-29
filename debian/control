@@ -1,4 +1,4 @@
-Source: media-debuger
+Source: media-debuger-qt5
 Section: utils
 Priority: optional
 Maintainer: zhanghongyuan <2063218120@qq.com>
@@ -9,10 +9,10 @@ Build-Depends: debhelper (>= 11),
  qt6-tools-dev | qttools5-dev
 Standards-Version: 4.5.0
 Homepage: https://gitee.com/sunstom/media-debuger.git
-Vcs-Browser: https://github.com/yourusername/media-debuger
-Vcs-Git: https://github.com/yourusername/media-debuger.git
+Vcs-Browser: https://github.com/SunStorm2018/media-debuger
+Vcs-Git: https://github.com/SunStorm2018/media-debuger.git
 
-Package: media-debuger
+Package: media-debuger-qt5
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
         libqt5widgets5
@@ -23,14 +23,16 @@ Description: Media file debug and analysis tool
 # dde-file-manager-contextmenu install
 Package: media-debuger-dde-filemanager-contextmenu
 Architecture: all
-Depends: media-debuger (= ${source:Version}), dde-file-manager, ${misc:Depends}
+Depends: media-debuger-qt5 (= ${source:Version}) | media-debuger-qt6 (= ${source:Version}),
+         dde-file-manager,
+         ${misc:Depends}
 Description: DDE file manager context menu integration for media-debuger
  Adds media-debuger options to the context menu of DDE file manager.
  
 # nautilus-contextmenu install
 Package: media-debuger-nautilus-contextmenu
 Architecture: all
-Depends: media-debuger (= ${source:Version}),
+Depends: media-debuger-qt5 (= ${source:Version}) | media-debuger-qt6 (= ${source:Version}),
          nautilus (>= 42),
          python3-gi,
          gir1.2-nautilus-3.0
@@ -40,7 +42,7 @@ Description: Nautilus file manager context menu integration for media-debuger
 # media-debuger-dbus install
 Package: media-debuger-dbus
 Architecture: all
-Depends: media-debuger (= ${source:Version}),
+Depends: media-debuger-qt5 (= ${source:Version}) | media-debuger-qt6 (= ${source:Version}),
          python3-gi,
          python3-pydbus,
          python3
