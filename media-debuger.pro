@@ -1,6 +1,6 @@
 QT += core gui concurrent
 
-TARGET = media-debuger
+TARGET = media-debuger-qt5
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

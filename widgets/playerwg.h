@@ -37,7 +37,6 @@ public:
     void setVolume(int volume);
 
 signals:
-    void positionChanged(int position);
     void durationChanged(int duration);
     void stateChanged(bool isPlaying);
 
@@ -48,10 +47,8 @@ protected:
 private slots:
     void onPlayPauseClicked();
     void onStopClicked();
-    void onPositionSliderChanged(int value);
     void onVolumeSpinBoxChanged(int value);
     void onFfplayFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void updatePosition();
 
 private:
     void initConnections();
@@ -68,8 +65,6 @@ private:
     QString m_mediaFile;
     bool m_isPlaying;
     bool m_isPaused;
-    int m_duration;
-    int m_position;
     int m_volume;
     unsigned long m_ffplayWindow;
     X11EmbedHelper *m_embedHelper;

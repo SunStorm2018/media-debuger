@@ -10,8 +10,6 @@ PlayerWG::PlayerWG(QWidget *parent)
     , m_positionTimer(new QTimer(this))
     , m_isPlaying(false)
     , m_isPaused(false)
-    , m_duration(0)
-    , m_position(0)
     , m_volume(50)
     , m_ffplayWindow(0)
     , m_embedHelper(new X11EmbedHelper(this))
@@ -24,13 +22,10 @@ PlayerWG::PlayerWG(QWidget *parent)
     if (!m_embedHelper->initialize()) {
         qWarning() << "PlayerWG: Failed to initialize X11 embed helper during construction";
     }
-    
-    ui->positionSlider->setMinimum(0);
-    ui->positionSlider->setMaximum(100);
+
     ui->volumeSpinBox->setValue(m_volume);
     
     m_positionTimer->setInterval(1000);
-    connect(m_positionTimer, &QTimer::timeout, this, &PlayerWG::updatePosition);
 }
 
 PlayerWG::~PlayerWG()
@@ -43,7 +38,6 @@ void PlayerWG::initConnections()
 {
     connect(ui->playPauseBtn, &QPushButton::clicked, this, &PlayerWG::onPlayPauseClicked);
     connect(ui->stopBtn, &QPushButton::clicked, this, &PlayerWG::onStopClicked);
-    connect(ui->positionSlider, &QSlider::valueChanged, this, &PlayerWG::onPositionSliderChanged);
     connect(ui->volumeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &PlayerWG::onVolumeSpinBoxChanged);
 }
 
@@ -92,9 +86,6 @@ void PlayerWG::pause()
 void PlayerWG::stop()
 {
     stopFfplay();
-    m_position = 0;
-    ui->positionSlider->setValue(0);
-    ui->timeLabel->setText("00:00 / 00:00");
     ui->playPauseBtn->setText("Play");
     m_positionTimer->stop();
     emit stateChanged(false);
@@ -102,11 +93,8 @@ void PlayerWG::stop()
 
 void PlayerWG::seek(int position)
 {
-    if (m_ffplayProcess && m_duration > 0) {
-        int s = (position * m_duration) / 100;
+    if (m_ffplayProcess) {
         sendKeyToFfplay(QString("s"));
-        m_position = position;
-        emit positionChanged(position);
     }
 }
 
@@ -141,15 +129,6 @@ void PlayerWG::onStopClicked()
     stop();
 }
 
-void PlayerWG::onPositionSliderChanged(int value)
-{
-    // if (!ui->positionSlider->isSliderDown()) {
-    //     return;
-    // }
-    // seek(value);
-
-    sendMouseToFfplay(QPoint(value*5, 100), RightButton);
-}
 
 void PlayerWG::onVolumeSpinBoxChanged(int value)
 {
@@ -171,36 +150,6 @@ void PlayerWG::onFfplayFinished(int exitCode, QProcess::ExitStatus exitStatus)
     ui->playPauseBtn->setText("Play");
     m_positionTimer->stop();
     emit stateChanged(false);
-}
-
-void PlayerWG::updatePosition()
-{
-    if (!m_isPlaying || m_duration == 0) {
-        return;
-    }
-    
-    m_position++;
-    if (m_position > m_duration) {
-        m_position = m_duration;
-        stop();
-        return;
-    }
-    
-    ui->positionSlider->setValue((m_position * 100) / m_duration);
-    
-    int currentMin = m_position / 60;
-    int currentSec = m_position % 60;
-    int totalMin = m_duration / 60;
-    int totalSec = m_duration % 60;
-    
-    QString timeText = QString("%1:%2 / %3:%4")
-                           .arg(currentMin, 2, 10, QChar('0'))
-                           .arg(currentSec, 2, 10, QChar('0'))
-                           .arg(totalMin, 2, 10, QChar('0'))
-                           .arg(totalSec, 2, 10, QChar('0'));
-    
-    ui->timeLabel->setText(timeText);
-    emit positionChanged(m_position);
 }
 
 void PlayerWG::startFfplay()
