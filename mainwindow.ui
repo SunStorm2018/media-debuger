@@ -137,6 +137,8 @@
     <addaction name="separator"/>
     <addaction name="actionLog"/>
     <addaction name="actionPlayer"/>
+    <addaction name="separator"/>
+    <addaction name="actionMedia_Properties"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBasic_Info"/>
@@ -395,6 +397,11 @@
   <action name="actionPlayer">
    <property name="text">
     <string>Player</string>
+   </property>
+  </action>
+  <action name="actionMedia_Properties">
+   <property name="text">
+    <string>Media Properties</string>
    </property>
   </action>
   <action name="actionFiles">

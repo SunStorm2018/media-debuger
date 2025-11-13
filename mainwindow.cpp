@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDesktopServices>
+#include <QFileInfo>
+#include <QTabWidget>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -44,7 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
         {ui->actionPlayer, m_playerWGDock},
         {ui->actionLog, m_logWGDock},
         {ui->actionFiles, m_filesWGDock},
-        {ui->actionFolders, m_foldersWGDock}
+        {ui->actionFolders, m_foldersWGDock},
+        {ui->actionMedia_Properties, m_mediaPropsWidget}
     };
 }
 
@@ -149,6 +152,26 @@ void MainWindow::InitConnectation()
 
     connect(&m_filesWG, &FilesWG::currentFileActived, [=](QPair<QString, QString> filePair){
         m_playerWG.setMediaFile(filePair.second);
+        
+        // Update media properties dock if exists
+        if (m_mediaPropsWidget) {
+            // Update dock title
+            m_mediaPropsWGDock->setWindowTitle(tr("Media Properties: %1").arg(QFileInfo(filePair.second).fileName()));
+            
+            // Update Format tab
+            JsonFormatWG *formatWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(0));
+            if (formatWidget) {
+                QString formatInfo = m_probe.getMediaInfoJsonFormat(SHOW_FORMAT, filePair.second);
+                formatWidget->loadData(formatInfo.toUtf8());
+            }
+            
+            // Update Streams tab
+            JsonFormatWG *streamsWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(1));
+            if (streamsWidget) {
+                QString streamsInfo = m_probe.getMediaInfoJsonFormat(SHOW_STREAMS, filePair.second);
+                streamsWidget->loadData(streamsInfo.toUtf8());
+            }
+        }
     });
 }
 
@@ -191,6 +214,29 @@ void MainWindow::PopMediaInfoWindow(QString title, const QString &info, const QS
     qDebug() << title << info.size();
 }
 
+void MainWindow::PopMediaPropsWindow(const QString &fileName)
+{
+    // Update content if a valid file is provided
+    if (!fileName.isEmpty() && m_mediaPropsWidget) {
+        // Update Format tab
+        JsonFormatWG *formatWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(0));
+        if (formatWidget) {
+            QString formatInfo = m_probe.getMediaInfoJsonFormat(SHOW_FORMAT, fileName);
+            formatWidget->loadData(formatInfo.toUtf8());
+        }
+        
+        // Update Streams tab
+        JsonFormatWG *streamsWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(1));
+        if (streamsWidget) {
+            QString streamsInfo = m_probe.getMediaInfoJsonFormat(SHOW_STREAMS, fileName);
+            streamsWidget->loadData(streamsInfo.toUtf8());
+        }
+        
+        // Update window title to reflect current file
+        setWindowTitle(tr("%1 - Media Properties: %2").arg(APPLICATION_NAME, QFileInfo(fileName).fileName()));
+    }
+}
+
 void MainWindow::createDockWidgets()
 {
     // Create FilesWG DockWidget (left side)
@@ -214,7 +260,34 @@ void MainWindow::createDockWidgets()
     // Position FoldersWG under FilesWG
     splitDockWidget(m_filesWGDock, m_foldersWGDock, Qt::Vertical);
 
-    // Set PlayerWG as central widget (occupies remaining space)
+    // Create Media Properties as central widget (center area)
+    m_mediaPropsWidget = new QTabWidget;
+    m_mediaPropsWidget->setObjectName("MediaPropsTabWidget");
+    
+    // Create a widget with layout to manage margins
+    QWidget *centralWidget = new QWidget;
+    QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
+    centralLayout->setContentsMargins(9, 9, 9, 9);
+    centralLayout->setSpacing(0);
+    centralLayout->addWidget(m_mediaPropsWidget);
+    
+    // Create Format tab
+    JsonFormatWG *formatWidget = new JsonFormatWG;
+    formatWidget->setObjectName("FormatWidget");
+    m_mediaPropsWidget->addTab(formatWidget, tr("Format"));
+    
+    // Create Streams tab
+    JsonFormatWG *streamsWidget = new JsonFormatWG;
+    streamsWidget->setObjectName("StreamsWidget");
+    m_mediaPropsWidget->addTab(streamsWidget, tr("Streams"));
+    
+    // Create Media Properties DockWidget (for visibility control)
+    m_mediaPropsWGDock = new QDockWidget(tr("Media Properties"), this);
+    m_mediaPropsWGDock->setObjectName("MediaPropsDock");
+    m_mediaPropsWGDock->setWidget(centralWidget);
+    setCentralWidget(m_mediaPropsWGDock);
+
+    // Set PlayerWG as dock widget (right side)
     m_playerWGDock = new QDockWidget(tr("Player"), this);
     m_playerWGDock->setObjectName("PlayerDock");
     m_playerWGDock->setWidget(&m_playerWG);
@@ -224,7 +297,8 @@ void MainWindow::createDockWidgets()
     m_filesWGDock->setMinimumWidth(200);
     m_foldersWGDock->setMinimumWidth(200);
     m_logWGDock->setMinimumHeight(150);
-    m_playerWGDock->setMinimumWidth(300);
+    m_playerWGDock->setMinimumWidth(400);
+    m_mediaPropsWGDock->setMinimumWidth(300);
 }
 
 void MainWindow::saveLayoutSettings()
@@ -307,6 +381,18 @@ void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
             qWarning() << CURRENTFILE << "is empty, please retray";
         }
 
+        return;
+    }
+
+    // Handle Media Properties action
+    if (senderAction == ui->actionMedia_Properties) {
+        QString fileName = m_filesWG.getCurrentSelectFileName();
+        if (!fileName.isEmpty()) {
+            // Just make the dock widget visible and update its content
+            PopMediaPropsWindow(fileName);
+        } else {
+            qWarning() << CURRENTFILE << "is empty, please retry";
+        }
         return;
     }
 
@@ -540,6 +626,15 @@ void MainWindow::slotMenuViewTriggered(QAction *action)
             wg->hide();
         }
     }
+    
+    // Special handling for Media Properties since it's a central widget
+    if (action == ui->actionMedia_Properties) {
+        if (action->isChecked()) {
+            m_mediaPropsWidget->show();
+        } else {
+            m_mediaPropsWidget->hide();
+        }
+    }
 }
 
 void MainWindow::slotMenuViewAboutToShow()
@@ -552,6 +647,9 @@ void MainWindow::slotMenuViewAboutToShow()
             action->setChecked(true);
         }
     }
+    
+    // Special handling for Media Properties since it's a central widget
+    ui->actionMedia_Properties->setChecked(m_mediaPropsWidget && m_mediaPropsWidget->isVisible());
 }
 
 void MainWindow::getMenuAllActions(QMenu *menu, QList<QAction *> &actionList)

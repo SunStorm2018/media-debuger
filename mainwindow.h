@@ -8,6 +8,7 @@
 #include <QDockWidget>
 #include <QMessageBox>
 #include <QtConcurrent>
+#include <QVBoxLayout>
 
 #include <common/zffprobe.h>
 #include <common/zwindowhelper.h>
@@ -55,6 +56,7 @@ private slots:
     void InitConnectation();
     void PopBasicInfoWindow(QString title, const QString &info, const QString &format_key);
     void PopMediaInfoWindow(QString title, const QString &info, const QString &format_key = FORMAT_JSON);
+    void PopMediaPropsWindow(const QString &fileName);
 
     void createDockWidgets();
     void saveLayoutSettings();
@@ -91,8 +93,10 @@ private:
     QDockWidget *m_logWGDock = nullptr;
     QDockWidget *m_playerWGDock = nullptr;
     QDockWidget *m_foldersWGDock = nullptr;
+    QDockWidget *m_mediaPropsWGDock = nullptr;
 
     QMap<QAction*, QWidget*> m_actionWidgetMap;
+    QTabWidget *m_mediaPropsWidget = nullptr;
 
     QString GEOMETRY_KEY = "mainWindowGeometry";
     QString STATE_KEY = "mainWindowState";
