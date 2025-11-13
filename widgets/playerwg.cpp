@@ -15,6 +15,7 @@ PlayerWG::PlayerWG(QWidget *parent)
     , m_embedHelper(new X11EmbedHelper(this))
     , m_windowEmbedded(false)
     , m_embedRetryCount(0)
+    , m_currentRelativePosition(0.0)
 {
     ui->setupUi(this);
     initConnections();
@@ -303,20 +304,46 @@ void PlayerWG::sendMouseToFfplay(const QPoint pos, const MouseButton button)
 
 void PlayerWG::mousePressEvent(QMouseEvent *event)
 {
-    // 获取鼠标位置和窗口尺寸
+    // Get mouse position and window size
     QPoint mousePos = event->pos();
     QSize windowSize = this->size();
 
-    // 打印详细信息
-    qDebug() << "=== 鼠标点击事件 ===";
-    qDebug() << "鼠标位置 - X:" << mousePos.x() << "Y:" << mousePos.y();
-    qDebug() << "窗口尺寸 - 宽度:" << windowSize.width() << "高度:" << windowSize.height();
-    qDebug() << "相对位置:" << (double)mousePos.x() / windowSize.width() * 100 << "%";
+    // Print detailed information
+    // qDebug() << "=== Mouse Click Event ===";
+    // qDebug() << "Mouse Position - X:" << mousePos.x() << "Y:" << mousePos.y();
+    // qDebug() << "Window Size - Width:" << windowSize.width() << "Height:" << windowSize.height();
+    
+    // Calculate relative position percentage
+    double relativePosition = (double)mousePos.x() / windowSize.width();
+    // qDebug() << "Relative Position:" << relativePosition * 100 << "%";
+    
+    // If relative position > 99.5%, set to 100%
+    if (relativePosition > 0.995) {
+        relativePosition = 1.0;
+    }
+    
+    // Save current relative position
+    m_currentRelativePosition = relativePosition;
+    
+    // Set progress bar position with rounding
+    int progressValue = static_cast<int>(relativePosition * ui->playProgressbar->maximum() + 0.5);
+    ui->playProgressbar->setValue(progressValue);
+    // qDebug() << "Set progress bar value to:" << progressValue;
 }
 
 void PlayerWG::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
+    
+    // Update progress bar based on saved relative position when window size changes
+    if (m_currentRelativePosition >= 0.0) {
+        // Ensure relative position doesn't exceed 100%
+        double adjustedPosition = m_currentRelativePosition;
+        
+        int progressValue = static_cast<int>(adjustedPosition * ui->playProgressbar->maximum() + 0.5);
+        ui->playProgressbar->setValue(progressValue);
+        // qDebug() << "Window size changed, update progress bar value to:" << progressValue << " (relative position:" << adjustedPosition * 100 << "%)";
+    }
     
     if (m_windowEmbedded) {
         QTimer::singleShot(100, this, &PlayerWG::resizeFfplayWindow);

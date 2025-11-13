@@ -70,6 +70,7 @@ private:
     X11EmbedHelper *m_embedHelper;
     bool m_windowEmbedded;
     int m_embedRetryCount;
+    double m_currentRelativePosition; // Save current relative position
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
