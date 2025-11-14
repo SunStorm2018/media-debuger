@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
+// SPDX-License-Identifier: MIT
+
 #ifndef SEARCHWG_H
 #define SEARCHWG_H
 

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
+// SPDX-License-Identifier: MIT
+
 #include "infotablewg.h"
 #include "qdebug.h"
 #include "ui_infotablewg.h"

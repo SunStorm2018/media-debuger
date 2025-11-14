@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
+// SPDX-License-Identifier: MIT
+
 // SynchronizerMacros.h
 #ifndef SYNCHRONIZERMACROS_H
 #define SYNCHRONIZERMACROS_H

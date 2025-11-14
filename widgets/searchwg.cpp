@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
+// SPDX-License-Identifier: MIT
+
 #include "searchwg.h"
 #include "ui_searchwg.h"
 #include <QHBoxLayout>

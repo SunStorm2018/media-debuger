@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
+# SPDX-License-Identifier: MIT
+
 # ~/.local/share/nautilus-python/extensions/
 # /usr/share/nautilus-python/extensions/
 

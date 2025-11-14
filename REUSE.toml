@@ -1,0 +1,73 @@
+version = 1
+
+[[annotations]]
+path = "README.md"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "README.zh_CN.md"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "docs/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ".gitignore"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "debian/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["widgets/**.ui,", "mainwindow.ui,", "resources.qrc"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["media-debuger.pro,", "translations/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "assets/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "third_part/QJsonModel/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2017 sacha schutz"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "tools/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "**.sh"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ".gitee/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
+SPDX-License-Identifier = "MIT"

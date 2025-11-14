@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com> -->
+<!-- SPDX-License-Identifier: MIT -->
 <ui version="4.0">
  <class>TabConfigWg</class>
  <widget class="QWidget" name="TabConfigWg">

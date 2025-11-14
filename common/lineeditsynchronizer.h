@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
+// SPDX-License-Identifier: MIT
+
 // LineEditSynchronizer.h
 #ifndef LINEEDITSYNCHRONIZER_H
 #define LINEEDITSYNCHRONIZER_H

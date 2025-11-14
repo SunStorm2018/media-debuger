@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
+// SPDX-License-Identifier: MIT
+
 #ifndef X11EMBEDHELPER_H
 #define X11EMBEDHELPER_H
 
