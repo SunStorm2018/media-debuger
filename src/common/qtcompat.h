@@ -10,8 +10,10 @@
 // Compatibility macros for Qt5/Qt6 differences
 
 // QString::SkipEmptyParts was moved to Qt::SkipEmptyParts in Qt6
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     #define QT_SKIP_EMPTY_PARTS QString::SkipEmptyParts
+#elif QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    #define QT_SKIP_EMPTY_PARTS Qt::SplitBehaviorFlags(Qt::SkipEmptyParts)
 #else
     #define QT_SKIP_EMPTY_PARTS Qt::SkipEmptyParts
 #endif

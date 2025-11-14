@@ -16,7 +16,7 @@
 
 #include <common/qtcompat.h>
 
-#include <third_part/QJsonModel/include/QJsonModel.hpp>
+#include <QJsonModel.hpp>
 
 namespace Ui {
 class JsonFormatWG;
