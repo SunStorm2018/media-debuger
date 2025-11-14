@@ -31,13 +31,13 @@ SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
 SPDX-License-Identifier = "MIT"
 
 [[annotations]]
-path = ["widgets/**.ui,", "mainwindow.ui,", "resources.qrc"]
+path = ["src/widgets/**/*.ui", "mainwindow.ui", "assets/resources.qrc"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
 SPDX-License-Identifier = "MIT"
 
 [[annotations]]
-path = ["media-debuger.pro,", "translations/**"]
+path = ["media-debuger.pro", "translations/**"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2025 zhang hongyuan <2063218120@qq.com>"
 SPDX-License-Identifier = "MIT"

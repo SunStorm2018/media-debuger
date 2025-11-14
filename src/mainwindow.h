@@ -13,23 +13,23 @@
 #include <QtConcurrent>
 #include <QVBoxLayout>
 
-#include <common/zffprobe.h>
-#include <common/zwindowhelper.h>
-#include <common/common.h>
-#include <common/zlogger.h>
+#include "common/zffprobe.h"
+#include "common/zwindowhelper.h"
+#include "common/common.h"
+#include "common/zlogger.h"
 
-#include <widgets/infotablewg.h>
-#include <widgets/jsonfmtwg.h>
-#include <widgets/globalconfingwg.h>
-#include <widgets/tabelfmtwg.h>
-#include <widgets/logwg.h>
-#include <widgets/fileswg.h>
-#include <widgets/playerwg.h>
-#include <widgets/progressdlg.h>
-#include <widgets/folderswg.h>
-#include <widgets/exportwg.h>
-#include <widgets/helpquerywg.h>
-#include <widgets/ffmpegbuildtool.h>
+#include "widgets/infotablewg.h"
+#include "widgets/jsonfmtwg.h"
+#include "widgets/globalconfingwg.h"
+#include "widgets/tabelfmtwg.h"
+#include "widgets/logwg.h"
+#include "widgets/fileswg.h"
+#include "widgets/playerwg.h"
+#include "widgets/progressdlg.h"
+#include "widgets/folderswg.h"
+#include "widgets/exportwg.h"
+#include "widgets/helpquerywg.h"
+#include "widgets/ffmpegbuildtool.h"
 
 #define FORMAT_JSON "json"
 #define FORMAT_TABLE "table"

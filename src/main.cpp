@@ -10,9 +10,9 @@
 #include <QCommandLineOption>
 #include <QDebug>
 
-#include <common/common.h>
-#include <common/zlogger.h>
-#include <common/zffprobe.h>
+#include "common/common.h"
+#include "common/zlogger.h"
+#include "common/zffprobe.h"
 
 /**
  * @brief logConfig

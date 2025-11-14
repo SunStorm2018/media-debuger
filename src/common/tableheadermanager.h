@@ -12,7 +12,7 @@
 #include <QScrollBar>
 #include <QLabel>
 
-#include <common/common.h>
+#include "common.h"
 
 class TableHeaderManager : public QObject
 {

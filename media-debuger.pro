@@ -1,5 +1,5 @@
-// SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
-// SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
+# SPDX-License-Identifier: MIT
 
 QT += core gui concurrent
 
@@ -9,102 +9,105 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
+# Add include paths for proper header resolution
+INCLUDEPATH += src
+
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    common/checkboxsynchronizer.cpp \
-    common/commandexecutor.cpp \
-    common/common.cpp \
-    common/flowlayout.cpp \
-    common/functioninterface.cpp \
-    common/lineeditsynchronizer.cpp \
-    common/spinboxsynchronizer.cpp \
-    common/statesynchronizer.cpp \
-    common/tableheadermanager.cpp \
-    common/zffprobe.cpp \
-    common/zlogger.cpp \
-    common/ztexteditor.cpp \
-    common/ztexthighlighter.cpp \
-    common/zwindowhelper.cpp \
-    model/fileshistorymodel.cpp \
-    model/logmodel.cpp \
-    model/mediainfotabelmodel.cpp \
-    model/multicolumnsearchproxymodel.cpp \
-    widgets/basefmtwg.cpp \
-    widgets/exportwg.cpp \
-    widgets/ffmpegbuildtool.cpp \
-    widgets/fileswg.cpp \
-    widgets/folderswg.cpp \
-    widgets/globalconfingwg.cpp \
-    widgets/helpquerywg.cpp \
-    main.cpp \
-    mainwindow.cpp \
-    widgets/infotablewg.cpp \
-    widgets/jsonfmtwg.cpp \
-    widgets/logwg.cpp \
-    widgets/playerwg.cpp \
-    widgets/progressdlg.cpp \
-    widgets/searchwg.cpp \
-    widgets/tabconfigwg.cpp \
-    widgets/tabelfmtwg.cpp \
-    widgets/x11embedhelper.cpp
+    src/common/checkboxsynchronizer.cpp \
+    src/common/commandexecutor.cpp \
+    src/common/common.cpp \
+    src/common/flowlayout.cpp \
+    src/common/functioninterface.cpp \
+    src/common/lineeditsynchronizer.cpp \
+    src/common/spinboxsynchronizer.cpp \
+    src/common/statesynchronizer.cpp \
+    src/common/tableheadermanager.cpp \
+    src/common/zffprobe.cpp \
+    src/common/zlogger.cpp \
+    src/common/ztexteditor.cpp \
+    src/common/ztexthighlighter.cpp \
+    src/common/zwindowhelper.cpp \
+    src/model/fileshistorymodel.cpp \
+    src/model/logmodel.cpp \
+    src/model/mediainfotabelmodel.cpp \
+    src/model/multicolumnsearchproxymodel.cpp \
+    src/widgets/basefmtwg.cpp \
+    src/widgets/exportwg.cpp \
+    src/widgets/ffmpegbuildtool.cpp \
+    src/widgets/fileswg.cpp \
+    src/widgets/folderswg.cpp \
+    src/widgets/globalconfingwg.cpp \
+    src/widgets/helpquerywg.cpp \
+    src/main.cpp \
+    src/mainwindow.cpp \
+    src/widgets/infotablewg.cpp \
+    src/widgets/jsonfmtwg.cpp \
+    src/widgets/logwg.cpp \
+    src/widgets/playerwg.cpp \
+    src/widgets/progressdlg.cpp \
+    src/widgets/searchwg.cpp \
+    src/widgets/tabconfigwg.cpp \
+    src/widgets/tabelfmtwg.cpp \
+    src/widgets/x11embedhelper.cpp
 
 HEADERS += \
-    common/checkboxsynchronizer.h \
-    common/commandexecutor.h \
-    common/common.h \
-    common/flowlayout.h \
-    common/functioninterface.h \
-    common/lineeditsynchronizer.h \
-    common/qtcompat.h \
-    common/spinboxsynchronizer.h \
-    common/statesynchronizer.h \
-    common/synchronizermacros.h \
-    common/tableheadermanager.h \
-    common/zffprobe.h \
-    common/zlogger.h \
-    common/ztexteditor.h \
-    common/ztexthighlighter.h \
-    common/zwindowhelper.h \
-    model/fileshistorymodel.h \
-    model/logmodel.h \
-    model/mediainfotabelmodel.h \
-    model/multicolumnsearchproxymodel.h \
-    widgets/basefmtwg.h \
-    widgets/exportwg.h \
-    widgets/ffmpegbuildtool.h \
-    widgets/fileswg.h \
-    widgets/folderswg.h \
-    widgets/globalconfingwg.h \
-    widgets/helpquerywg.h \
-    mainwindow.h \
-    widgets/infotablewg.h \
-    widgets/jsonfmtwg.h \
-    widgets/logwg.h \
-    widgets/playerwg.h \
-    widgets/progressdlg.h \
-    widgets/searchwg.h \
-    widgets/tabconfigwg.h \
-    widgets/tabelfmtwg.h \
-    widgets/x11embedhelper.h
+    src/common/checkboxsynchronizer.h \
+    src/common/commandexecutor.h \
+    src/common/common.h \
+    src/common/flowlayout.h \
+    src/common/functioninterface.h \
+    src/common/lineeditsynchronizer.h \
+    src/common/qtcompat.h \
+    src/common/spinboxsynchronizer.h \
+    src/common/statesynchronizer.h \
+    src/common/synchronizermacros.h \
+    src/common/tableheadermanager.h \
+    src/common/zffprobe.h \
+    src/common/zlogger.h \
+    src/common/ztexteditor.h \
+    src/common/ztexthighlighter.h \
+    src/common/zwindowhelper.h \
+    src/model/fileshistorymodel.h \
+    src/model/logmodel.h \
+    src/model/mediainfotabelmodel.h \
+    src/model/multicolumnsearchproxymodel.h \
+    src/widgets/basefmtwg.h \
+    src/widgets/exportwg.h \
+    src/widgets/ffmpegbuildtool.h \
+    src/widgets/fileswg.h \
+    src/widgets/folderswg.h \
+    src/widgets/globalconfingwg.h \
+    src/widgets/helpquerywg.h \
+    src/mainwindow.h \
+    src/widgets/infotablewg.h \
+    src/widgets/jsonfmtwg.h \
+    src/widgets/logwg.h \
+    src/widgets/playerwg.h \
+    src/widgets/progressdlg.h \
+    src/widgets/searchwg.h \
+    src/widgets/tabconfigwg.h \
+    src/widgets/tabelfmtwg.h \
+    src/widgets/x11embedhelper.h
 
 FORMS += \
-    widgets/exportwg.ui \
-    widgets/ffmpegbuildtool.ui \
-    widgets/fileswg.ui \
-    widgets/folderswg.ui \
-    widgets/globalconfingwg.ui \
-    widgets/helpquerywg.ui \
-    mainwindow.ui \
-    widgets/infotablewg.ui \
-    widgets/jsonfmtwg.ui \
-    widgets/logwg.ui \
-    widgets/playerwg.ui \
-    widgets/searchwg.ui \
-    widgets/tabconfigwg.ui \
-    widgets/tabelfmtwg.ui
+    src/widgets/exportwg.ui \
+    src/widgets/ffmpegbuildtool.ui \
+    src/widgets/fileswg.ui \
+    src/widgets/folderswg.ui \
+    src/widgets/globalconfingwg.ui \
+    src/widgets/helpquerywg.ui \
+    src/mainwindow.ui \
+    src/widgets/infotablewg.ui \
+    src/widgets/jsonfmtwg.ui \
+    src/widgets/logwg.ui \
+    src/widgets/playerwg.ui \
+    src/widgets/searchwg.ui \
+    src/widgets/tabconfigwg.ui \
+    src/widgets/tabelfmtwg.ui
 
 TRANSLATIONS += \
     translations/media-debuger_en_US.ts \
