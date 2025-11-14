@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QTimer>
 
 #ifdef Q_OS_LINUX
 // Forward declaration for X11 types
@@ -32,12 +33,25 @@ public:
     bool sendKey(unsigned long window, const QString &key);
     bool showWindow(unsigned long window);
     bool sendMouseClick(unsigned long window, int x, int y, MouseButton button);
+    bool startEventMonitoring(unsigned long window);
+    void stopEventMonitoring();
+
+signals:
+    // Emits global (root window) coordinates, the target window width/height and the window id
+    void mouseEventReceivedGlobal(int x_root, int y_root, int windowWidth, int windowHeight, unsigned long windowId);
+    // Emits when a key is pressed in the monitored window (or globally) with root coords
+    void keyEventReceivedGlobal(int keySym, unsigned long windowId);
 
 private:
 #ifdef Q_OS_LINUX
     unsigned long findWindowRecursive(Display *display, Window window, const QString &title);
+    void checkX11Events();
 #endif
     void *m_display;
+    unsigned long m_monitoredWindow;
+    QTimer *m_eventTimer;
+    bool m_monitoringEvents;
+    bool m_lastRightButtonDown;
 };
 
 #endif // X11EMBEDHELPER_H

@@ -10,6 +10,11 @@
 #include <QResizeEvent>
 #include <QApplication>
 #include <common/singleton.h>
+#include <QMutex>
+#include <QJsonDocument>
+#include <QJsonObject>
+
+#include "../common/zffprobe.h"
 
 #include "x11embedhelper.h"
 
@@ -49,6 +54,8 @@ private slots:
     void onStopClicked();
     void onVolumeSpinBoxChanged(int value);
     void onFfplayFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void onPositionTimerTimeout();
+    void onX11KeyEvent(int keySym, unsigned long windowId);
 
 private:
     void initConnections();
@@ -58,10 +65,13 @@ private:
     void resizeFfplayWindow();
     void sendKeyToFfplay(const QString &key);
     void sendMouseToFfplay(const QPoint pos, const MouseButton button);
+    // x_root,y_root are global root window coordinates
+    void onMouseEventFromX11(int x_root, int y_root, int windowWidth, int windowHeight, unsigned long windowId);
 
     Ui::PlayerWG *ui;
     QProcess *m_ffplayProcess;
     QTimer *m_positionTimer;
+    ZFfprobe *m_probe;
     QString m_mediaFile;
     bool m_isPlaying;
     bool m_isPaused;
@@ -71,6 +81,8 @@ private:
     bool m_windowEmbedded;
     int m_embedRetryCount;
     double m_currentRelativePosition; // Save current relative position
+    QMutex m_progressMutex;
+    double m_durationSeconds; // media duration in seconds (0 unknown)
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;

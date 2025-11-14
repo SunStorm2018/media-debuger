@@ -2,6 +2,12 @@
 #include "ui_playerwg.h"
 #include <QFileInfo>
 #include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <cmath>
+#ifdef Q_OS_LINUX
+#include <X11/keysym.h>
+#endif
 
 PlayerWG::PlayerWG(QWidget *parent)
     : QWidget(parent)
@@ -27,6 +33,8 @@ PlayerWG::PlayerWG(QWidget *parent)
     ui->volumeSpinBox->setValue(m_volume);
     
     m_positionTimer->setInterval(1000);
+    m_probe = new ZFfprobe(this);
+    m_durationSeconds = 0.0;
 }
 
 PlayerWG::~PlayerWG()
@@ -40,12 +48,49 @@ void PlayerWG::initConnections()
     connect(ui->playPauseBtn, &QPushButton::clicked, this, &PlayerWG::onPlayPauseClicked);
     connect(ui->stopBtn, &QPushButton::clicked, this, &PlayerWG::onStopClicked);
     connect(ui->volumeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &PlayerWG::onVolumeSpinBoxChanged);
+    
+    // Connect X11 mouse events (global/root coordinates)
+    if (m_embedHelper) {
+        connect(m_embedHelper, &X11EmbedHelper::mouseEventReceivedGlobal, this, &PlayerWG::onMouseEventFromX11);
+        connect(m_embedHelper, &X11EmbedHelper::keyEventReceivedGlobal, this, &PlayerWG::onX11KeyEvent);
+    }
+    // Position timer updates progress every second
+    connect(m_positionTimer, &QTimer::timeout, this, &PlayerWG::onPositionTimerTimeout);
 }
 
 void PlayerWG::setMediaFile(const QString &filePath)
 {
     m_mediaFile = filePath;
     stop();
+
+    // Probe media duration (in seconds) and set progressbar maximum accordingly
+    m_durationSeconds = 0.0;
+    if (!m_mediaFile.isEmpty() && m_probe) {
+        QString json = m_probe->getMediaInfoJsonFormat(SHOW_FORMAT, m_mediaFile);
+        if (!json.isEmpty()) {
+            QJsonParseError err;
+            QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8(), &err);
+            if (err.error == QJsonParseError::NoError && doc.isObject()) {
+                QJsonObject obj = doc.object();
+                if (obj.contains("format") && obj["format"].isObject()) {
+                    QJsonObject fmt = obj["format"].toObject();
+                    if (fmt.contains("duration")) {
+                        bool ok = false;
+                        double d = QString(fmt["duration"].toString()).toDouble(&ok);
+                        if (ok && d > 0.0) {
+                            m_durationSeconds = d;
+                            if (ui && ui->playProgressbar) {
+                                ui->playProgressbar->setMinimum(0);
+                                ui->playProgressbar->setMaximum(static_cast<int>(std::ceil(m_durationSeconds)));
+                                ui->playProgressbar->setValue(0);
+                            }
+                            emit durationChanged(static_cast<int>(std::ceil(m_durationSeconds)));
+                        }
+                    }
+                }
+            }
+        }
+    }
     // qDebug() << "Media file set to: " + filePath;
 }
 
@@ -61,6 +106,11 @@ void PlayerWG::play()
     }
 
     if (!m_ffplayProcess) {
+        // Reset progress when starting playback
+        m_currentRelativePosition = 0.0;
+        if (ui && ui->playProgressbar) {
+            ui->playProgressbar->setValue(0);
+        }
         startFfplay();
     } else if (m_isPaused) {
         sendKeyToFfplay("p");
@@ -89,6 +139,12 @@ void PlayerWG::stop()
     stopFfplay();
     ui->playPauseBtn->setText("Play");
     m_positionTimer->stop();
+    // Reset progress bar and saved relative position when stopping
+    m_currentRelativePosition = 0.0;
+    if (ui && ui->playProgressbar) {
+        ui->playProgressbar->setValue(0);
+    }
+
     emit stateChanged(false);
 }
 
@@ -203,6 +259,11 @@ void PlayerWG::startFfplay()
 
 void PlayerWG::stopFfplay()
 {
+    // Stop event monitoring before stopping the process
+    if (m_embedHelper) {
+        m_embedHelper->stopEventMonitoring();
+    }
+    
     if (m_ffplayProcess) {
         m_ffplayProcess->kill();
         m_ffplayProcess->waitForFinished(3000);
@@ -264,6 +325,9 @@ void PlayerWG::embedFfplayWindow()
         qInfo() << "PlayerWG: FFplay window embedded successfully";
 
         m_embedHelper->showWindow(m_ffplayWindow);
+        
+        // Start monitoring mouse events on the embedded window
+        m_embedHelper->startEventMonitoring(m_ffplayWindow);
     } else {
         qCritical() << "PlayerWG: Failed to embed FFplay window";
         m_windowEmbedded = false;
@@ -322,12 +386,13 @@ void PlayerWG::mousePressEvent(QMouseEvent *event)
         relativePosition = 1.0;
     }
     
-    // Save current relative position
-    m_currentRelativePosition = relativePosition;
-    
-    // Set progress bar position with rounding
-    int progressValue = static_cast<int>(relativePosition * ui->playProgressbar->maximum() + 0.5);
-    ui->playProgressbar->setValue(progressValue);
+    // Save current relative position and update progress bar (thread-safe)
+    {
+        QMutexLocker locker(&m_progressMutex);
+        m_currentRelativePosition = relativePosition;
+        int progressValue = static_cast<int>(relativePosition * ui->playProgressbar->maximum() + 0.5);
+        ui->playProgressbar->setValue(progressValue);
+    }
     // qDebug() << "Set progress bar value to:" << progressValue;
 }
 
@@ -347,6 +412,121 @@ void PlayerWG::resizeEvent(QResizeEvent *event)
     
     if (m_windowEmbedded) {
         QTimer::singleShot(100, this, &PlayerWG::resizeFfplayWindow);
+    }
+}
+
+void PlayerWG::onMouseEventFromX11(int x_root, int y_root, int windowWidth, int windowHeight, unsigned long windowId)
+{
+    Q_UNUSED(windowId)
+
+    // Map global/root coordinates to the video widget local coordinates
+    QPoint globalPos(x_root, y_root);
+    QPoint localPos = ui->videoWidget->mapFromGlobal(globalPos);
+    QSize widgetSize = ui->videoWidget->size();
+
+    // Check if the click is inside our video widget
+    if (localPos.x() < 0 || localPos.y() < 0 || localPos.x() >= widgetSize.width() || localPos.y() >= widgetSize.height()) {
+        // Outside our widget — ignore
+        return;
+    }
+
+    double relativePosition = 0.0;
+    if (widgetSize.width() > 0) {
+        relativePosition = static_cast<double>(localPos.x()) / widgetSize.width();
+    }
+
+    // Clamp
+    if (relativePosition > 1.0) relativePosition = 1.0;
+    if (relativePosition < 0.0) relativePosition = 0.0;
+
+    // Save & apply progress under mutex to avoid racing with timer
+    int progressValue = 0;
+    {
+        QMutexLocker locker(&m_progressMutex);
+        m_currentRelativePosition = relativePosition;
+        progressValue = static_cast<int>(relativePosition * ui->playProgressbar->maximum() + 0.5);
+        ui->playProgressbar->setValue(progressValue);
+    }
+
+    qDebug() << "PlayerWG: Mouse event from X11 root:" << x_root << y_root
+             << "local:" << localPos.x() << localPos.y()
+             << "widgetSize:" << widgetSize.width() << "x" << widgetSize.height()
+             << "relativePosition:" << relativePosition << "progressValue:" << progressValue;
+
+    // If playing, seek to the clicked position
+    if (m_isPlaying && m_ffplayProcess) {
+        int seekPercentage = static_cast<int>(relativePosition * 100);
+
+        sendKeyToFfplay("s");
+
+        if (seekPercentage <= 90) {
+            sendKeyToFfplay(QString::number(seekPercentage / 10));
+        } else {
+            sendKeyToFfplay("9");
+        }
+
+        qDebug() << "PlayerWG: Seeking to" << seekPercentage << "%";
+    }
+}
+
+void PlayerWG::onX11KeyEvent(int keySym, unsigned long windowId)
+{
+    // Only handle key events coming from our embedded ffplay window
+    if (windowId == 0 || m_ffplayWindow == 0) return;
+    if (windowId != m_ffplayWindow) {
+        // If event comes from a child window, we still want to react — allow when embedding
+        // For simplicity, accept if we have a monitored window
+        // (Alternatively, could walk parent chain via X11 to check ancestry)
+    }
+
+    // Check for space or 'p' (pause) keys
+    const int KS_space = XK_space;
+    const int KS_p = XK_p;
+    const int KS_P = XK_P;
+
+    if (keySym == KS_space || keySym == KS_p || keySym == KS_P) {
+        // Toggle internal timer/state to match ffplay pause/resume
+        if (m_isPlaying) {
+            // ffplay likely paused
+            m_isPlaying = false;
+            m_isPaused = true;
+            m_positionTimer->stop();
+            ui->playPauseBtn->setText("Play");
+            emit stateChanged(false);
+        } else if (m_isPaused) {
+            // ffplay likely resumed
+            m_isPaused = false;
+            m_isPlaying = true;
+            m_positionTimer->start();
+            ui->playPauseBtn->setText("Pause");
+            emit stateChanged(true);
+        }
+    }
+}
+
+void PlayerWG::onPositionTimerTimeout()
+{
+    // Auto-increment progress every second while playing. Use mutex to avoid race with user clicks.
+    if (!m_isPlaying) return;
+
+    QMutexLocker locker(&m_progressMutex);
+    if (!ui || !ui->playProgressbar) return;
+
+    int maxv = ui->playProgressbar->maximum();
+    if (maxv <= 0) return;
+
+    int val = ui->playProgressbar->value();
+    if (val < maxv) {
+        val++;
+        ui->playProgressbar->setValue(val);
+        m_currentRelativePosition = static_cast<double>(val) / static_cast<double>(maxv);
+    } else {
+        // reached end: stop playback timer and update state
+        m_positionTimer->stop();
+        m_isPlaying = false;
+        m_isPaused = false;
+        ui->playPauseBtn->setText("Play");
+        emit stateChanged(false);
     }
 }
 
