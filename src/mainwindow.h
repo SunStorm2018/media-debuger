@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QtConcurrent>
 #include <QVBoxLayout>
+#include <QFile>
 
 #include "common/zffprobe.h"
 #include "common/zwindowhelper.h"
@@ -60,6 +61,7 @@ private slots:
     void PopBasicInfoWindow(QString title, const QString &info, const QString &format_key);
     void PopMediaInfoWindow(QString title, const QString &info, const QString &format_key = FORMAT_JSON);
     void PopMediaPropsWindow(const QString &fileName);
+    void loadMediaProperties(const QString &fileName);
 
     void createDockWidgets();
     void saveLayoutSettings();

@@ -42,6 +42,14 @@ FilesWG::FilesWG(QWidget *parent)
     connect(ui->listView, &QListView::clicked, this, &FilesWG::onListViewActivated);
     connect(ui->listView, &QListView::doubleClicked, this, &FilesWG::onListViewActivated);
     connect(ui->listView, &QListView::pressed, this, &FilesWG::onListViewActivated);
+    
+    // Set default selection to first item if available
+    if (m_model->rowCount() > 0) {
+        QModelIndex firstIndex = m_model->index(0, 0);
+        ui->listView->setCurrentIndex(firstIndex);
+        // Emit the activation signal to load media properties for the first file
+        onListViewActivated(firstIndex);
+    }
 }
 
 FilesWG::~FilesWG()

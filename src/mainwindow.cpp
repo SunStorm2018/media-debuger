@@ -38,11 +38,23 @@ MainWindow::MainWindow(QWidget *parent)
     m_filesWG.addActions(getFilesAvailableAction());
     m_filesWG.addSubActions("Media Info", getMediaInfoAvailableActions());
     m_filesWG.addMenus(getMediaInfoAvailableMenus());
-
-    if (m_filesWG.getCurrentSelectFileName().isEmpty()) {
-        m_playerWG.setMediaFile(Common::instance()->getConfigValue(CURRENTFILE).toString());
+    
+    // If no file is selected in FilesWG, try to get from config
+    QString currentFile = m_filesWG.getCurrentSelectFileName();
+    if (currentFile.isEmpty()) {
+        currentFile = Common::instance()->getConfigValue(CURRENTFILE).toString();
+        // If we got a file from config, set it in the player
+        if (!currentFile.isEmpty()) {
+            m_playerWG.setMediaFile(currentFile);
+        }
     } else {
-        m_playerWG.setMediaFile(m_filesWG.getCurrentSelectFileName());
+        // If FilesWG has a selection, set it in the player
+        m_playerWG.setMediaFile(currentFile);
+    }
+    
+    // Load media properties for the current file on startup
+    if (!currentFile.isEmpty() && QFile::exists(currentFile)) {
+        loadMediaProperties(currentFile);
     }
 
     m_actionWidgetMap = {
@@ -157,24 +169,7 @@ void MainWindow::InitConnectation()
         m_playerWG.setMediaFile(filePair.second);
         
         // Update media properties dock if exists
-        if (m_mediaPropsWidget) {
-            // Update dock title
-            m_mediaPropsWGDock->setWindowTitle(tr("Media Properties: %1").arg(QFileInfo(filePair.second).fileName()));
-            
-            // Update Format tab
-            JsonFormatWG *formatWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(0));
-            if (formatWidget) {
-                QString formatInfo = m_probe.getMediaInfoJsonFormat(SHOW_FORMAT, filePair.second);
-                formatWidget->loadData(formatInfo.toUtf8());
-            }
-            
-            // Update Streams tab
-            JsonFormatWG *streamsWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(1));
-            if (streamsWidget) {
-                QString streamsInfo = m_probe.getMediaInfoJsonFormat(SHOW_STREAMS, filePair.second);
-                streamsWidget->loadData(streamsInfo.toUtf8());
-            }
-        }
+        loadMediaProperties(filePair.second);
     });
 }
 
@@ -221,6 +216,25 @@ void MainWindow::PopMediaPropsWindow(const QString &fileName)
 {
     // Update content if a valid file is provided
     if (!fileName.isEmpty() && m_mediaPropsWidget) {
+        loadMediaProperties(fileName);
+        
+        // Update window title to reflect current file
+        setWindowTitle(tr("%1 - Media Properties: %2").arg(APPLICATION_NAME, QFileInfo(fileName).fileName()));
+    }
+}
+
+void MainWindow::loadMediaProperties(const QString &fileName)
+{
+    if (!fileName.isEmpty() && m_mediaPropsWidget) {
+        // Check if file exists before processing
+        if (!QFile::exists(fileName)) {
+            qWarning() << "Media file does not exist:" << fileName;
+            return;
+        }
+        
+        // Update dock title
+        m_mediaPropsWGDock->setWindowTitle(tr("Media Properties: %1").arg(QFileInfo(fileName).fileName()));
+        
         // Update Format tab
         JsonFormatWG *formatWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(0));
         if (formatWidget) {
@@ -234,9 +248,6 @@ void MainWindow::PopMediaPropsWindow(const QString &fileName)
             QString streamsInfo = m_probe.getMediaInfoJsonFormat(SHOW_STREAMS, fileName);
             streamsWidget->loadData(streamsInfo.toUtf8());
         }
-        
-        // Update window title to reflect current file
-        setWindowTitle(tr("%1 - Media Properties: %2").arg(APPLICATION_NAME, QFileInfo(fileName).fileName()));
     }
 }
 
