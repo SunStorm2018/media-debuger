@@ -1,9 +1,9 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: media-debuger
-Source: https://github.com/yourusername/media-debuger
+Source: https://github.com/SunStorm2018/media-debuger.git
 
 Files: *
-Copyright: 2025 Your Name <your.email@example.com>
+Copyright: 2025 zhang hongyuan <2063218120@qq.com>
 License: MIT
 
 License: MIT

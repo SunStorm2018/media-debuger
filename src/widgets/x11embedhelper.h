@@ -55,6 +55,7 @@ private:
     QTimer *m_eventTimer;
     bool m_monitoringEvents;
     bool m_lastRightButtonDown;
+    bool m_spaceKeyHandledByEventQueue; // Track if space key was already handled by event queue
 };
 
 #endif // X11EMBEDHELPER_H

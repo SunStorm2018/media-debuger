@@ -4,6 +4,7 @@
 #include "x11embedhelper.h"
 #include <QFileInfo>
 #include <QDebug>
+#include <QTime>
 #include <cstdlib>  // for getenv
 #include <cstring>  // for strlen
 
@@ -20,6 +21,7 @@ X11EmbedHelper::X11EmbedHelper(QObject *parent)
     , m_eventTimer(new QTimer(this))
     , m_monitoringEvents(false)
     , m_lastRightButtonDown(false)
+    , m_spaceKeyHandledByEventQueue(false)
 {
     connect(m_eventTimer, &QTimer::timeout, this, &X11EmbedHelper::checkX11Events);
 }
@@ -436,14 +438,6 @@ void X11EmbedHelper::checkX11Events()
                                                       attrs.width, attrs.height, static_cast<unsigned long>(win));
                     }
                 }
-            } else if (event.type == KeyPress) {
-                XKeyEvent *keyEvent = reinterpret_cast<XKeyEvent*>(&event);
-                // Lookup keysym
-                KeySym keysym = XLookupKeysym(keyEvent, 0);
-                if (keysym != NoSymbol) {
-                    qDebug() << "X11EmbedHelper: KeyPress detected keysym:" << keysym << "root:" << keyEvent->x_root << keyEvent->y_root << "event window:" << evwin;
-                    emit keyEventReceivedGlobal(static_cast<int>(keysym), static_cast<unsigned long>(win));
-                }
             }
         }
         
@@ -478,6 +472,40 @@ void X11EmbedHelper::checkX11Events()
         }
 
         m_lastRightButtonDown = rightDown;
+    }
+
+    // Check for global keyboard events by polling the root window
+    // This helps capture space key events even when they're not directly sent to our monitored window
+    if (m_monitoringEvents && m_monitoredWindow != 0) {
+        char keys_return[32];
+        XQueryKeymap(display, keys_return);
+        
+        // Check space key (keycode 65 typically for space on most keyboards)
+        const int space_keycode = 65; // Common keycode for space key
+        int byte_index = space_keycode / 8;
+        int bit_index = space_keycode % 8;
+        
+        if (byte_index < 32) {
+            bool space_pressed = (keys_return[byte_index] & (1 << bit_index)) != 0;
+            
+            static bool last_space_pressed = false;
+            static QTime last_space_time;
+            
+            if (space_pressed && !last_space_pressed) {
+                // Space key just pressed - add simple debounce
+                QTime currentTime = QTime::currentTime();
+                 if (last_space_time.isNull() || last_space_time.msecsTo(currentTime) > 200) {
+                    KeySym keysym = XStringToKeysym("space");
+                    if (keysym != NoSymbol) {
+                        qDebug() << "X11EmbedHelper: Global space key detected via polling";
+                        emit keyEventReceivedGlobal(static_cast<int>(keysym), m_monitoredWindow);
+                        last_space_time = currentTime;
+                    }
+                }
+            }
+            
+            last_space_pressed = space_pressed;
+        }
     }
 }
 #endif

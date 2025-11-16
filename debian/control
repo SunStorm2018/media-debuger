@@ -21,7 +21,7 @@ Description: Media file debug and analysis tool
  providing detailed information about video/audio formats and codecs.
 
 # dde-file-manager-contextmenu install
-Package: media-debuger-dde-filemanager-contextmenu
+Package: dfm-xmenu-media-debuger
 Architecture: all
 Depends: media-debuger-qt5 (= ${source:Version}) | media-debuger-qt6 (= ${source:Version}),
          dde-file-manager,

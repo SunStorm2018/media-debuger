@@ -119,6 +119,20 @@ void FilesHistoryModel::loadSettings()
     m_settings.beginGroup(RECENTFILES_SETTINGS_GROUP);
     m_filePaths = m_settings.value(FILES_KEY).toStringList();
     m_settings.endGroup();
+
+    QStringList validFilePaths;
+    for (const QString &filePath : m_filePaths) {
+        if (QFileInfo::exists(filePath)) {
+            validFilePaths.append(filePath);
+        } else {
+            qWarning() << "The file not exist, which will be removed: " << filePath;
+        }
+    }
+    
+    if (validFilePaths.size() != m_filePaths.size()) {
+        m_filePaths = validFilePaths;
+        saveSettings();
+    }
 }
 
 void FilesHistoryModel::saveSettings()

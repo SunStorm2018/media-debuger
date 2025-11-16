@@ -6,7 +6,9 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QJsonDocument>
+#include <QTime>
 #include <QJsonObject>
+#include <QThread>
 #include <cmath>
 #ifdef Q_OS_LINUX
 #include <X11/keysym.h>
@@ -55,7 +57,7 @@ void PlayerWG::initConnections()
     // Connect X11 mouse events (global/root coordinates)
     if (m_embedHelper) {
         connect(m_embedHelper, &X11EmbedHelper::mouseEventReceivedGlobal, this, &PlayerWG::onMouseEventFromX11);
-        connect(m_embedHelper, &X11EmbedHelper::keyEventReceivedGlobal, this, &PlayerWG::onX11KeyEvent);
+        connect(m_embedHelper, &X11EmbedHelper::keyEventReceivedGlobal, this, &PlayerWG::onX11KeyEvent, Qt::AutoConnection);
     }
     // Position timer updates progress every second
     connect(m_positionTimer, &QTimer::timeout, this, &PlayerWG::onPositionTimerTimeout);
@@ -474,12 +476,19 @@ void PlayerWG::onMouseEventFromX11(int x_root, int y_root, int windowWidth, int 
 
 void PlayerWG::onX11KeyEvent(int keySym, unsigned long windowId)
 {
-    // Only handle key events coming from our embedded ffplay window
+    // Handle key events from our embedded ffplay window or global events
     if (windowId == 0 || m_ffplayWindow == 0) return;
-    if (windowId != m_ffplayWindow) {
-        // If event comes from a child window, we still want to react — allow when embedding
-        // For simplicity, accept if we have a monitored window
-        // (Alternatively, could walk parent chain via X11 to check ancestry)
+    
+    // Accept events from our monitored window or global events (when windowId matches our monitored window)
+    bool acceptEvent = (windowId == m_ffplayWindow);
+    
+    // Also accept global space key events - if we have an active ffplay window, assume we're monitoring
+    if (!acceptEvent && m_embedHelper && m_ffplayWindow != 0) {
+        acceptEvent = true;
+    }
+    
+    if (!acceptEvent) {
+        return;
     }
 
     // Check for space or 'p' (pause) keys
@@ -488,20 +497,23 @@ void PlayerWG::onX11KeyEvent(int keySym, unsigned long windowId)
     const int KS_P = XK_P;
 
     if (keySym == KS_space || keySym == KS_p || keySym == KS_P) {
-        // Toggle internal timer/state to match ffplay pause/resume
+        qDebug() << "PlayerWG: Space/pause key detected - keySym:" << keySym << "windowId:" << windowId << "Current state - Playing:" << m_isPlaying << "Paused:" << m_isPaused;
+        
+        // Directly send 'p' key to ffplay for pause/resume
+        sendKeyToFfplay("p");
+        sendKeyToFfplay("p");
+        // Update UI state to match ffplay state (toggle)
         if (m_isPlaying) {
-            // ffplay likely paused
             m_isPlaying = false;
             m_isPaused = true;
-            m_positionTimer->stop();
             ui->playPauseBtn->setText("Play");
+            m_positionTimer->stop();
             emit stateChanged(false);
-        } else if (m_isPaused) {
-            // ffplay likely resumed
-            m_isPaused = false;
+        } else {
             m_isPlaying = true;
-            m_positionTimer->start();
+            m_isPaused = false;
             ui->playPauseBtn->setText("Pause");
+            m_positionTimer->start();
             emit stateChanged(true);
         }
     }

@@ -233,7 +233,7 @@ void MainWindow::loadMediaProperties(const QString &fileName)
         }
         
         // Update dock title
-        m_mediaPropsWGDock->setWindowTitle(tr("Media Properties: %1").arg(QFileInfo(fileName).fileName()));
+        m_mediaPropsWGDock->setWindowTitle(tr("Properties: %1").arg(QFileInfo(fileName).fileName()));
         
         // Update Format tab
         JsonFormatWG *formatWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(0));
