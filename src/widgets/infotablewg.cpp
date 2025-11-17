@@ -155,6 +155,23 @@ QList<QStringList> InfoWidgets::getSelectLines()
     return tmp;
 }
 
+QList<int> InfoWidgets::getSelectRows()
+{
+    QList<int> tmp;
+    QSet<int> availableRow;
+    QModelIndexList selectedRows = ui->detail_tb->selectionModel()->selectedIndexes();
+    foreach (const QModelIndex &it, selectedRows) {
+        auto index = multiColumnSearchModel->mapToSource(it);
+        availableRow.insert(index.row());
+    }
+
+    foreach (auto &row, availableRow) {
+        tmp.append(row);
+    }
+
+    return tmp;
+}
+
 const QList<QStringList> *InfoWidgets::getTableData()
 {
     return &m_data_tb;

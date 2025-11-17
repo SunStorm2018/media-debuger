@@ -58,12 +58,18 @@ void Common::destroy()
 void Common::setConfigValue(const QString& key, const QVariant& value)
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+    // Set encoding to UTF-8 to support Chinese paths
+    settings.setIniCodec("UTF-8");
     settings.setValue(key, value);
+    // Sync immediately to ensure configuration is written
+    settings.sync();
 }
 
 QVariant Common::getConfigValue(const QString& key, const QVariant& defaultValue) const
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+    // Set encoding to UTF-8 to support Chinese paths
+    settings.setIniCodec("UTF-8");
     return settings.value(key, defaultValue);
 }
 

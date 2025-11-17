@@ -34,6 +34,10 @@ extern const QStringList CONFIG_GROUPS;
 
 constexpr auto FFMPEGBUILDER_RECENTFOLDERS_KEY = "RecentFolders";
 
+// Image preview settings
+constexpr auto IMAGE_PREVIEW_PATH_KEY = "ImagePreviewPath";
+constexpr auto DEFAULT_IMAGE_PREVIEW_PATH = "./preview_images";
+
 // config
 /**
  * @brief Macro definitions and default values for log configuration

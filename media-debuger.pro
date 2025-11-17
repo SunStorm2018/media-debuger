@@ -27,6 +27,8 @@ SOURCES += \
     src/common/statesynchronizer.cpp \
     src/common/tableheadermanager.cpp \
     src/common/zffprobe.cpp \
+    src/common/zffmpeg.cpp \
+    src/common/zffplay.cpp \
     src/common/zlogger.cpp \
     src/common/ztexteditor.cpp \
     src/common/ztexthighlighter.cpp \
@@ -67,6 +69,8 @@ HEADERS += \
     src/common/synchronizermacros.h \
     src/common/tableheadermanager.h \
     src/common/zffprobe.h \
+    src/common/zffmpeg.h \
+    src/common/zffplay.h \
     src/common/zlogger.h \
     src/common/ztexteditor.h \
     src/common/ztexthighlighter.h \

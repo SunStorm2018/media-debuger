@@ -318,6 +318,8 @@ void MainWindow::createDockWidgets()
 void MainWindow::saveLayoutSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+    // Set encoding to UTF-8 to support Chinese paths
+    settings.setIniCodec("UTF-8");
     settings.beginGroup(MAINWINDOW_SETTINGS_GROUP);
     // Save window geometry
     settings.setValue(GEOMETRY_KEY, saveGeometry());
@@ -325,12 +327,16 @@ void MainWindow::saveLayoutSettings()
     // Save dock layout state
     settings.setValue(STATE_KEY, saveState());
     settings.endGroup();
+    // Sync immediately to ensure configuration is written
+    settings.sync();
     qInfo() << "Window layout settings saved";
 }
 
 void MainWindow::restoreLayoutSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+    // Set encoding to UTF-8 to support Chinese paths
+    settings.setIniCodec("UTF-8");
     settings.beginGroup(MAINWINDOW_SETTINGS_GROUP);
     // Restore window geometry
     if (settings.contains(GEOMETRY_KEY)) {
@@ -576,6 +582,8 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
 
     if (ui->actionSetting_Dir == action) {
         QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+        // Set encoding to UTF-8 to support Chinese paths
+        settings.setIniCodec("UTF-8");
         QString fileName = settings.fileName();
 
         QFileInfo fileInfo(fileName);
@@ -588,6 +596,8 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
 
     if (ui->actionSetting_File == action) {
         QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
+        // Set encoding to UTF-8 to support Chinese paths
+        settings.setIniCodec("UTF-8");
         QString fileName = settings.fileName();
 
         QFile file(fileName);

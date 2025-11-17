@@ -35,8 +35,13 @@ private:
     QList<QStringList> m_data_tb;
     QList<QString> m_headers;
 
+    QAction *m_previewImageAction;
+
     QString valueToString(const QJsonValue &value);
     QString extractSideData(const QJsonObject &frameObj, const QString &key);
+
+private slots:
+    void previewImage();
 
 protected:
     bool loadJson(const QByteArray &json);

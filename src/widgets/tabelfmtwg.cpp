@@ -3,6 +3,23 @@
 
 #include "tabelfmtwg.h"
 #include "ui_tabelfmtwg.h"
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QDir>
+#include <QStandardPaths>
+#include <QTemporaryFile>
+#include <QPixmap>
+#include <QLabel>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QApplication>
+#include <QDateTime>
+#include <QFile>
+
+#include "../common/zffmpeg.h"
+#include "../common/zffplay.h"
+#include "../common/common.h"
 
 TabelFormatWG::TabelFormatWG(QWidget *parent)
     : BaseFormatWG(parent)
@@ -11,6 +28,11 @@ TabelFormatWG::TabelFormatWG(QWidget *parent)
     ui->setupUi(this);
     m_tableFormatWg = new InfoWidgets(this);
     ui->verticalLayout->addWidget(m_tableFormatWg);
+
+    // copy selected text with header action
+    m_previewImageAction = new QAction("Show Image", m_tableFormatWg);
+    connect(m_previewImageAction, &QAction::triggered, this, &TabelFormatWG::previewImage);
+    m_tableFormatWg->addContextAction(m_previewImageAction);
 }
 
 TabelFormatWG::~TabelFormatWG()
@@ -199,6 +221,100 @@ QString TabelFormatWG::extractSideData(const QJsonObject &frameObj, const QStrin
     }
 
     return values.join("; ");
+}
+
+void TabelFormatWG::previewImage()
+{
+    // Get the current media file from settings
+    Common *common = Common::instance();
+    QString currentFile = common->getConfigValue(CURRENTFILE).toString();
+    
+    if (currentFile.isEmpty()) {
+        QMessageBox::warning(this, "Preview Error", "No media file selected for preview.");
+        return;
+    }
+
+    // Get the image save path from settings
+    QString savePath = common->getConfigValue(IMAGE_PREVIEW_PATH_KEY,
+                                          QString(DEFAULT_IMAGE_PREVIEW_PATH)).toString();
+    
+    // Ensure the save directory exists
+    QDir saveDir(savePath);
+    if (!saveDir.exists()) {
+        if (!saveDir.mkpath(".")) {
+            QMessageBox::warning(this, "Preview Error",
+                             QString("Failed to create preview directory: %1").arg(savePath));
+            return;
+        }
+    }
+
+    // Get selected rows using InfoWidgets::getSelectRows()
+    QList<int> selectedRows = m_tableFormatWg->getSelectRows();
+    
+    // If no rows selected, use the first row
+    if (selectedRows.isEmpty()) {
+        if (m_data_tb.isEmpty()) {
+            QMessageBox::information(this, "Preview Info",
+                                 "No frame data available for preview.");
+            return;
+        }
+        selectedRows.append(0);
+    }
+
+    // Process each selected row
+    for (int selectedRow : selectedRows) {
+        if (selectedRow < 0 || selectedRow >= m_data_tb.size()) {
+            qWarning() << "Invalid row index:" << selectedRow;
+            continue;
+        }
+
+        int frameNumber = selectedRow;
+
+        // Generate output filename with timestamp for unique identification
+        QFileInfo fileInfo(currentFile);
+        QString baseName = fileInfo.baseName();
+        QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_zzz");
+        QString outputFileName = QString("%1_frame_%2_%3.jpg").arg(baseName).arg(frameNumber).arg(timestamp);
+        QString outputFilePath = saveDir.absoluteFilePath(outputFileName);
+
+        // Extract the frame using ffmpeg
+        ZFFmpeg ffmpeg;
+        if (!ffmpeg.extractFrame(currentFile, frameNumber, outputFilePath)) {
+            QMessageBox::critical(this, "Preview Error",
+                              "Failed to extract frame using ffmpeg.\n"
+                              "Please ensure ffmpeg is installed and accessible.");
+            continue;
+        }
+
+        // Verify the extracted image exists
+        if (!QFile::exists(outputFilePath)) {
+            QMessageBox::warning(this, "Preview Error",
+                             "Failed to create the extracted image file.");
+            continue;
+        }
+
+        // Use zffplay to display the extracted image with size limits
+        ZFFplay *ffplay = new ZFFplay(this);
+        if (!ffplay->displayImageWithSize(outputFilePath, 800, 600, frameNumber)) {
+            QMessageBox::warning(this, "Preview Error",
+                             "Failed to display the extracted image with ffplay.");
+            delete ffplay;
+            continue;
+        }
+
+        // Connect signal to clean up the ffplay instance when playback finishes
+        connect(ffplay, &ZFFplay::playbackFinished, [ffplay]() {
+            ffplay->deleteLater();
+        });
+        
+        connect(ffplay, &ZFFplay::errorOccurred, [ffplay](const QString &error) {
+            qWarning() << "ZFFplay error:" << error;
+            ffplay->deleteLater();
+        });
+
+        qDebug() << "TabelFormatWG: Extracted frame" << frameNumber
+                 << "saved to" << outputFilePath << "and opened with ffplay";
+    }
 }
 
 QString TabelFormatWG::valueToString(const QJsonValue &value)

@@ -48,7 +48,8 @@ FilesWG::FilesWG(QWidget *parent)
         QModelIndex firstIndex = m_model->index(0, 0);
         ui->listView->setCurrentIndex(firstIndex);
         // Emit the activation signal to load media properties for the first file
-        onListViewActivated(firstIndex);
+        // No need to call onListViewActivated here as it will be handled through mainwindow in constructor
+        // onListViewActivated(firstIndex);
     }
 }
 
@@ -110,6 +111,8 @@ void FilesWG::onListViewActivated(const QModelIndex &index)
     if (index.isValid()) {
         QString filePath = index.data(FilesHistoryModel::FilePathRole).toString();
         if (!filePath.isEmpty()) {
+            // Sync update CURRENTFILE configuration
+            Common::instance()->setConfigValue(CURRENTFILE, filePath);
             emit currentFileActived(QPair<QString, QString>(index.data(FilesHistoryModel::FileNameRole).toString(), filePath));
         }
     }

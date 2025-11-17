@@ -47,6 +47,8 @@ public:
 
     QList <QStringList> getSelectLines();
 
+    QList <int> getSelectRows();
+
     const QList<QStringList> *getTableData();
 
 signals:

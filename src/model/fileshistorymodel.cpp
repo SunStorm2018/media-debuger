@@ -116,6 +116,8 @@ void FilesHistoryModel::clearHistory()
 
 void FilesHistoryModel::loadSettings()
 {
+    // Set encoding to UTF-8 to support Chinese paths
+    m_settings.setIniCodec("UTF-8");
     m_settings.beginGroup(RECENTFILES_SETTINGS_GROUP);
     m_filePaths = m_settings.value(FILES_KEY).toStringList();
     m_settings.endGroup();
@@ -137,9 +139,13 @@ void FilesHistoryModel::loadSettings()
 
 void FilesHistoryModel::saveSettings()
 {
+    // Set encoding to UTF-8 to support Chinese paths
+    m_settings.setIniCodec("UTF-8");
     m_settings.beginGroup(RECENTFILES_SETTINGS_GROUP);
     m_settings.setValue(FILES_KEY, m_filePaths);
     m_settings.endGroup();
+    // Sync immediately to ensure configuration is written
+    m_settings.sync();
 }
 
 QString FilesHistoryModel::currentFile(int index)
