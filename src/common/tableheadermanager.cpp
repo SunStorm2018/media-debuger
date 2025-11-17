@@ -85,7 +85,9 @@ void TableHeaderManager::onHeaderContextMenuRequested(const QPoint &pos)
 {
     if (!m_horizontalHeader || !m_horizontalHeader->model()) return;
 
-    QMenu menu;
+    MultiSelectMenu menu;
+    menu.setTearOffEnabled(true);  // Enable tear-off menu to keep it open
+    menu.setTitle(tr("Column Visibility"));  // Set title for torn-off menu
     m_actionToColumnMap.clear();
 
     QAction *showAllAction = menu.addAction(tr("Show All"));
@@ -97,7 +99,6 @@ void TableHeaderManager::onHeaderContextMenuRequested(const QPoint &pos)
     toggleTotalCountAction->setCheckable(true);
     toggleTotalCountAction->setChecked(m_totalCountLabel && m_totalCountLabel->isVisible());
 
-    menu.addSeparator();
     menu.addSeparator();
 
     connect(showAllAction, &QAction::triggered, this, &TableHeaderManager::showAllColumns);
@@ -145,7 +146,8 @@ void TableHeaderManager::onHeaderContextMenuRequested(const QPoint &pos)
         m_actionToColumnMap[columnAction] = logicalIndex;
         connect(columnAction, &QAction::triggered, this, &TableHeaderManager::toggleColumnVisibility);
     }
-
+    
+    // Show menu at the cursor position
     menu.exec(m_horizontalHeader->mapToGlobal(pos));
 }
 
