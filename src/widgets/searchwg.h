@@ -13,7 +13,7 @@
 #include <QRadioButton>
 #include <QLineEdit>
 
-#include <common/flowlayout.h>
+#include <common/zflowlayout.h>
 
 
 namespace Ui {
@@ -97,7 +97,7 @@ private:
 
 private:
     Ui::SearchWG *ui;
-    FlowLayout *m_floatLayout;
+    ZFlowLayout *m_floatLayout;
     
     // Search range controls
     QRadioButton *m_selectAllRadioBtn;

@@ -15,7 +15,7 @@
 #include <QHeaderView>
 
 #include <common/common.h>
-#include <common/tableheadermanager.h>
+#include <common/ztableheadermanager.h>
 #include <common/zwindowhelper.h>
 #include <common/qtcompat.h>
 
@@ -44,6 +44,8 @@ public:
     void addContextMenu(QMenu *menu);
 
     void addContextAction(QAction *action);
+
+    void addContextSeparator();
 
     QList <QStringList> getSelectLines();
 
@@ -111,7 +113,7 @@ private:
 
     MediaInfoTabelModel *m_model;
     MultiColumnSearchProxyModel *multiColumnSearchModel;
-    TableHeaderManager *m_headerManager;
+    ZTableHeaderManager *m_headerManager;
     
     // Detail search components
     QMenu *m_searchButtonMenu;

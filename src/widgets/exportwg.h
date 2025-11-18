@@ -17,8 +17,8 @@
 #include <QUrl>
 
 #include <common/zffprobe.h>
-#include <common/flowlayout.h>
-#include <common/commandexecutor.h>
+#include <common/zflowlayout.h>
+#include <common/zcommandexecutor.h>
 #include <common/qtcompat.h>
 
 #include <widgets/progressdlg.h>
@@ -82,9 +82,9 @@ private slots:
 private:
     Ui::ExportWG *ui;
 
-    FlowLayout *m_mediaInfoFloatLayout = nullptr;
-    FlowLayout *m_basicInfoFloatLayout = nullptr;
-    CommandExecutor *m_executor = nullptr;
+    ZFlowLayout *m_mediaInfoFloatLayout = nullptr;
+    ZFlowLayout *m_basicInfoFloatLayout = nullptr;
+    ZCommandExecutor *m_executor = nullptr;
 
     // Export Media Info Fileds controls
     QRadioButton *m_selectAllMediaInfoRBtn;

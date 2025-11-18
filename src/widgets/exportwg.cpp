@@ -14,10 +14,10 @@ ExportWG::ExportWG(QWidget *parent)
     QDateTime currentTime = QDateTime::currentDateTime();
 
     // Initialize the flow layout for search range
-    m_mediaInfoFloatLayout = new FlowLayout();
+    m_mediaInfoFloatLayout = new ZFlowLayout();
     ui->mediainfo_fileds_gbox->setLayout(m_mediaInfoFloatLayout);
 
-    m_basicInfoFloatLayout = new FlowLayout();
+    m_basicInfoFloatLayout = new ZFlowLayout();
     ui->baseinfo_fileds_gbox->setLayout(m_basicInfoFloatLayout);
 
     // Create select all and select none checkboxes
@@ -451,21 +451,21 @@ void ExportWG::on_export_btn_clicked()
         m_executor = nullptr;
     }
 
-    m_executor = new CommandExecutor(this);
+    m_executor = new ZCommandExecutor(this);
 
-    connect(m_executor, &CommandExecutor::progressUpdated,
+    connect(m_executor, &ZCommandExecutor::progressUpdated,
             [=](int completed, int total, const QString &message){
                 emit progressDlg->rangeChanged(1, total);
                 emit progressDlg->valueChanged(completed);
                 emit progressDlg->messageChanged(message);
             });
 
-    connect(m_executor, &CommandExecutor::commandStarted,
+    connect(m_executor, &ZCommandExecutor::commandStarted,
             [=](const QString &command, int index){
                 emit progressDlg->messageChanged(tr("Started: %1 %2").arg(index).arg(command));
             });
 
-    connect(m_executor, &CommandExecutor::commandFinished,
+    connect(m_executor, &ZCommandExecutor::commandFinished,
             [=](const QString &command, int index, int exitCode, QProcess::ExitStatus exitStatus){
                 QString status = (exitCode == 0 && exitStatus == QProcess::NormalExit) ? "Success" : "Failed";
                 qDebug() << index << command << status;
@@ -482,7 +482,7 @@ void ExportWG::on_export_btn_clicked()
                 }
             });
 
-    connect(m_executor, &CommandExecutor::allCommandsFinished,
+    connect(m_executor, &ZCommandExecutor::allCommandsFinished,
             [=](bool success){
                 if (success) {
                     qDebug() << tr("All commands completed successfully");
@@ -502,13 +502,13 @@ void ExportWG::on_export_btn_clicked()
                 }
             });
 
-    connect(m_executor, &CommandExecutor::commandOutput,
+    connect(m_executor, &ZCommandExecutor::commandOutput,
             [=](const QString &command, const QString &output, int index)
             {
                 qDebug() << tr("Output from index %1 %2: %3").arg(index).arg(command).arg(output.trimmed());
             });
 
-    connect(m_executor, &CommandExecutor::commandError,
+    connect(m_executor, &ZCommandExecutor::commandError,
             [=](const QString &command, const QString &error, int index)
             {
                 qDebug() << tr("Error from index %1 %2: %3").arg(index).arg(command).arg(error.trimmed());

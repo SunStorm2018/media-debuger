@@ -10,7 +10,7 @@ TabConfigWg::TabConfigWg(QWidget *parent)
 {
     ui->setupUi(this);
 
-    m_configFlowLayout = new FlowLayout();
+    m_configFlowLayout = new ZFlowLayout();
     // ui->config_tb->setSearchTitleVisiable(false);
     ui->config_category_group_layout->insertLayout(0, m_configFlowLayout);
     ui->category_gbx->setChecked(false);

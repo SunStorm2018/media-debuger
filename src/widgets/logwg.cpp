@@ -26,7 +26,7 @@ LogWG::LogWG(QWidget *parent)
     ui->log_tbv->verticalHeader()->setDefaultSectionSize(25);
     ui->log_tbv->verticalHeader()->setVisible(true);
 
-    m_headerManager = new TableHeaderManager(ui->log_tbv->horizontalHeader(), ui->log_tbv->verticalHeader(), this);
+    m_headerManager = new ZTableHeaderManager(ui->log_tbv->horizontalHeader(), ui->log_tbv->verticalHeader(), this);
     m_headerManager->setObjectName(this->objectName());
     m_headerManager->enableHeaderContextMenu(true);
     m_headerManager->setTotalCountVisible(false);

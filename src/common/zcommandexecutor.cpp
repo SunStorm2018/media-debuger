@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
 // SPDX-License-Identifier: MIT
 
-#include "commandexecutor.h"
+#include "zcommandexecutor.h"
 #include <QThreadPool>
 #include <QDebug>
 
-CommandExecutor::CommandExecutor(QObject *parent)
+ZCommandExecutor::ZCommandExecutor(QObject *parent)
     : QObject(parent)
     , m_completedCount(0)
     , m_totalCount(0)
@@ -26,13 +26,13 @@ CommandExecutor::CommandExecutor(QObject *parent)
     });
 }
 
-CommandExecutor::~CommandExecutor()
+ZCommandExecutor::~ZCommandExecutor()
 {
     stopExecution();
     cleanup();
 }
 
-void CommandExecutor::executeCommands(const QStringList &commands, int maxConcurrent)
+void ZCommandExecutor::executeCommands(const QStringList &commands, int maxConcurrent)
 {
     if (m_isRunning) {
         qWarning() << "Execution already in progress";
@@ -64,7 +64,7 @@ void CommandExecutor::executeCommands(const QStringList &commands, int maxConcur
     m_watcher.setFuture(future);
 }
 
-void CommandExecutor::stopExecution()
+void ZCommandExecutor::stopExecution()
 {
     QMutexLocker locker(&m_mutex);
     if (!m_isRunning) return;
@@ -91,20 +91,20 @@ void CommandExecutor::stopExecution()
     emit progressUpdated(m_completedCount, m_totalCount, tr("Execution stopped by user"));
 }
 
-bool CommandExecutor::isRunning() const
+bool ZCommandExecutor::isRunning() const
 {
     return m_isRunning;
 }
 
-bool CommandExecutor::executeSingleCommand(const QString &command, int index)
+bool ZCommandExecutor::executeSingleCommand(const QString &command, int index)
 {
     if (m_stopRequested) return false;
 
     QProcess *process = new QProcess();
     process->setProcessChannelMode(QProcess::MergedChannels);
 
-    connect(process, &QProcess::readyReadStandardOutput, this, &CommandExecutor::onProcessOutputReady);
-    connect(process, &QProcess::readyReadStandardError, this, &CommandExecutor::onProcessErrorReady);
+    connect(process, &QProcess::readyReadStandardOutput, this, &ZCommandExecutor::onProcessOutputReady);
+    connect(process, &QProcess::readyReadStandardError, this, &ZCommandExecutor::onProcessErrorReady);
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, [this, index, command](int exitCode, QProcess::ExitStatus exitStatus) {
                 onCommandFinished(index);
@@ -137,7 +137,7 @@ bool CommandExecutor::executeSingleCommand(const QString &command, int index)
     return true;
 }
 
-void CommandExecutor::onCommandFinished(int /*index*/)
+void ZCommandExecutor::onCommandFinished(int /*index*/)
 {
     QMutexLocker locker(&m_mutex);
     m_completedCount++;
@@ -150,7 +150,7 @@ void CommandExecutor::onCommandFinished(int /*index*/)
     emit progressUpdated(m_completedCount, m_totalCount, progressMessage);
 }
 
-void CommandExecutor::onProcessOutputReady()
+void ZCommandExecutor::onProcessOutputReady()
 {
     QProcess *process = qobject_cast<QProcess*>(sender());
     if (!process) return;
@@ -165,7 +165,7 @@ void CommandExecutor::onProcessOutputReady()
     }
 }
 
-void CommandExecutor::onProcessErrorReady()
+void ZCommandExecutor::onProcessErrorReady()
 {
     QProcess *process = qobject_cast<QProcess*>(sender());
     if (!process) return;
@@ -180,7 +180,7 @@ void CommandExecutor::onProcessErrorReady()
     }
 }
 
-void CommandExecutor::cleanup()
+void ZCommandExecutor::cleanup()
 {
     QMutexLocker locker(&m_mutex);
     for (QProcess *process : m_processes) {

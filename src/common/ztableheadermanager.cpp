@@ -1,21 +1,21 @@
 // SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
 // SPDX-License-Identifier: MIT
 
-#include "tableheadermanager.h"
+#include "ztableheadermanager.h"
 #include <QSettings>
 #include <QDebug>
 #include <QScrollBar>
 #include <QLabel>
 #include <QTableView>
 
-TableHeaderManager::TableHeaderManager(QHeaderView *horizontalHeader, QHeaderView *verticalHeader,QObject *parent)
+ZTableHeaderManager::ZTableHeaderManager(QHeaderView *horizontalHeader, QHeaderView *verticalHeader,QObject *parent)
     : QObject(parent), m_horizontalHeader(horizontalHeader), m_verticalHeader(verticalHeader),
     m_totalCountLabel(nullptr), m_showVerticalHeader(true)
 {
     if (m_horizontalHeader) {
         m_horizontalHeader->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_horizontalHeader, &QHeaderView::customContextMenuRequested,
-                this, &TableHeaderManager::onHeaderContextMenuRequested);
+                this, &ZTableHeaderManager::onHeaderContextMenuRequested);
 
         // Enable movable headers by default
         m_horizontalHeader->setSectionsMovable(true);
@@ -27,11 +27,11 @@ TableHeaderManager::TableHeaderManager(QHeaderView *horizontalHeader, QHeaderVie
     if (verticalHeader) {
         verticalHeader->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(verticalHeader, &QHeaderView::customContextMenuRequested,
-                this, &TableHeaderManager::onHeaderContextMenuRequested);
+                this, &ZTableHeaderManager::onHeaderContextMenuRequested);
     }
 }
 
-TableHeaderManager::~TableHeaderManager()
+ZTableHeaderManager::~ZTableHeaderManager()
 {
     saveState();
 
@@ -40,24 +40,24 @@ TableHeaderManager::~TableHeaderManager()
     }
 }
 
-void TableHeaderManager::setObjectName(const QString &name)
+void ZTableHeaderManager::setObjectName(const QString &name)
 {
     m_objectName = name;
 }
 
-QString TableHeaderManager::objectName() const
+QString ZTableHeaderManager::objectName() const
 {
     return m_objectName;
 }
 
-void TableHeaderManager::enableHeaderContextMenu(bool enable)
+void ZTableHeaderManager::enableHeaderContextMenu(bool enable)
 {
     if (m_horizontalHeader) {
         m_horizontalHeader->setContextMenuPolicy(enable ? Qt::CustomContextMenu : Qt::NoContextMenu);
     }
 }
 
-void TableHeaderManager::saveState()
+void ZTableHeaderManager::saveState()
 {
     if (m_horizontalHeader && !m_objectName.isEmpty()) {
         QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
@@ -68,7 +68,7 @@ void TableHeaderManager::saveState()
     }
 }
 
-void TableHeaderManager::restoreState()
+void ZTableHeaderManager::restoreState()
 {
     if (m_horizontalHeader && !m_objectName.isEmpty()) {
         QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
@@ -81,11 +81,11 @@ void TableHeaderManager::restoreState()
     }
 }
 
-void TableHeaderManager::onHeaderContextMenuRequested(const QPoint &pos)
+void ZTableHeaderManager::onHeaderContextMenuRequested(const QPoint &pos)
 {
     if (!m_horizontalHeader || !m_horizontalHeader->model()) return;
 
-    MultiSelectMenu menu;
+    ZMultiSelectMenu menu;
     menu.setTearOffEnabled(true);  // Enable tear-off menu to keep it open
     menu.setTitle(tr("Column Visibility"));  // Set title for torn-off menu
     m_actionToColumnMap.clear();
@@ -101,7 +101,7 @@ void TableHeaderManager::onHeaderContextMenuRequested(const QPoint &pos)
 
     menu.addSeparator();
 
-    connect(showAllAction, &QAction::triggered, this, &TableHeaderManager::showAllColumns);
+    connect(showAllAction, &QAction::triggered, this, &ZTableHeaderManager::showAllColumns);
 
     connect(toggleVerticalHeaderAction, &QAction::triggered, [=](bool checked){
         m_showVerticalHeader = !m_showVerticalHeader;
@@ -144,28 +144,28 @@ void TableHeaderManager::onHeaderContextMenuRequested(const QPoint &pos)
         columnAction->setChecked(!m_horizontalHeader->isSectionHidden(logicalIndex));
 
         m_actionToColumnMap[columnAction] = logicalIndex;
-        connect(columnAction, &QAction::triggered, this, &TableHeaderManager::toggleColumnVisibility);
+        connect(columnAction, &QAction::triggered, this, &ZTableHeaderManager::toggleColumnVisibility);
     }
     
     // Show menu at the cursor position
     menu.exec(m_horizontalHeader->mapToGlobal(pos));
 }
 
-void TableHeaderManager::setTotalCountVisible(bool visible)
+void ZTableHeaderManager::setTotalCountVisible(bool visible)
 {
     if (m_totalCountLabel) {
         m_totalCountLabel->setVisible(visible);
     }
 }
 
-void TableHeaderManager::updateTotalCount(int count)
+void ZTableHeaderManager::updateTotalCount(int count)
 {
     if (m_totalCountLabel) {
         m_totalCountLabel->setText(QString("Total: %1").arg(count));
     }
 }
 
-void TableHeaderManager::setupTotalCountLabel()
+void ZTableHeaderManager::setupTotalCountLabel()
 {
     if (!m_horizontalHeader) return;
 
@@ -178,7 +178,7 @@ void TableHeaderManager::setupTotalCountLabel()
     updateTotalCount(0);
 }
 
-void TableHeaderManager::toggleColumnVisibility()
+void ZTableHeaderManager::toggleColumnVisibility()
 {
     QAction *action = qobject_cast<QAction*>(sender());
     if (!action || !m_actionToColumnMap.contains(action)) return;
@@ -193,7 +193,7 @@ void TableHeaderManager::toggleColumnVisibility()
     emit headerToggleVisiable(logicalIndex, action->isChecked());
 }
 
-void TableHeaderManager::showAllColumns()
+void ZTableHeaderManager::showAllColumns()
 {
     if (m_horizontalHeader) {
         for (int i = 0; i < m_horizontalHeader->count(); ++i) {

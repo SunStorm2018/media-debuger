@@ -1,24 +1,24 @@
 // SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
 // SPDX-License-Identifier: MIT
 
-#ifndef COMMANDEXECUTOR_H
-#define COMMANDEXECUTOR_H
+#ifndef ZCOMMANDEXECUTOR_H
+#define ZCOMMANDEXECUTOR_H
 
 #include <QObject>
 #include <QStringList>
 #include <QProcess>
 #include <QtConcurrent>
 
-class CommandExecutor : public QObject
+class ZCommandExecutor : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit CommandExecutor(QObject *parent = nullptr);
-    ~CommandExecutor();
+    explicit ZCommandExecutor(QObject *parent = nullptr);
+    ~ZCommandExecutor();
 
     /**
-     * @brief Start executing the list of commands concurrently
+     * @brief Start executing a list of commands concurrently
      * @param commands List of commands to execute
      * @param maxConcurrent Maximum number of concurrent processes (default: 4)
      */
@@ -115,4 +115,4 @@ private:
     bool m_stopRequested;
 };
 
-#endif // COMMANDEXECUTOR_H
+#endif // ZCOMMANDEXECUTOR_H

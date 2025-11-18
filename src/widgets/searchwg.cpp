@@ -16,7 +16,7 @@ SearchWG::SearchWG(QWidget *parent)
     ui->setupUi(this);
 
     // Initialize the flow layout for search range
-    m_floatLayout = new FlowLayout();
+    m_floatLayout = new ZFlowLayout();
     ui->search_range_groupBox->setLayout(m_floatLayout);
 
     // Setup all group boxes and controls

@@ -9,7 +9,7 @@
 #include <QPushButton>
 #include <QSizePolicy>
 
-#include <common/flowlayout.h>
+#include <common/zflowlayout.h>
 
 #define ALL_DEFAULT_CONFIG_KEY "All"
 
@@ -42,7 +42,7 @@ private:
 private:
     Ui::TabConfigWg *ui;
 
-    FlowLayout *m_configFlowLayout;
+    ZFlowLayout *m_configFlowLayout;
 
     QMap<QString, QList<QStringList>> m_configs;
 };

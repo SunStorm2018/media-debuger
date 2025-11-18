@@ -7,7 +7,7 @@
 #include <QWidget>
 
 #include <common/singleton.h>
-#include <common/tableheadermanager.h>
+#include <common/ztableheadermanager.h>
 #include <common/ztexthighlighter.h>
 
 #include <widgets/searchwg.h>
@@ -39,7 +39,7 @@ private slots:
 private:
     Ui::LogWG *ui;
     LogModel *m_logModel;
-    TableHeaderManager *m_headerManager;
+    ZTableHeaderManager *m_headerManager;
 
     ZTextHighlighter *m_highLighter;
     SearchWG *m_searchWG;

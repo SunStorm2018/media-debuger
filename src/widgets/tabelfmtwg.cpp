@@ -40,6 +40,7 @@ TabelFormatWG::TabelFormatWG(QWidget *parent)
     }
 
     // copy selected text with header action
+    m_tableFormatWg->addContextSeparator();
     m_previewImageAction = new QAction("Show Image", m_tableFormatWg);
     connect(m_previewImageAction, &QAction::triggered, this, &TabelFormatWG::previewImage);
     m_tableFormatWg->addContextAction(m_previewImageAction);

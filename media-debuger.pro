@@ -17,15 +17,11 @@ INCLUDEPATH += src
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    src/common/checkboxsynchronizer.cpp \
-    src/common/commandexecutor.cpp \
+    src/common/zcommandexecutor.cpp \
     src/common/common.cpp \
-    src/common/flowlayout.cpp \
-    src/common/functioninterface.cpp \
-    src/common/lineeditsynchronizer.cpp \
-    src/common/spinboxsynchronizer.cpp \
-    src/common/statesynchronizer.cpp \
-    src/common/tableheadermanager.cpp \
+    src/common/zflowlayout.cpp \
+    src/common/zmultiselectmenu.cpp \
+    src/common/ztableheadermanager.cpp \
     src/common/zffprobe.cpp \
     src/common/zffmpeg.cpp \
     src/common/zffplay.cpp \
@@ -57,17 +53,12 @@ SOURCES += \
     src/widgets/x11embedhelper.cpp
 
 HEADERS += \
-    src/common/checkboxsynchronizer.h \
-    src/common/commandexecutor.h \
+    src/common/zcommandexecutor.h \
     src/common/common.h \
-    src/common/flowlayout.h \
-    src/common/functioninterface.h \
-    src/common/lineeditsynchronizer.h \
+    src/common/zflowlayout.h \
     src/common/qtcompat.h \
-    src/common/spinboxsynchronizer.h \
-    src/common/statesynchronizer.h \
-    src/common/synchronizermacros.h \
-    src/common/tableheadermanager.h \
+    src/common/zmultiselectmenu.h \
+    src/common/ztableheadermanager.h \
     src/common/zffprobe.h \
     src/common/zffmpeg.h \
     src/common/zffplay.h \

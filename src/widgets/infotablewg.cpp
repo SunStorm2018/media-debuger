@@ -87,12 +87,12 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     ui->detail_tb->setSortingEnabled(true);
 
     // header manager
-    m_headerManager = new TableHeaderManager(ui->detail_tb->horizontalHeader(), ui->detail_tb->verticalHeader(), this);
+    m_headerManager = new ZTableHeaderManager(ui->detail_tb->horizontalHeader(), ui->detail_tb->verticalHeader(), this);
     m_headerManager->setObjectName(this->objectName());
     m_headerManager->setTotalCountVisible(false);
     m_headerManager->restoreState();
 
-    connect(m_headerManager, &TableHeaderManager::headerToggleVisiable, [=]() {
+    connect(m_headerManager, &ZTableHeaderManager::headerToggleVisiable, [=]() {
         fitTableColumnToContent();
     });
     
@@ -136,6 +136,11 @@ void InfoWidgets::addContextMenu(QMenu *menu)
 void InfoWidgets::addContextAction(QAction *action)
 {
     m_tableContextMenu->addAction(action);
+}
+
+void InfoWidgets::addContextSeparator()
+{
+    m_tableContextMenu->addSeparator();
 }
 
 QList<QStringList> InfoWidgets::getSelectLines()
