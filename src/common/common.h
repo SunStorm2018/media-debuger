@@ -20,7 +20,7 @@
 #define CURRENTDir "currentDir"
 
 #define ORGANIZATION_NAME "MediaTools"
-#define APPLICATION_NAME "DebuggerPro"
+#define APPLICATION_NAME "MediaDebugger"
 #define APPLICATION_VERSION "1.0.0"
 
 constexpr auto LOG_SETTINGS_GROUP = "Log";
