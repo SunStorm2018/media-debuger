@@ -28,7 +28,7 @@ public:
     bool displayImage(const QString &imageFile);
     
     // Display image file with window size limits
-    bool displayImageWithSize(const QString &imageFile, int maxWidth = 800, int maxHeight = 600, int frameNumber = -1);
+    bool displayImageWithSize(const QString &imageFile, int maxWidth = 800, int maxHeight = 600, int frameNumber = -1, const QString &fileName = QString());
     
     // Stop playback
     void stop();

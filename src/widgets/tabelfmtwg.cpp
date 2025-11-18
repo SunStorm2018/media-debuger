@@ -16,6 +16,7 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QFile>
+#include <QScreen>
 
 #include "../common/zffmpeg.h"
 #include "../common/zffplay.h"
@@ -28,6 +29,15 @@ TabelFormatWG::TabelFormatWG(QWidget *parent)
     ui->setupUi(this);
     m_tableFormatWg = new InfoWidgets(this);
     ui->verticalLayout->addWidget(m_tableFormatWg);
+
+    // Set default window size to 3/5 of screen width and height
+    QScreen *screen = QApplication::primaryScreen();
+    if (screen) {
+        QRect screenGeometry = screen->geometry();
+        int width = screenGeometry.width() * 3 / 5;
+        int height = screenGeometry.height() * 3 / 5;
+        resize(width, height);
+    }
 
     // copy selected text with header action
     m_previewImageAction = new QAction("Show Image", m_tableFormatWg);
@@ -273,9 +283,20 @@ void TabelFormatWG::previewImage()
         // Generate output filename with timestamp for unique identification
         QFileInfo fileInfo(currentFile);
         QString baseName = fileInfo.baseName();
+        
+        // Create a subdirectory for the video file
+        QDir videoDir(saveDir.absoluteFilePath(baseName));
+        if (!videoDir.exists()) {
+            if (!videoDir.mkpath(".")) {
+                QMessageBox::warning(this, "Preview Error",
+                                 QString("Failed to create video directory: %1").arg(videoDir.absolutePath()));
+                continue;
+            }
+        }
+        
         QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_zzz");
         QString outputFileName = QString("%1_frame_%2_%3.jpg").arg(baseName).arg(frameNumber).arg(timestamp);
-        QString outputFilePath = saveDir.absoluteFilePath(outputFileName);
+        QString outputFilePath = videoDir.absoluteFilePath(outputFileName);
 
         // Extract the frame using ffmpeg
         ZFFmpeg ffmpeg;
@@ -295,7 +316,7 @@ void TabelFormatWG::previewImage()
 
         // Use zffplay to display the extracted image with size limits
         ZFFplay *ffplay = new ZFFplay(this);
-        if (!ffplay->displayImageWithSize(outputFilePath, 800, 600, frameNumber)) {
+        if (!ffplay->displayImageWithSize(outputFilePath, 800, 600, frameNumber, baseName)) {
             QMessageBox::warning(this, "Preview Error",
                              "Failed to display the extracted image with ffplay.");
             delete ffplay;

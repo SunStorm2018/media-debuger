@@ -64,7 +64,7 @@ bool ZFFplay::displayImage(const QString &imageFile)
     return executeCommand(arguments);
 }
 
-bool ZFFplay::displayImageWithSize(const QString &imageFile, int maxWidth, int maxHeight, int frameNumber)
+bool ZFFplay::displayImageWithSize(const QString &imageFile, int maxWidth, int maxHeight, int frameNumber, const QString &fileName)
 {
     if (!QFileInfo::exists(imageFile)) {
         qWarning() << "ZFFplay: Image file does not exist:" << imageFile;
@@ -72,7 +72,9 @@ bool ZFFplay::displayImageWithSize(const QString &imageFile, int maxWidth, int m
     }
 
     QString windowTitle = "Image Preview";
-    if (frameNumber >= 0) {
+    if (!fileName.isEmpty()) {
+        windowTitle = QString("%1 - Frame %2 Preview").arg(fileName).arg(frameNumber);
+    } else if (frameNumber >= 0) {
         windowTitle = QString("Frame %1 Preview").arg(frameNumber);
     }
 
@@ -118,7 +120,6 @@ void ZFFplay::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
     Q_UNUSED(exitStatus)
     
     m_isPlaying = false;
-    qDebug() << "ZFFplay: Process finished with exit code:" << exitCode;
     
     if (exitCode == 0) {
         emit playbackFinished(exitCode);
