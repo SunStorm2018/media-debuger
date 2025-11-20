@@ -477,9 +477,9 @@ void MainWindow::slotMenuFileTriggered(QAction *action)
     if (ui->actionOpen == action) {
         QString fileName = QFileDialog::getOpenFileName(
             nullptr,
-            "Open File",
+            tr("Open File"),
             QDir::homePath(),
-            "All Files (*.*)"
+            tr("All Files (*.*)")
             );
 
         if (!fileName.isEmpty()) {
@@ -494,9 +494,9 @@ void MainWindow::slotMenuFileTriggered(QAction *action)
     if (ui->actionOpen_Files == action) {
         QStringList fileNames = QFileDialog::getOpenFileNames(
             nullptr,
-            "Select Files",
+            tr("Select Files"),
             QDir::homePath(),
-            "All Files (*.*);;Media Files (*.mp4 *.mkv *.webm *.mp3);;Image Files (*.png *.jpg *.bmp)"
+            tr("All Files (*.*);;Media Files (*.mp4 *.mkv *.webm *.mp3);;Image Files (*.png *.jpg *.bmp)")
             );
 
         if (!fileNames.isEmpty()) {

@@ -121,7 +121,7 @@ void PlayerWG::play()
         sendKeyToFfplay("p");
         m_isPaused = false;
         m_isPlaying = true;
-        ui->playPauseBtn->setText("Pause");
+        ui->playPauseBtn->setText(tr("Pause"));
         m_positionTimer->start();
         emit stateChanged(true);
     }
@@ -133,7 +133,7 @@ void PlayerWG::pause()
         sendKeyToFfplay("p");
         m_isPaused = true;
         m_isPlaying = false;
-        ui->playPauseBtn->setText("Play");
+        ui->playPauseBtn->setText(tr("Play"));
         m_positionTimer->stop();
         emit stateChanged(false);
     }
@@ -142,7 +142,7 @@ void PlayerWG::pause()
 void PlayerWG::stop()
 {
     stopFfplay();
-    ui->playPauseBtn->setText("Play");
+    ui->playPauseBtn->setText(tr("Play"));
     m_positionTimer->stop();
     // Reset progress bar and saved relative position when stopping
     m_currentRelativePosition = 0.0;
@@ -209,7 +209,7 @@ void PlayerWG::onFfplayFinished(int exitCode, QProcess::ExitStatus exitStatus)
     m_isPlaying = false;
     m_isPaused = false;
     
-    ui->playPauseBtn->setText("Play");
+    ui->playPauseBtn->setText(tr("Play"));
     m_positionTimer->stop();
     emit stateChanged(false);
 }
@@ -255,7 +255,7 @@ void PlayerWG::startFfplay()
     
     m_isPlaying = true;
     m_isPaused = false;
-    ui->playPauseBtn->setText("Pause");
+    ui->playPauseBtn->setText(tr("Pause"));
     m_positionTimer->start();
     emit stateChanged(true);
 
@@ -506,13 +506,13 @@ void PlayerWG::onX11KeyEvent(int keySym, unsigned long windowId)
         if (m_isPlaying) {
             m_isPlaying = false;
             m_isPaused = true;
-            ui->playPauseBtn->setText("Play");
+            ui->playPauseBtn->setText(tr("Play"));
             m_positionTimer->stop();
             emit stateChanged(false);
         } else {
             m_isPlaying = true;
             m_isPaused = false;
-            ui->playPauseBtn->setText("Pause");
+            ui->playPauseBtn->setText(tr("Pause"));
             m_positionTimer->start();
             emit stateChanged(true);
         }
@@ -540,7 +540,7 @@ void PlayerWG::onPositionTimerTimeout()
         m_positionTimer->stop();
         m_isPlaying = false;
         m_isPaused = false;
-        ui->playPauseBtn->setText("Play");
+        ui->playPauseBtn->setText(tr("Play"));
         emit stateChanged(false);
     }
 }

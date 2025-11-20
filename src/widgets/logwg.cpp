@@ -81,17 +81,17 @@ void LogWG::showContextMenu(const QPoint &pos)
     QMenu contextMenu(this);
     
     // Add search detail action
-    QAction *searchAction = contextMenu.addAction("Toggle Search Detail (Ctrl+F)");
+    QAction *searchAction = contextMenu.addAction(tr("Toggle Search Detail (Ctrl+F)"));
     connect(searchAction, &QAction::triggered, this, &LogWG::toggleSearchDetail);
     
     // Add view toggle action
-    QAction *viewAction = contextMenu.addAction("Toggle View (Ctrl+T)");
+    QAction *viewAction = contextMenu.addAction(tr("Toggle View (Ctrl+T)"));
     connect(viewAction, &QAction::triggered, this, &LogWG::toggleView);
     
     contextMenu.addSeparator();
     
     // Add clear logs action
-    QAction *clearAction = contextMenu.addAction("Clear Logs");
+    QAction *clearAction = contextMenu.addAction(tr("Clear Logs"));
     connect(clearAction, &QAction::triggered, this, [this](){
         ui->log_ple->clear();
         m_logModel->clearLogs();

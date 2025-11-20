@@ -131,14 +131,14 @@ void FilesWG::createContextMenu()
     m_contextMenu = new QMenu(this);
     
     // Remove record action
-    m_removeAction = new QAction("Remove Record", this);
+    m_removeAction = new QAction(tr("Remove Record"), this);
     connect(m_removeAction, &QAction::triggered, this, [this]() {
         m_model->removeRecords(ui->listView->selectionModel()->selectedIndexes());
     });
     m_contextMenu->addAction(m_removeAction);
     
     // Delete file action
-    m_deleteFileAction = new QAction("Delete File", this);
+    m_deleteFileAction = new QAction(tr("Delete File"), this);
     connect(m_deleteFileAction, &QAction::triggered, this, [this]() {        
         for (auto index : ui->listView->selectionModel()->selectedIndexes()) {
             if (index.isValid()) {
@@ -151,14 +151,14 @@ void FilesWG::createContextMenu()
     m_contextMenu->addSeparator();
     
     // Open file location action
-    m_openLocationAction = new QAction("Open File Location", this);
+    m_openLocationAction = new QAction(tr("Open File Location"), this);
     connect(m_openLocationAction, &QAction::triggered, this, [this]() {
         m_model->openFileLocations(ui->listView->selectionModel()->selectedIndexes());
     });
     m_contextMenu->addAction(m_openLocationAction);
     
     // Copy file path action
-    m_copyPathAction = new QAction("Copy File Path", this);
+    m_copyPathAction = new QAction(tr("Copy File Path"), this);
     connect(m_copyPathAction, &QAction::triggered, this, [this]() {
         m_model->copyFilePaths(ui->listView->selectionModel()->selectedIndexes());
     });
@@ -167,7 +167,7 @@ void FilesWG::createContextMenu()
     m_contextMenu->addSeparator();
     
     // Play file action
-    m_playAction = new QAction("Play", this);
+    m_playAction = new QAction(tr("Play"), this);
     connect(m_playAction, &QAction::triggered, this, [this]() {
         for (auto index : ui->listView->selectionModel()->selectedIndexes()) {
             if (index.isValid()) {

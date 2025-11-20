@@ -107,8 +107,17 @@ FORMS += \
     src/widgets/tabelfmtwg.ui
 
 TRANSLATIONS += \
+    translations/media-debuger_zh_CN.ts \
     translations/media-debuger_en_US.ts \
-    translations/media-debuger_zh_CN.ts
+    translations/media-debuger_ja_JP.ts \
+    translations/media-debuger_ko_KR.ts \
+    translations/media-debuger_fr_FR.ts \
+    translations/media-debuger_de_DE.ts \
+    translations/media-debuger_es_ES.ts \
+    translations/media-debuger_ru_RU.ts \
+    translations/media-debuger_ar_SA.ts \
+    translations/media-debuger_pt_BR.ts
+
 
 CONFIG += lrelease
 CONFIG += embed_translations
