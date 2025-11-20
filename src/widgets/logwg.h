@@ -6,7 +6,7 @@
 
 #include <QWidget>
 
-#include <common/singleton.h>
+#include <common/zsingleton.h>
 #include <common/ztableheadermanager.h>
 #include <common/ztexthighlighter.h>
 
@@ -23,7 +23,7 @@ class LogWG : public QWidget
     Q_OBJECT
 
 public:
-    DECLARE_SINGLETON(LogWG)
+    DECLARE_ZSINGLETON(LogWG)
     LogWG(QWidget *parent = nullptr);
     ~LogWG();
 

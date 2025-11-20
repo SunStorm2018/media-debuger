@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
 // SPDX-License-Identifier: MIT
 
-#ifndef X11EMBEDHELPER_H
-#define X11EMBEDHELPER_H
+#ifndef ZX11EMBEDHELPER_H
+#define ZX11EMBEDHELPER_H
 
 #include <QObject>
 #include <QString>
@@ -14,19 +14,19 @@ typedef struct _XDisplay Display;
 typedef unsigned long Window;
 #endif
 
-enum MouseButton {
-    LeftButton,
-    MiddleButton,
-    RightButton
+enum ZMouseButton {
+    ZLeftButton,
+    ZMiddleButton,
+    ZRightButton
 };
 
-class X11EmbedHelper : public QObject
+class ZX11EmbedHelper : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit X11EmbedHelper(QObject *parent = nullptr);
-    ~X11EmbedHelper();
+    explicit ZX11EmbedHelper(QObject *parent = nullptr);
+    ~ZX11EmbedHelper();
 
     bool initialize();
     void cleanup();
@@ -35,7 +35,7 @@ public:
     bool resizeWindow(unsigned long window, int width, int height);
     bool sendKey(unsigned long window, const QString &key);
     bool showWindow(unsigned long window);
-    bool sendMouseClick(unsigned long window, int x, int y, MouseButton button);
+    bool sendMouseClick(unsigned long window, int x, int y, ZMouseButton button);
     bool startEventMonitoring(unsigned long window);
     void stopEventMonitoring();
 
@@ -58,4 +58,4 @@ private:
     bool m_spaceKeyHandledByEventQueue; // Track if space key was already handled by event queue
 };
 
-#endif // X11EMBEDHELPER_H
+#endif // ZX11EMBEDHELPER_H

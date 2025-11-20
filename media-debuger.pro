@@ -21,7 +21,9 @@ SOURCES += \
     src/common/common.cpp \
     src/common/zflowlayout.cpp \
     src/common/zmultiselectmenu.cpp \
+    src/common/zsingleton.cpp \
     src/common/ztableheadermanager.cpp \
+    src/common/zx11embedhelper.cpp \
     src/common/zffprobe.cpp \
     src/common/zffmpeg.cpp \
     src/common/zffplay.cpp \
@@ -49,8 +51,7 @@ SOURCES += \
     src/widgets/progressdlg.cpp \
     src/widgets/searchwg.cpp \
     src/widgets/tabconfigwg.cpp \
-    src/widgets/tabelfmtwg.cpp \
-    src/widgets/x11embedhelper.cpp
+    src/widgets/tabelfmtwg.cpp
 
 HEADERS += \
     src/common/zcommandexecutor.h \
@@ -58,7 +59,9 @@ HEADERS += \
     src/common/zflowlayout.h \
     src/common/qtcompat.h \
     src/common/zmultiselectmenu.h \
+    src/common/zsingleton.h \
     src/common/ztableheadermanager.h \
+    src/common/zx11embedhelper.h \
     src/common/zffprobe.h \
     src/common/zffmpeg.h \
     src/common/zffplay.h \
@@ -85,8 +88,7 @@ HEADERS += \
     src/widgets/progressdlg.h \
     src/widgets/searchwg.h \
     src/widgets/tabconfigwg.h \
-    src/widgets/tabelfmtwg.h \
-    src/widgets/x11embedhelper.h
+    src/widgets/tabelfmtwg.h
 
 FORMS += \
     src/widgets/exportwg.ui \

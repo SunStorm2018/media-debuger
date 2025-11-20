@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
 // SPDX-License-Identifier: MIT
 
-#include "x11embedhelper.h"
+#include "zx11embedhelper.h"
 #include <QFileInfo>
 #include <QDebug>
 #include <QTime>
@@ -14,7 +14,7 @@
 #include <X11/Xutil.h>
 #endif
 
-X11EmbedHelper::X11EmbedHelper(QObject *parent)
+ZX11EmbedHelper::ZX11EmbedHelper(QObject *parent)
     : QObject(parent)
     , m_display(nullptr)
     , m_monitoredWindow(0)
@@ -23,15 +23,15 @@ X11EmbedHelper::X11EmbedHelper(QObject *parent)
     , m_lastRightButtonDown(false)
     , m_spaceKeyHandledByEventQueue(false)
 {
-    connect(m_eventTimer, &QTimer::timeout, this, &X11EmbedHelper::checkX11Events);
+    connect(m_eventTimer, &QTimer::timeout, this, &ZX11EmbedHelper::checkX11Events);
 }
 
-X11EmbedHelper::~X11EmbedHelper()
+ZX11EmbedHelper::~ZX11EmbedHelper()
 {
     cleanup();
 }
 
-bool X11EmbedHelper::initialize()
+bool ZX11EmbedHelper::initialize()
 {
 #ifdef Q_OS_LINUX
     if (m_display) {
@@ -40,25 +40,25 @@ bool X11EmbedHelper::initialize()
 
     const char* displayEnv = getenv("DISPLAY");
     if (!displayEnv || strlen(displayEnv) == 0) {
-        qWarning() << "X11EmbedHelper" << "No DISPLAY environment variable set, skipping X11 initialization";
+        qWarning() << "ZX11EmbedHelper" << "No DISPLAY environment variable set, skipping X11 initialization";
         return false;
     }
     
     m_display = XOpenDisplay(nullptr);
     if (!m_display) {
-       qWarning() << "X11EmbedHelper" << "Failed to open X11 display";
+       qWarning() << "ZX11EmbedHelper" << "Failed to open X11 display";
         return false;
     }
     
-    qInfo() << "X11EmbedHelper" << "X11 display opened successfully";
+    qInfo() << "ZX11EmbedHelper" << "X11 display opened successfully";
     return true;
 #else
-    qWarning() << ("X11EmbedHelper", "X11 not supported on this platform");
+    qWarning() << ("ZX11EmbedHelper", "X11 not supported on this platform");
     return false;
 #endif
 }
 
-void X11EmbedHelper::cleanup()
+void ZX11EmbedHelper::cleanup()
 {
 #ifdef Q_OS_LINUX
     if (m_display) {
@@ -68,7 +68,7 @@ void X11EmbedHelper::cleanup()
 #endif
 }
 
-unsigned long X11EmbedHelper::findWindow(const QString &title)
+unsigned long ZX11EmbedHelper::findWindow(const QString &title)
 {
 #ifdef Q_OS_LINUX
     if (!m_display) {
@@ -86,7 +86,7 @@ unsigned long X11EmbedHelper::findWindow(const QString &title)
 }
 
 #ifdef Q_OS_LINUX
-unsigned long X11EmbedHelper::findWindowRecursive(Display *display, Window window, const QString &title)
+unsigned long ZX11EmbedHelper::findWindowRecursive(Display *display, Window window, const QString &title)
 {
     char *window_name = nullptr;
     if (XFetchName(display, window, &window_name) && window_name) {
@@ -106,7 +106,7 @@ unsigned long X11EmbedHelper::findWindowRecursive(Display *display, Window windo
         }
         
         if (matches) {
-            qDebug() << "X11EmbedHelper: Found target window:" << name << "(window ID:" << window << ")";
+            qDebug() << "ZX11EmbedHelper: Found target window:" << name << "(window ID:" << window << ")";
             XFree(window_name);
             return static_cast<unsigned long>(window);
         }
@@ -131,7 +131,7 @@ unsigned long X11EmbedHelper::findWindowRecursive(Display *display, Window windo
 }
 #endif
 
-bool X11EmbedHelper::embedWindow(unsigned long child, unsigned long parent)
+bool ZX11EmbedHelper::embedWindow(unsigned long child, unsigned long parent)
 {
 #ifdef Q_OS_LINUX
     if (!m_display || child == 0 || parent == 0) {
@@ -144,7 +144,7 @@ bool X11EmbedHelper::embedWindow(unsigned long child, unsigned long parent)
 
     XWindowAttributes attrs;
     if (XGetWindowAttributes(display, childWindow, &attrs) == 0) {
-        qWarning() << "X11EmbedHelper: Child window does not exist";
+        qWarning() << "ZX11EmbedHelper: Child window does not exist";
         return false;
     }
 
@@ -159,7 +159,7 @@ bool X11EmbedHelper::embedWindow(unsigned long child, unsigned long parent)
     XMapWindow(display, childWindow);
     XFlush(display);
     
-    qInfo() << "X11EmbedHelper: Window embedded successfully";
+    qInfo() << "ZX11EmbedHelper: Window embedded successfully";
     return true;
 #else
     Q_UNUSED(child)
@@ -168,7 +168,7 @@ bool X11EmbedHelper::embedWindow(unsigned long child, unsigned long parent)
 #endif
 }
 
-bool X11EmbedHelper::resizeWindow(unsigned long window, int width, int height)
+bool ZX11EmbedHelper::resizeWindow(unsigned long window, int width, int height)
 {
 #ifdef Q_OS_LINUX
     if (!m_display || window == 0) {
@@ -189,7 +189,7 @@ bool X11EmbedHelper::resizeWindow(unsigned long window, int width, int height)
 #endif
 }
 
-bool X11EmbedHelper::sendKey(unsigned long window, const QString &key)
+bool ZX11EmbedHelper::sendKey(unsigned long window, const QString &key)
 {
 #ifdef Q_OS_LINUX
     if (!m_display || window == 0) {
@@ -235,7 +235,7 @@ bool X11EmbedHelper::sendKey(unsigned long window, const QString &key)
 #endif
 }
 
-bool X11EmbedHelper::showWindow(unsigned long window)
+bool ZX11EmbedHelper::showWindow(unsigned long window)
 {
 #ifdef Q_OS_LINUX
     if (!m_display || window == 0) {
@@ -255,7 +255,7 @@ bool X11EmbedHelper::showWindow(unsigned long window)
 #endif
 }
 
-bool X11EmbedHelper::sendMouseClick(unsigned long window, int x, int y, MouseButton button)
+bool ZX11EmbedHelper::sendMouseClick(unsigned long window, int x, int y, ZMouseButton button)
 {
 #ifdef Q_OS_LINUX
     if (!m_display || window == 0) {
@@ -269,15 +269,15 @@ bool X11EmbedHelper::sendMouseClick(unsigned long window, int x, int y, MouseBut
     unsigned int x11StateMask;
 
     switch (button) {
-    case LeftButton:
+    case ZLeftButton:
         x11Button = Button1;
         x11StateMask = Button1Mask;
         break;
-    case MiddleButton:
+    case ZMiddleButton:
         x11Button = Button2;
         x11StateMask = Button2Mask;
         break;
-    case RightButton:
+    case ZRightButton:
         x11Button = Button3;
         x11StateMask = Button3Mask;
         break;
@@ -319,7 +319,7 @@ bool X11EmbedHelper::sendMouseClick(unsigned long window, int x, int y, MouseBut
 #endif
 }
 
-bool X11EmbedHelper::startEventMonitoring(unsigned long window)
+bool ZX11EmbedHelper::startEventMonitoring(unsigned long window)
 {
 #ifdef Q_OS_LINUX
     if (!m_display || window == 0) {
@@ -344,7 +344,7 @@ bool X11EmbedHelper::startEventMonitoring(unsigned long window)
     // Start the event timer to check for events periodically
     m_eventTimer->start(50); // Check every 50ms
     
-    qDebug() << "X11EmbedHelper: Started event monitoring for window" << window;
+    qDebug() << "ZX11EmbedHelper: Started event monitoring for window" << window;
     return true;
 #else
     Q_UNUSED(window)
@@ -352,7 +352,7 @@ bool X11EmbedHelper::startEventMonitoring(unsigned long window)
 #endif
 }
 
-void X11EmbedHelper::stopEventMonitoring()
+void ZX11EmbedHelper::stopEventMonitoring()
 {
 #ifdef Q_OS_LINUX
     if (m_display && m_monitoringEvents) {
@@ -368,11 +368,11 @@ void X11EmbedHelper::stopEventMonitoring()
     m_eventTimer->stop();
     m_monitoringEvents = false;
     m_monitoredWindow = 0;
-    qDebug() << "X11EmbedHelper: Stopped event monitoring";
+    qDebug() << "ZX11EmbedHelper: Stopped event monitoring";
 }
 
 #ifdef Q_OS_LINUX
-void X11EmbedHelper::checkX11Events()
+void ZX11EmbedHelper::checkX11Events()
 {
     if (!m_display || !m_monitoringEvents || m_monitoredWindow == 0) {
         return;
@@ -427,7 +427,7 @@ void X11EmbedHelper::checkX11Events()
                         Window child_return = None;
                         XTranslateCoordinates(display, evwin, win, buttonEvent->x, buttonEvent->y, &tx, &ty, &child_return);
 
-                        qDebug() << "X11EmbedHelper: Right button click detected at"
+                        qDebug() << "ZX11EmbedHelper: Right button click detected at"
                                  << "event-window-local:" << buttonEvent->x << "," << buttonEvent->y
                                  << "translated-to-monitored:" << tx << "," << ty
                                  << "root:" << buttonEvent->x_root << "," << buttonEvent->y_root
@@ -462,7 +462,7 @@ void X11EmbedHelper::checkX11Events()
                 XWindowAttributes attrs;
                 if (XGetWindowAttributes(display, win, &attrs)) {
                     if (tx >= 0 && ty >= 0 && tx < attrs.width && ty < attrs.height) {
-                        qDebug() << "X11EmbedHelper: Poll detected right button press at root:" << root_x << root_y
+                        qDebug() << "ZX11EmbedHelper: Poll detected right button press at root:" << root_x << root_y
                                  << "translated to monitored:" << tx << ty << "window size:" << attrs.width << "x" << attrs.height;
 
                         emit mouseEventReceivedGlobal(root_x, root_y, attrs.width, attrs.height, static_cast<unsigned long>(win));
@@ -497,7 +497,7 @@ void X11EmbedHelper::checkX11Events()
                  if (last_space_time.isNull() || last_space_time.msecsTo(currentTime) > 200) {
                     KeySym keysym = XStringToKeysym("space");
                     if (keysym != NoSymbol) {
-                        qDebug() << "X11EmbedHelper: Global space key detected via polling";
+                        qDebug() << "ZX11EmbedHelper: Global space key detected via polling";
                         emit keyEventReceivedGlobal(static_cast<int>(keysym), m_monitoredWindow);
                         last_space_time = currentTime;
                     }

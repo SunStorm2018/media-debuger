@@ -15,7 +15,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 
-#include <common/singleton.h>
+#include <common/zsingleton.h>
 #include <model/fileshistorymodel.h>
 
 namespace Ui {
@@ -27,7 +27,7 @@ class FilesWG : public QWidget
     Q_OBJECT
 
 public:
-    DECLARE_SINGLETON(FilesWG)
+    DECLARE_ZSINGLETON(FilesWG)
     explicit FilesWG(QWidget *parent = nullptr);
     ~FilesWG();
     

@@ -23,7 +23,7 @@ PlayerWG::PlayerWG(QWidget *parent)
     , m_isPaused(false)
     , m_volume(50)
     , m_ffplayWindow(0)
-    , m_embedHelper(new X11EmbedHelper(this))
+    , m_embedHelper(new ZX11EmbedHelper(this))
     , m_windowEmbedded(false)
     , m_embedRetryCount(0)
     , m_currentRelativePosition(0.0)
@@ -56,8 +56,8 @@ void PlayerWG::initConnections()
     
     // Connect X11 mouse events (global/root coordinates)
     if (m_embedHelper) {
-        connect(m_embedHelper, &X11EmbedHelper::mouseEventReceivedGlobal, this, &PlayerWG::onMouseEventFromX11);
-        connect(m_embedHelper, &X11EmbedHelper::keyEventReceivedGlobal, this, &PlayerWG::onX11KeyEvent, Qt::AutoConnection);
+        connect(m_embedHelper, &ZX11EmbedHelper::mouseEventReceivedGlobal, this, &PlayerWG::onMouseEventFromX11);
+        connect(m_embedHelper, &ZX11EmbedHelper::keyEventReceivedGlobal, this, &PlayerWG::onX11KeyEvent, Qt::AutoConnection);
     }
     // Position timer updates progress every second
     connect(m_positionTimer, &QTimer::timeout, this, &PlayerWG::onPositionTimerTimeout);
@@ -360,7 +360,7 @@ void PlayerWG::sendKeyToFfplay(const QString &key)
     }
 }
 
-void PlayerWG::sendMouseToFfplay(const QPoint pos, const MouseButton button)
+void PlayerWG::sendMouseToFfplay(const QPoint pos, const ZMouseButton button)
 {
     if (m_ffplayWindow == 0) {
         return;

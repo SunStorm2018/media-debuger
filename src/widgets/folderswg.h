@@ -6,7 +6,7 @@
 
 #include <QWidget>
 
-#include <common/singleton.h>
+#include <common/zsingleton.h>
 
 namespace Ui {
 class FoldersWG;
@@ -17,7 +17,7 @@ class FoldersWG : public QWidget
     Q_OBJECT
 
 public:
-    DECLARE_SINGLETON(FoldersWG)
+    DECLARE_ZSINGLETON(FoldersWG)
     explicit FoldersWG(QWidget *parent = nullptr);
     ~FoldersWG();
 

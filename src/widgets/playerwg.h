@@ -12,16 +12,16 @@
 #include <QLabel>
 #include <QResizeEvent>
 #include <QApplication>
-#include <common/singleton.h>
+#include <common/zsingleton.h>
 #include <QMutex>
 #include <QJsonDocument>
 #include <QJsonObject>
 
 #include "../common/zffprobe.h"
 
-#include "x11embedhelper.h"
+#include "../common/zx11embedhelper.h"
 
-class X11EmbedHelper;
+class ZX11EmbedHelper;
 
 namespace Ui {
 class PlayerWG;
@@ -32,7 +32,7 @@ class PlayerWG : public QWidget
     Q_OBJECT
 
 public:
-    DECLARE_SINGLETON(PlayerWG)
+    DECLARE_ZSINGLETON(PlayerWG)
     explicit PlayerWG(QWidget *parent = nullptr);
     ~PlayerWG();
 
@@ -67,7 +67,7 @@ private:
     void embedFfplayWindow();
     void resizeFfplayWindow();
     void sendKeyToFfplay(const QString &key);
-    void sendMouseToFfplay(const QPoint pos, const MouseButton button);
+    void sendMouseToFfplay(const QPoint pos, const ZMouseButton button);
     // x_root,y_root are global root window coordinates
     void onMouseEventFromX11(int x_root, int y_root, int windowWidth, int windowHeight, unsigned long windowId);
 
@@ -80,7 +80,7 @@ private:
     bool m_isPaused;
     int m_volume;
     unsigned long m_ffplayWindow;
-    X11EmbedHelper *m_embedHelper;
+    ZX11EmbedHelper *m_embedHelper;
     bool m_windowEmbedded;
     int m_embedRetryCount;
     double m_currentRelativePosition; // Save current relative position
