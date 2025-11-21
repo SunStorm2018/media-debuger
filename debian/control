@@ -30,7 +30,7 @@ Description: DDE file manager context menu integration for media-debuger
  Adds media-debuger options to the context menu of DDE file manager.
  
 # nautilus-contextmenu install
-Package: media-debuger-nautilus-contextmenu
+Package: nautilus-xmenu-media-debuger
 Architecture: all
 Depends: media-debuger-qt5 (= ${source:Version}) | media-debuger-qt6 (= ${source:Version}),
          nautilus (>= 42),

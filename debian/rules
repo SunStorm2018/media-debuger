@@ -19,5 +19,5 @@ override_dh_install:
 	dh_install
 	
 	# chang mode
-	chmod 644 debian/media-debuger-dde-filemanager-contextmenu/usr/share/applications/context-menus/dde-filemanager-contextmenu.conf
-	chmod 755 debian/media-debuger-nautilus-contextmenu/usr/share/nautilus-python/extensions/nautilus-contextmenu.py
+	chmod 644 debian/dfm-xmenu-media-debuger/usr/share/applications/context-menus/dfm-xmenu-media-debuger.conf
+	chmod 755 debian/nautilus-xmenu-media-debuger/usr/share/nautilus-python/extensions/nautilus-contextmenu.py
