@@ -26,7 +26,6 @@ SOURCES += \
     src/common/common.cpp \
     src/common/zflowlayout.cpp \
     src/common/zmultiselectmenu.cpp \
-    src/common/zsingleton.cpp \
     src/common/ztableheadermanager.cpp \
     src/common/zx11embedhelper.cpp \
     src/common/zffprobe.cpp \
@@ -124,8 +123,11 @@ TRANSLATIONS += \
     translations/media-debuger_pt_BR.ts
 
 
-CONFIG += lrelease
-CONFIG += embed_translations
+# Qt6 doesn't have lrelease tool, disable translations for now
+equals(QT_MAJOR_VERSION, 5) {
+    CONFIG += lrelease
+    CONFIG += embed_translations
+}
 
 include(third_part/QJsonModel/QJsonModel.pri)
 
