@@ -1,10 +1,20 @@
-media-debuger-qt5 (1.0.1-1) unstable; urgency=medium
+media-debuger (1.0.2-1) unstable; urgency=medium
+
+  * Refactor debian packaging configuration to support both Qt5 and Qt6 versions
+    - Qt5 version: media-debuger
+    - Qt6 version: media-debuger6
+  * Update build system to support building both versions simultaneously
+  * Update dependencies to ensure compatibility
+
+ -- zhanghongyuan <2063218120@qq.com>  Fri, 21 Nov 2025 15:41:00 +0800
+
+media-debuger (1.0.1-1) unstable; urgency=medium
 
   * fix some bugs.
 
  -- zhanghongyuan <2063218120@qq.com>  Wed, 29 Oct 2025 14:08:24 +0800
 
-media-debuger-qt5 (1.0.0-1) unstable; urgency=medium
+media-debuger (1.0.0-1) unstable; urgency=medium
 
   * Initial release.
 

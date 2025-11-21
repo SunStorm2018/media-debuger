@@ -1,23 +1,41 @@
 #!/usr/bin/make -f
+include /usr/share/dpkg/default.mk
 
+# Build Qt5 and Qt6 versions
 %:
 	dh $@ --buildsystem=qmake
 
 override_dh_auto_configure:
-	# Prioritize the use of qmake in Qt5. If it does not exist, use qmake6 in Qt6
-	if which qmake6 >/dev/null; then \
-		qmake6 PREFIX=/usr media-debuger.pro; \
-	else \
-		qmake PREFIX=/usr media-debuger.pro; \
-	fi
+	# Build Qt5 version
+	mkdir -p build-qt5
+	cd build-qt5 && qmake PREFIX=/usr ../media-debuger.pro
+	# Build Qt6 version
+	mkdir -p build-qt6
+	cd build-qt6 && qmake6 PREFIX=/usr ../media-debuger.pro
+
+override_dh_auto_build:
+	# Build Qt5 version
+	cd build-qt5 && $(MAKE)
+	# Build Qt6 version
+	cd build-qt6 && $(MAKE)
 
 override_dh_auto_install:
-	dh_auto_install -- INSTALL_ROOT=debian/media-debuger-qt5
+	# Install Qt5 version
+	cd build-qt5 && $(MAKE) INSTALL_ROOT=../debian/media-debuger install
+	# Install Qt6 version
+	cd build-qt6 && $(MAKE) INSTALL_ROOT=../debian/media-debuger6 install
 
+override_dh_clean:
+	dh_clean
+	rm -rf build-qt5 build-qt6
 
 override_dh_install:
 	dh_install
 	
-	# chang mode
+	# Change mode for Qt5 version
 	chmod 644 debian/dfm-xmenu-media-debuger/usr/share/applications/context-menus/dfm-xmenu-media-debuger.conf
 	chmod 755 debian/nautilus-xmenu-media-debuger/usr/share/nautilus-python/extensions/nautilus-contextmenu.py
+	
+	# Change mode for Qt6 version
+	chmod 644 debian/dfm-xmenu-media-debuger6/usr/share/applications/context-menus/dfm-xmenu-media-debuger6.conf
+	chmod 755 debian/nautilus-xmenu-media-debuger6/usr/share/nautilus-python/extensions/nautilus-contextmenu6.py

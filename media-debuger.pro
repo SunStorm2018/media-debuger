@@ -3,7 +3,12 @@
 
 QT += core gui concurrent
 
-TARGET = media-debuger-qt5
+# Set different TARGET names based on Qt version
+equals(QT_MAJOR_VERSION, 5) {
+    TARGET = media-debuger
+} else {
+    TARGET = media-debuger6
+}
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -166,5 +171,10 @@ icon.files = assets/128x128/media-debuger-logo.svg
 desktop.files = assets/media-debuger.desktop
 doc.files = README.md LICENSE
 # contextmenu.files = assets/media-debuger.conf
+
+# Install different desktop file for Qt6 version
+equals(QT_MAJOR_VERSION, 6) {
+    desktop.files = assets/media-debuger6.desktop
+}
 
 INSTALLS += target icon desktop doc
