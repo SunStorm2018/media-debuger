@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
 // SPDX-License-Identifier: MIT
 
-#include "ffmpegbuildtool.h"
-#include "ui_ffmpegbuildtool.h"
+#include "configurebuildtool.h"
+#include "ui_configurebuildtool.h"
 
-FFmpegBuildTool::FFmpegBuildTool(QWidget *parent)
+ConfigureBuildTool::ConfigureBuildTool(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::FFmpegBuildTool)
+    , ui(new Ui::ConfigureBuildTool)
 {
     ui->setupUi(this);
 
@@ -14,27 +14,27 @@ FFmpegBuildTool::FFmpegBuildTool(QWidget *parent)
 
     for (const QString &path : m_filePaths) {
         if (!path.isEmpty() && QDir(path).exists()) {
-            ui->local_ffmpeg_combx->addItem(path);
+            ui->local_projects_combx->addItem(path);
         }
     }
 
-    if (ui->local_ffmpeg_combx->count() > 0) {
-        ui->local_ffmpeg_combx->setCurrentIndex(0);
+    if (ui->local_projects_combx->count() > 0) {
+        ui->local_projects_combx->setCurrentIndex(0);
 
-        loadFFmpegOptions();
+        loadConfigureOptions();
     }
 
     m_addRecordAction = new QAction("Add Too Selected Options");
     m_RemoveRecordAction = new QAction("Remove Selected");
 
-    ui->ffmpeg_complie_options_tb->addContextAction(m_addRecordAction);
+    ui->configure_complie_options_tb->addContextAction(m_addRecordAction);
     ui->select_option_tb->addContextAction(m_RemoveRecordAction);
 
     // action connect
     connect(m_addRecordAction, &QAction::triggered, [=]() {
         ui->select_option_tb->clear_detail_tb();
         ui->select_option_tb->init_header_detail_tb(QStringList{"Option", "Description", "Default Value"});
-        ui->select_option_tb->append_data_detail_tb(ui->ffmpeg_complie_options_tb->getSelectLines());
+        ui->select_option_tb->append_data_detail_tb(ui->configure_complie_options_tb->getSelectLines());
 
         ui->cmd_ple->setPlainText(getConfigCmd());
     });
@@ -98,19 +98,19 @@ FFmpegBuildTool::FFmpegBuildTool(QWidget *parent)
             });
 }
 
-FFmpegBuildTool::~FFmpegBuildTool()
+ConfigureBuildTool::~ConfigureBuildTool()
 {
     delete ui;
 }
 
-QMap<QString, QList<QStringList>> FFmpegBuildTool::getOptions()
+QMap<QString, QList<QStringList>> ConfigureBuildTool::getOptions()
 {
     QMap<QString, QList<QStringList>> options;
 
     QProcess process;
     QString optionText;
 
-    process.setWorkingDirectory(ui->local_ffmpeg_combx->currentText());
+    process.setWorkingDirectory(ui->local_projects_combx->currentText());
     process.start("bash", QStringList() << "./configure" << "-h");
 
     if (process.waitForFinished(30000)) {
@@ -168,7 +168,7 @@ QMap<QString, QList<QStringList>> FFmpegBuildTool::getOptions()
     return options;
 }
 
-QString FFmpegBuildTool::getConfigCmd()
+QString ConfigureBuildTool::getConfigCmd()
 {
     QString cmd = "./configure \\\n";
 
@@ -189,16 +189,16 @@ QString FFmpegBuildTool::getConfigCmd()
     return cmd;
 }
 
-void FFmpegBuildTool::on_show_cmd_cbx_toggled(bool checked)
+void ConfigureBuildTool::on_show_cmd_cbx_toggled(bool checked)
 {
     ui->cmd_ple->setVisible(checked);
 }
 
-void FFmpegBuildTool::on_select_local_path_btn_clicked()
+void ConfigureBuildTool::on_select_local_path_btn_clicked()
 {
     QString folderPath = QFileDialog::getExistingDirectory(
         this,
-        tr("Select FFmpeg source folder"),
+        tr("Select configure source folder"),
         m_filePaths.isEmpty() ? QDir::homePath() : m_filePaths.first()
         );
 
@@ -219,44 +219,45 @@ void FFmpegBuildTool::on_select_local_path_btn_clicked()
         m_filePaths = m_filePaths.mid(0, maxHistory);
     }
 
-    QString currentText = ui->local_ffmpeg_combx->currentText();
+    QString currentText = ui->local_projects_combx->currentText();
 
-    ui->local_ffmpeg_combx->clear();
-    ui->local_ffmpeg_combx->addItems(m_filePaths);
+    ui->local_projects_combx->clear();
+    ui->local_projects_combx->addItems(m_filePaths);
 
-    int index = ui->local_ffmpeg_combx->findText(currentText);
+    int index = ui->local_projects_combx->findText(currentText);
     if (index != -1) {
-        ui->local_ffmpeg_combx->setCurrentIndex(index);
-    } else if (ui->local_ffmpeg_combx->count() > 0) {
-        ui->local_ffmpeg_combx->setCurrentIndex(0);
+        ui->local_projects_combx->setCurrentIndex(index);
+    } else if (ui->local_projects_combx->count() > 0) {
+        ui->local_projects_combx->setCurrentIndex(0);
     }
 
+    loadConfigureOptions();
     saveSettings();
 }
 
-void FFmpegBuildTool::loadSettings()
+void ConfigureBuildTool::loadSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-    settings.beginGroup(FFMPEGBUILDER_SETTINGS_GROUP);
-    m_filePaths = settings.value(FFMPEGBUILDER_RECENTFOLDERS_KEY).toStringList();
+    settings.beginGroup(CONFIGURE_BUILDER_SETTINGS_GROUP);
+    m_filePaths = settings.value(CONFIGURE_BUILDER_RECENTFOLDERS_KEY).toStringList();
     settings.endGroup();
 }
 
-void FFmpegBuildTool::saveSettings()
+void ConfigureBuildTool::saveSettings()
 {
     QSettings settings(ORGANIZATION_NAME, APPLICATION_NAME);
-    settings.beginGroup(FFMPEGBUILDER_SETTINGS_GROUP);
-    settings.setValue(FFMPEGBUILDER_RECENTFOLDERS_KEY, m_filePaths);
+    settings.beginGroup(CONFIGURE_BUILDER_SETTINGS_GROUP);
+    settings.setValue(CONFIGURE_BUILDER_RECENTFOLDERS_KEY, m_filePaths);
     settings.endGroup();
 
     settings.sync();
 }
 
-void FFmpegBuildTool::on_build_btn_clicked()
+void ConfigureBuildTool::on_build_btn_clicked()
 {
-    m_process->setWorkingDirectory(ui->local_ffmpeg_combx->currentText());
-    if (m_process->workingDirectory() != ui->local_ffmpeg_combx->currentText()) {
-        m_process->start("cd", QStringList{ ui->local_ffmpeg_combx->currentText()});
+    m_process->setWorkingDirectory(ui->local_projects_combx->currentText());
+    if (m_process->workingDirectory() != ui->local_projects_combx->currentText()) {
+        m_process->start("cd", QStringList{ ui->local_projects_combx->currentText()});
     }
     qDebug() << m_process->workingDirectory();
 
@@ -272,13 +273,13 @@ void FFmpegBuildTool::on_build_btn_clicked()
     m_process->start(cmd, arguments);
 }
 
-void FFmpegBuildTool::on_configure_btn_clicked()
+void ConfigureBuildTool::on_configure_btn_clicked()
 {
     ui->build_btn->setEnabled(false);
 
-    m_process->setWorkingDirectory(ui->local_ffmpeg_combx->currentText());
-    if (m_process->workingDirectory() != ui->local_ffmpeg_combx->currentText()) {
-        m_process->start("cd", QStringList{ ui->local_ffmpeg_combx->currentText()});
+    m_process->setWorkingDirectory(ui->local_projects_combx->currentText());
+    if (m_process->workingDirectory() != ui->local_projects_combx->currentText()) {
+        m_process->start("cd", QStringList{ ui->local_projects_combx->currentText()});
     }
     qDebug() << m_process->workingDirectory();
 
@@ -295,11 +296,11 @@ void FFmpegBuildTool::on_configure_btn_clicked()
     m_process->start(cmd, arguments);
 }
 
-void FFmpegBuildTool::on_install_btn_clicked()
+void ConfigureBuildTool::on_install_btn_clicked()
 {
-    m_process->setWorkingDirectory(ui->local_ffmpeg_combx->currentText());
-    if (m_process->workingDirectory() != ui->local_ffmpeg_combx->currentText()) {
-        m_process->start("cd", QStringList{ ui->local_ffmpeg_combx->currentText()});
+    m_process->setWorkingDirectory(ui->local_projects_combx->currentText());
+    if (m_process->workingDirectory() != ui->local_projects_combx->currentText()) {
+        m_process->start("cd", QStringList{ ui->local_projects_combx->currentText()});
     }
     qDebug() << m_process->workingDirectory();
 
@@ -315,13 +316,13 @@ void FFmpegBuildTool::on_install_btn_clicked()
     m_process->start(cmd, arguments);
 }
 
-void FFmpegBuildTool::on_clean_btn_clicked()
+void ConfigureBuildTool::on_clean_btn_clicked()
 {
     m_process->kill();
 
-    m_process->setWorkingDirectory(ui->local_ffmpeg_combx->currentText());
-    if (m_process->workingDirectory() != ui->local_ffmpeg_combx->currentText()) {
-        m_process->start("cd", QStringList{ ui->local_ffmpeg_combx->currentText()});
+    m_process->setWorkingDirectory(ui->local_projects_combx->currentText());
+    if (m_process->workingDirectory() != ui->local_projects_combx->currentText()) {
+        m_process->start("cd", QStringList{ ui->local_projects_combx->currentText()});
     }
     qDebug() << m_process->workingDirectory();
 
@@ -337,7 +338,7 @@ void FFmpegBuildTool::on_clean_btn_clicked()
     m_process->start(cmd, arguments);
 }
 
-void FFmpegBuildTool::parseOptionLineFast(const QString& line, QString& option, QString& description, QString& defaultValue) {
+void ConfigureBuildTool::parseOptionLineFast(const QString& line, QString& option, QString& description, QString& defaultValue) {
     option.clear();
     description.clear();
     defaultValue.clear();
@@ -359,9 +360,17 @@ void FFmpegBuildTool::parseOptionLineFast(const QString& line, QString& option, 
     }
 }
 
-void FFmpegBuildTool::loadFFmpegOptions()
+void ConfigureBuildTool::loadConfigureOptions()
 {
     auto config = getOptions();
-    ui->ffmpeg_complie_options_tb->setupConfigs(QStringList{"Option", "Description", "Default Value"}, config);
+    ui->configure_complie_options_tb->setupConfigs(QStringList{"Option", "Description", "Default Value"}, config);
+}
+
+
+void ConfigureBuildTool::on_local_projects_combx_currentIndexChanged(int index)
+{
+    if (index > 0) {
+        loadConfigureOptions();
+    }
 }
 

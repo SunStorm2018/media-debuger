@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com>
 // SPDX-License-Identifier: MIT
 
-#ifndef FFMPEGBUILDTOOL_H
-#define FFMPEGBUILDTOOL_H
+#ifndef CONFIGUREBUILDTOOL_H
+#define CONFIGUREBUILDTOOL_H
 
 #include <QWidget>
 #include <QDebug>
@@ -17,16 +17,16 @@
 #include <common/qtcompat.h>
 
 namespace Ui {
-class FFmpegBuildTool;
+class ConfigureBuildTool;
 }
 
-class FFmpegBuildTool : public QWidget
+class ConfigureBuildTool : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FFmpegBuildTool(QWidget *parent = nullptr);
-    ~FFmpegBuildTool();
+    explicit ConfigureBuildTool(QWidget *parent = nullptr);
+    ~ConfigureBuildTool();
 
     QMap<QString, QList<QStringList> > getOptions();
 
@@ -44,14 +44,16 @@ private slots:
 
     void on_clean_btn_clicked();
 
+    void on_local_projects_combx_currentIndexChanged(int index);
+
 private:
     void loadSettings();
     void saveSettings();
     void parseOptionLineFast(const QString &line, QString &option, QString &description, QString &defaultValue);
 
-    void loadFFmpegOptions();
+    void loadConfigureOptions();
 private:
-    Ui::FFmpegBuildTool *ui;
+    Ui::ConfigureBuildTool *ui;
     QAction *m_addRecordAction;
     QAction *m_RemoveRecordAction;
 
@@ -61,4 +63,4 @@ private:
     QMap<QString, QStringList> m_optionMaps;
 };
 
-#endif // FFMPEGBUILDTOOL_H
+#endif // CONFIGUREBUILDTOOL_H

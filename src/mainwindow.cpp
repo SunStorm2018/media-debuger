@@ -626,11 +626,11 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
     }
 
     if (ui->actionFFmpeg_Builder == action) {
-        FFmpegBuildTool *ffbuilder = new FFmpegBuildTool;
+        ConfigureBuildTool *ffbuilder = new ConfigureBuildTool;
         ffbuilder->setAttribute(Qt::WA_DeleteOnClose);
 
-        ffbuilder->setWindowTitle("FFmpeg Builder");
-        ffbuilder->setMinimumSize(1200, 900);
+        ffbuilder->setWindowTitle("Configure Builder");
+        // ffbuilder->setMinimumSize(1200, 900);
         ffbuilder->show();
         ZWindowHelper::centerToParent(ffbuilder);
     }

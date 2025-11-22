@@ -30,7 +30,7 @@
 #include "widgets/folderswg.h"
 #include "widgets/exportwg.h"
 #include "widgets/helpquerywg.h"
-#include "widgets/ffmpegbuildtool.h"
+#include "widgets/configurebuildtool.h"
 
 #define FORMAT_JSON "json"
 #define FORMAT_TABLE "table"

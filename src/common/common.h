@@ -28,11 +28,11 @@ constexpr auto GENERAL_SETTINGS_GROUP = "General";
 constexpr auto MAINWINDOW_SETTINGS_GROUP = "MainWindow";
 constexpr auto WINDOWHEAD_SETTINGS_GROUP = "WindowHead";
 constexpr auto RECENTFILES_SETTINGS_GROUP = "RecentFiles";
-constexpr auto FFMPEGBUILDER_SETTINGS_GROUP = "FFmpegBuilder";
+constexpr auto CONFIGURE_BUILDER_SETTINGS_GROUP = "ConfigureBuilder";
 
 extern const QStringList CONFIG_GROUPS;
 
-constexpr auto FFMPEGBUILDER_RECENTFOLDERS_KEY = "RecentFolders";
+constexpr auto CONFIGURE_BUILDER_RECENTFOLDERS_KEY = "RecentFolders";
 
 // Image preview settings
 constexpr auto IMAGE_PREVIEW_PATH_KEY = "ImagePreviewPath";

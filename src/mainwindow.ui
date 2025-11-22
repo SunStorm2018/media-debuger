@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SPDX-FileCopyrightText: 2025 zhang hongyuan <2063218120@qq.com> -->
-<!-- SPDX-License-Identifier: MIT -->
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
@@ -451,7 +449,7 @@
   </action>
   <action name="actionFFmpeg_Builder">
    <property name="text">
-    <string>FFmpeg Builder</string>
+    <string>Configure Builder</string>
    </property>
   </action>
   <action name="actionDocs_Viewer">

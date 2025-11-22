@@ -40,8 +40,8 @@ SOURCES += \
     src/model/mediainfotabelmodel.cpp \
     src/model/multicolumnsearchproxymodel.cpp \
     src/widgets/basefmtwg.cpp \
+    src/widgets/configurebuildtool.cpp \
     src/widgets/exportwg.cpp \
-    src/widgets/ffmpegbuildtool.cpp \
     src/widgets/fileswg.cpp \
     src/widgets/folderswg.cpp \
     src/widgets/globalconfingwg.cpp \
@@ -78,8 +78,8 @@ HEADERS += \
     src/model/mediainfotabelmodel.h \
     src/model/multicolumnsearchproxymodel.h \
     src/widgets/basefmtwg.h \
+    src/widgets/configurebuildtool.h \
     src/widgets/exportwg.h \
-    src/widgets/ffmpegbuildtool.h \
     src/widgets/fileswg.h \
     src/widgets/folderswg.h \
     src/widgets/globalconfingwg.h \
@@ -95,8 +95,8 @@ HEADERS += \
     src/widgets/tabelfmtwg.h
 
 FORMS += \
+    src/widgets/configurebuildtool.ui \
     src/widgets/exportwg.ui \
-    src/widgets/ffmpegbuildtool.ui \
     src/widgets/fileswg.ui \
     src/widgets/folderswg.ui \
     src/widgets/globalconfingwg.ui \
