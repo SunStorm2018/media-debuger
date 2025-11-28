@@ -17,10 +17,14 @@
 #include <QDateTime>
 #include <QFile>
 #include <QScreen>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QTimer>
 
 #include "../common/zffmpeg.h"
 #include "../common/zffplay.h"
 #include "../common/common.h"
+#include "progressdlg.h"
 
 TabelFormatWG::TabelFormatWG(QWidget *parent)
     : BaseFormatWG(parent)
@@ -44,6 +48,11 @@ TabelFormatWG::TabelFormatWG(QWidget *parent)
     m_previewImageAction = new QAction("Show Image", m_tableFormatWg);
     connect(m_previewImageAction, &QAction::triggered, this, &TabelFormatWG::previewImage);
     m_tableFormatWg->addContextAction(m_previewImageAction);
+    
+    // Add Save Image action
+    m_saveImageAction = new QAction("Save Image", m_tableFormatWg);
+    connect(m_saveImageAction, &QAction::triggered, this, &TabelFormatWG::saveImage);
+    m_tableFormatWg->addContextAction(m_saveImageAction);
 }
 
 TabelFormatWG::~TabelFormatWG()
@@ -272,12 +281,31 @@ void TabelFormatWG::previewImage()
         selectedRows.append(0);
     }
 
+    // Create progress dialog for preview
+    ProgressDialog *progressDialog = new ProgressDialog(this);
+    progressDialog->setWindowTitle(tr("Extracting Images for Preview"));
+    progressDialog->setProgressMode(ProgressDialog::Determinate);
+    progressDialog->setRange(0, selectedRows.size());
+    progressDialog->setAutoClose(false);
+    progressDialog->setCancelButtonVisible(false);
+    progressDialog->show();
+
+    int successCount = 0;
+    int totalCount = selectedRows.size();
+
     // Process each selected row
-    for (int selectedRow : selectedRows) {
+    for (int i = 0; i < selectedRows.size(); ++i) {
+        int selectedRow = selectedRows[i];
+        
         if (selectedRow < 0 || selectedRow >= m_data_tb.size()) {
             qWarning() << "Invalid row index:" << selectedRow;
             continue;
         }
+
+        // Update progress
+        progressDialog->setValue(i);
+        progressDialog->setMessage(tr("Extracting frame %1 of %2 for preview...").arg(i + 1).arg(totalCount));
+        QApplication::processEvents(); // Ensure UI updates
 
         int frameNumber = selectedRow;
 
@@ -302,24 +330,20 @@ void TabelFormatWG::previewImage()
         // Extract the frame using ffmpeg
         ZFFmpeg ffmpeg;
         if (!ffmpeg.extractFrame(currentFile, frameNumber, outputFilePath)) {
-            QMessageBox::critical(this, "Preview Error",
-                              "Failed to extract frame using ffmpeg.\n"
-                              "Please ensure ffmpeg is installed and accessible.");
+            qWarning() << "Failed to extract frame" << frameNumber << "for preview";
             continue;
         }
 
         // Verify the extracted image exists
         if (!QFile::exists(outputFilePath)) {
-            QMessageBox::warning(this, "Preview Error",
-                             "Failed to create the extracted image file.");
+            qWarning() << "Failed to create the extracted image file for frame" << frameNumber;
             continue;
         }
 
         // Use zffplay to display the extracted image with size limits
         ZFFplay *ffplay = new ZFFplay(this);
         if (!ffplay->displayImageWithSize(outputFilePath, 800, 600, frameNumber, baseName)) {
-            QMessageBox::warning(this, "Preview Error",
-                             "Failed to display the extracted image with ffplay.");
+            qWarning() << "Failed to display the extracted image with ffplay for frame" << frameNumber;
             delete ffplay;
             continue;
         }
@@ -334,9 +358,143 @@ void TabelFormatWG::previewImage()
             ffplay->deleteLater();
         });
 
+        successCount++;
         qDebug() << "TabelFormatWG: Extracted frame" << frameNumber
                  << "saved to" << outputFilePath << "and opened with ffplay";
     }
+
+    // Finish progress
+    progressDialog->setValue(totalCount);
+    progressDialog->setMessage(tr("Completed. Extracted %1 of %2 images for preview.").arg(successCount).arg(totalCount));
+    progressDialog->finish();
+    
+    // Clean up progress dialog after a short delay
+    QTimer::singleShot(2000, [progressDialog]() {
+        progressDialog->deleteLater();
+    });
+}
+
+void TabelFormatWG::saveImage()
+{
+    // Get the current media file from settings
+    Common *common = Common::instance();
+    QString currentFile = common->getConfigValue(CURRENTFILE).toString();
+    
+    if (currentFile.isEmpty()) {
+        QMessageBox::warning(this, "Save Image Error", "No media file selected for saving.");
+        return;
+    }
+
+    // Get selected rows using InfoWidgets::getSelectRows()
+    QList<int> selectedRows = m_tableFormatWg->getSelectRows();
+    
+    // If no rows selected, use the first row
+    if (selectedRows.isEmpty()) {
+        if (m_data_tb.isEmpty()) {
+            QMessageBox::information(this, "Save Image Info",
+                                 "No frame data available for saving.");
+            return;
+        }
+        selectedRows.append(0);
+    }
+
+    // Let user select a directory to save images
+    QString saveDir = QFileDialog::getExistingDirectory(this,
+                                                       tr("Select Directory to Save Images"),
+                                                       QDir::homePath(),
+                                                       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    
+    if (saveDir.isEmpty()) {
+        // User cancelled the dialog
+        return;
+    }
+
+    // Create progress dialog
+    ProgressDialog *progressDialog = new ProgressDialog(this);
+    progressDialog->setWindowTitle(tr("Saving Images"));
+    progressDialog->setProgressMode(ProgressDialog::Determinate);
+    progressDialog->setRange(0, selectedRows.size());
+    progressDialog->setAutoClose(false);
+    progressDialog->setCancelButtonVisible(false);
+    progressDialog->show();
+
+    // Create a subdirectory for the video file
+    QFileInfo fileInfo(currentFile);
+    QString baseName = fileInfo.baseName();
+    QDir videoDir(QDir(saveDir).absoluteFilePath(baseName));
+    if (!videoDir.exists()) {
+        if (!videoDir.mkpath(".")) {
+            QMessageBox::warning(this, "Save Image Error",
+                             QString("Failed to create video directory: %1").arg(videoDir.absolutePath()));
+            progressDialog->finish();
+            progressDialog->deleteLater();
+            return;
+        }
+    }
+
+    int successCount = 0;
+    int totalCount = selectedRows.size();
+    
+    // Process each selected row
+    for (int i = 0; i < selectedRows.size(); ++i) {
+        int selectedRow = selectedRows[i];
+        
+        if (selectedRow < 0 || selectedRow >= m_data_tb.size()) {
+            qWarning() << "Invalid row index:" << selectedRow;
+            continue;
+        }
+
+        // Update progress
+        progressDialog->setValue(i);
+        progressDialog->setMessage(tr("Saving frame %1 of %2...").arg(i + 1).arg(totalCount));
+        QApplication::processEvents(); // Ensure UI updates
+
+        int frameNumber = selectedRow;
+        
+        // Generate output filename
+        QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_zzz");
+        QString outputFileName = QString("%1_frame_%2_%3.jpg").arg(baseName).arg(frameNumber).arg(timestamp);
+        QString outputFilePath = videoDir.absoluteFilePath(outputFileName);
+
+        // Extract the frame using ffmpeg
+        ZFFmpeg ffmpeg;
+        if (!ffmpeg.extractFrame(currentFile, frameNumber, outputFilePath)) {
+            qWarning() << "Failed to extract frame" << frameNumber;
+            continue;
+        }
+
+        // Verify the extracted image exists
+        if (!QFile::exists(outputFilePath)) {
+            qWarning() << "Failed to create the extracted image file for frame" << frameNumber;
+            continue;
+        }
+
+        successCount++;
+        qDebug() << "TabelFormatWG: Extracted frame" << frameNumber
+                 << "saved to" << outputFilePath;
+    }
+
+    // Finish progress
+    progressDialog->setValue(totalCount);
+    progressDialog->setMessage(tr("Completed. Saved %1 of %2 images.").arg(successCount).arg(totalCount));
+    progressDialog->finish();
+    
+    // Show completion message and ask if user wants to open folder
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("Save Complete"),
+                                tr("Successfully saved %1 of %2 images to:\n%3\n\nDo you want to open the folder?")
+                                .arg(successCount)
+                                .arg(totalCount)
+                                .arg(videoDir.absolutePath()),
+                                QMessageBox::Yes | QMessageBox::No);
+    
+    if (reply == QMessageBox::Yes) {
+        // Open the directory containing the saved images
+        QDesktopServices::openUrl(QUrl::fromLocalFile(videoDir.absolutePath()));
+    }
+    
+    // Clean up progress dialog
+    progressDialog->deleteLater();
 }
 
 QString TabelFormatWG::valueToString(const QJsonValue &value)

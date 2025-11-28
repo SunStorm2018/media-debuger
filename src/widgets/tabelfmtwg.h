@@ -36,12 +36,14 @@ private:
     QList<QString> m_headers;
 
     QAction *m_previewImageAction;
+    QAction *m_saveImageAction;
 
     QString valueToString(const QJsonValue &value);
     QString extractSideData(const QJsonObject &frameObj, const QString &key);
 
 private slots:
     void previewImage();
+    void saveImage();
 
 protected:
     bool loadJson(const QByteArray &json);
