@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
         {ui->actionLog, m_logWGDock},
         {ui->actionFiles, m_filesWGDock},
         {ui->actionFolders, m_foldersWGDock},
-        {ui->actionMedia_Properties, m_mediaPropsWidget}
+        {ui->actionMedia_Properties, m_mediaPropsWGDock}        
     };
 }
 
@@ -218,7 +218,7 @@ void MainWindow::PopMediaInfoWindow(QString title, const QString &info, const QS
 void MainWindow::PopMediaPropsWindow(const QString &fileName)
 {
     // Update content if a valid file is provided
-    if (!fileName.isEmpty() && m_mediaPropsWidget) {
+    if (!fileName.isEmpty() && &m_mediaPropsWidget) {
         loadMediaProperties(fileName);
         
         // Update window title to reflect current file
@@ -228,7 +228,7 @@ void MainWindow::PopMediaPropsWindow(const QString &fileName)
 
 void MainWindow::loadMediaProperties(const QString &fileName)
 {
-    if (!fileName.isEmpty() && m_mediaPropsWidget) {
+    if (!fileName.isEmpty() && &m_mediaPropsWidget) {
         // Check if file exists before processing
         if (!QFile::exists(fileName)) {
             qWarning() << "Media file does not exist:" << fileName;
@@ -238,71 +238,25 @@ void MainWindow::loadMediaProperties(const QString &fileName)
         // Update dock title
         m_mediaPropsWGDock->setWindowTitle(tr("Properties: %1").arg(QFileInfo(fileName).fileName()));
         
-        // Update Format tab
-        JsonFormatWG *formatWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(0));
-        if (formatWidget) {
-            QString formatInfo = m_probe.getMediaInfoJsonFormat(SHOW_FORMAT, fileName);
-            formatWidget->loadData(formatInfo.toUtf8());
-        }
-        
-        // Update Streams tab
-        JsonFormatWG *streamsWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(1));
-        if (streamsWidget) {
-            QString streamsInfo = m_probe.getMediaInfoJsonFormat(SHOW_STREAMS, fileName);
-            streamsWidget->loadData(streamsInfo.toUtf8());
-        }
+        // Update MediaPropsWidget
+        m_mediaPropsWidget.setMediaFile(fileName);
     }
 }
 
 void MainWindow::loadMediaPropertiesAsync(const QString &fileName)
 {
-    if (!fileName.isEmpty() && m_mediaPropsWidget) {
+    if (!fileName.isEmpty() && &m_mediaPropsWidget) {
         // Check if file exists before processing
         if (!QFile::exists(fileName)) {
             qWarning() << "Media file does not exist:" << fileName;
             return;
         }
         
-        // Create and show progress dialog
-        ProgressDialog *progressDlg = new ProgressDialog(this);
-        progressDlg->setWindowTitle(tr("Loading Media Properties"));
-        progressDlg->setProgressMode(ProgressDialog::Indeterminate);
-        progressDlg->setMessage(tr("Loading media properties..."));
-        progressDlg->setAutoClose(false);
-        progressDlg->setCancelButtonVisible(false);
-        progressDlg->show();
-        
         // Update dock title immediately
         m_mediaPropsWGDock->setWindowTitle(tr("Properties: %1").arg(QFileInfo(fileName).fileName()));
         
-        // Run the loading operation in a separate thread
-        QtConcurrent::run([=](){
-            // Get format info
-            QString formatInfo = m_probe.getMediaInfoJsonFormat(SHOW_FORMAT, fileName);
-            
-            // Get streams info
-            QString streamsInfo = m_probe.getMediaInfoJsonFormat(SHOW_STREAMS, fileName);
-            
-            // Update both widgets in a single main thread invocation
-            QMetaObject::invokeMethod(this, [this, formatInfo, streamsInfo, progressDlg]() {
-                // Update format widget
-                JsonFormatWG *formatWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(0));
-                if (formatWidget) {
-                    formatWidget->loadData(formatInfo.toUtf8());
-                }
-                
-                // Update streams widget
-                JsonFormatWG *streamsWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(1));
-                if (streamsWidget) {
-                    streamsWidget->loadData(streamsInfo.toUtf8());
-                }
-                
-                // Finish progress dialog
-                progressDlg->finish();
-                // Clean up progress dialog immediately
-                progressDlg->deleteLater();
-            }, Qt::QueuedConnection);
-        });
+        // Update MediaPropsWidget (it will handle async loading internally)
+        m_mediaPropsWidget.setMediaFile(fileName);
     }
 }
 
@@ -330,25 +284,14 @@ void MainWindow::createDockWidgets()
     splitDockWidget(m_filesWGDock, m_foldersWGDock, Qt::Vertical);
 
     // Create Media Properties as central widget (center area)
-    m_mediaPropsWidget = new QTabWidget;
-    m_mediaPropsWidget->setObjectName("MediaPropsTabWidget");
+    m_mediaPropsWidget.setObjectName("MediaPropsWidget");
     
     // Create a widget with layout to manage margins
     QWidget *centralWidget = new QWidget;
     QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
     centralLayout->setContentsMargins(9, 9, 9, 9);
     centralLayout->setSpacing(0);
-    centralLayout->addWidget(m_mediaPropsWidget);
-    
-    // Create Format tab
-    JsonFormatWG *formatWidget = new JsonFormatWG;
-    formatWidget->setObjectName("FormatWidget");
-    m_mediaPropsWidget->addTab(formatWidget, tr("Format"));
-    
-    // Create Streams tab
-    JsonFormatWG *streamsWidget = new JsonFormatWG;
-    streamsWidget->setObjectName("StreamsWidget");
-    m_mediaPropsWidget->addTab(streamsWidget, tr("Streams"));
+    centralLayout->addWidget(&m_mediaPropsWidget);
     
     // Create Media Properties DockWidget (for visibility control)
     m_mediaPropsWGDock = new QDockWidget(tr("Media Properties"), this);
@@ -713,15 +656,6 @@ void MainWindow::slotMenuViewTriggered(QAction *action)
             wg->hide();
         }
     }
-    
-    // Special handling for Media Properties since it's a central widget
-    if (action == ui->actionMedia_Properties) {
-        if (action->isChecked()) {
-            m_mediaPropsWidget->show();
-        } else {
-            m_mediaPropsWidget->hide();
-        }
-    }
 }
 
 void MainWindow::slotMenuViewAboutToShow()
@@ -734,9 +668,6 @@ void MainWindow::slotMenuViewAboutToShow()
             action->setChecked(true);
         }
     }
-    
-    // Special handling for Media Properties since it's a central widget
-    ui->actionMedia_Properties->setChecked(m_mediaPropsWidget && m_mediaPropsWidget->isVisible());
 }
 
 void MainWindow::getMenuAllActions(QMenu *menu, QList<QAction *> &actionList)

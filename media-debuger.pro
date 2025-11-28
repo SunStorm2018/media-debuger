@@ -55,7 +55,8 @@ SOURCES += \
     src/widgets/progressdlg.cpp \
     src/widgets/searchwg.cpp \
     src/widgets/tabconfigwg.cpp \
-    src/widgets/tabelfmtwg.cpp
+    src/widgets/tabelfmtwg.cpp \
+    src/widgets/mediapropswg.cpp
 
 HEADERS += \
     src/common/zcommandexecutor.h \
@@ -92,7 +93,8 @@ HEADERS += \
     src/widgets/progressdlg.h \
     src/widgets/searchwg.h \
     src/widgets/tabconfigwg.h \
-    src/widgets/tabelfmtwg.h
+    src/widgets/tabelfmtwg.h \
+    src/widgets/mediapropswg.h
 
 FORMS += \
     src/widgets/configurebuildtool.ui \
@@ -108,7 +110,8 @@ FORMS += \
     src/widgets/playerwg.ui \
     src/widgets/searchwg.ui \
     src/widgets/tabconfigwg.ui \
-    src/widgets/tabelfmtwg.ui
+    src/widgets/tabelfmtwg.ui \
+    src/widgets/mediapropswg.ui
 
 TRANSLATIONS += \
     translations/media-debuger_zh_CN.ts \

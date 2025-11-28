@@ -31,6 +31,7 @@
 #include "widgets/exportwg.h"
 #include "widgets/helpquerywg.h"
 #include "widgets/configurebuildtool.h"
+#include "widgets/mediapropswg.h"
 
 #define FORMAT_JSON "json"
 #define FORMAT_TABLE "table"
@@ -94,6 +95,7 @@ private:
     PlayerWG &m_playerWG = PlayerWG::instance();
     LogWG &m_logWG = LogWG::instance();
     FoldersWG &m_foldersWG = FoldersWG::instance();
+    MediaPropsWG &m_mediaPropsWidget = MediaPropsWG::instance();
 
     QDockWidget *m_filesWGDock = nullptr;
     QDockWidget *m_logWGDock = nullptr;
@@ -102,7 +104,6 @@ private:
     QDockWidget *m_mediaPropsWGDock = nullptr;
 
     QMap<QAction*, QWidget*> m_actionWidgetMap;
-    QTabWidget *m_mediaPropsWidget = nullptr;
 
     QString GEOMETRY_KEY = "mainWindowGeometry";
     QString STATE_KEY = "mainWindowState";

@@ -21,10 +21,17 @@ JsonFormatWG::JsonFormatWG(QWidget *parent)
     ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     m_contextMenu = new QMenu(this);
-    m_contextMenu->addAction(tr("Copy Value"), this, &JsonFormatWG::copyValue);
-    m_contextMenu->addAction(tr("Copy Key-Value"), this, &JsonFormatWG::copyKeyValue);
-    m_contextMenu->addAction(tr("Copy Key"), this, &JsonFormatWG::copyKey);
-    m_contextMenu->addAction(tr("Copy All Data"), this, &JsonFormatWG::copyAllData);
+    
+    // Create copy submenu
+    QMenu *copyMenu = m_contextMenu->addMenu(tr("Copy"));
+    copyMenu->addAction(tr("Copy Value"), this, &JsonFormatWG::copyValue);
+    copyMenu->addAction(tr("Copy Key-Value"), this, &JsonFormatWG::copyKeyValue);
+    copyMenu->addAction(tr("Copy Key"), this, &JsonFormatWG::copyKey);
+    copyMenu->addSeparator();
+    copyMenu->addAction(tr("Copy All Data"), this, &JsonFormatWG::copyAllData);
+    
+    m_contextMenu->addSeparator();
+    m_contextMenu->addAction(tr("Search"), this, &JsonFormatWG::toggleSearch);
     m_contextMenu->addSeparator();
     m_contextMenu->addAction(tr("Expand All"), this, &JsonFormatWG::expandAll);
     m_contextMenu->addAction(tr("Collapse All"), this, &JsonFormatWG::collapseAll);
@@ -155,6 +162,16 @@ void JsonFormatWG::expandAll()
 void JsonFormatWG::collapseAll()
 {
     ui->treeView->collapseAll();
+}
+
+void JsonFormatWG::toggleSearch()
+{
+    if (m_searchWG) {
+        m_searchWG->setVisible(!m_searchWG->isVisible());
+        if (m_searchWG->isVisible()) {
+            m_searchWG->setFocus();
+        }
+    }
 }
 
 QJsonTreeItem* JsonFormatWG::getItemForIndex(const QModelIndex &proxyIndex)
