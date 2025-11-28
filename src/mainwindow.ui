@@ -102,6 +102,17 @@
     <property name="title">
      <string>Play</string>
     </property>
+    <addaction name="actionVLC"/>
+    <addaction name="actionMPV"/>
+    <addaction name="actionFFplay"/>
+    <addaction name="separator"/>
+    <addaction name="actionSMPlayer"/>
+    <addaction name="actionTotem"/>
+    <addaction name="actionGNOME_MPlayer"/>
+    <addaction name="actionKMPlayer"/>
+    <addaction name="actionXine"/>
+    <addaction name="separator"/>
+    <addaction name="actionInstall_Players"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -480,6 +491,51 @@
   <action name="actionSinks">
    <property name="text">
     <string>Sinks</string>
+   </property>
+  </action>
+  <action name="actionVLC">
+   <property name="text">
+    <string>VLC Media Player</string>
+   </property>
+  </action>
+  <action name="actionMPV">
+   <property name="text">
+    <string>MPV Player</string>
+   </property>
+  </action>
+  <action name="actionFFplay">
+   <property name="text">
+    <string>FFplay</string>
+   </property>
+  </action>
+  <action name="actionSMPlayer">
+   <property name="text">
+    <string>SMPlayer</string>
+   </property>
+  </action>
+  <action name="actionTotem">
+   <property name="text">
+    <string>Totem (GNOME Videos)</string>
+   </property>
+  </action>
+  <action name="actionGNOME_MPlayer">
+   <property name="text">
+    <string>GNOME MPlayer</string>
+   </property>
+  </action>
+  <action name="actionKMPlayer">
+   <property name="text">
+    <string>KMPlayer</string>
+   </property>
+  </action>
+  <action name="actionXine">
+   <property name="text">
+    <string>Xine</string>
+   </property>
+  </action>
+  <action name="actionInstall_Players">
+   <property name="text">
+    <string>Install Players...</string>
    </property>
   </action>
  </widget>

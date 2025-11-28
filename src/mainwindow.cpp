@@ -6,6 +6,7 @@
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QTabWidget>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -60,12 +61,19 @@ MainWindow::MainWindow(QWidget *parent)
         loadMediaProperties(currentFile);
     }
 
+    // Initialize player manager
+    m_playerManager = new ZMediaPlayerManager(this);
+    
+    // Connect player manager signals
+    connect(m_playerManager, &ZMediaPlayerManager::playerInstallationChanged,
+            this, &MainWindow::slotPlayerInstallationChanged);
+
     m_actionWidgetMap = {
         {ui->actionPlayer, m_playerWGDock},
         {ui->actionLog, m_logWGDock},
         {ui->actionFiles, m_filesWGDock},
         {ui->actionFolders, m_foldersWGDock},
-        {ui->actionMedia_Properties, m_mediaPropsWGDock}        
+        {ui->actionMedia_Properties, m_mediaPropsWGDock}
     };
 }
 
@@ -639,6 +647,39 @@ void MainWindow::slotMenuPlayTriggered(QAction *action)
     if (!action) {
         return;
     }
+
+    QString currentFile = m_filesWG.getCurrentSelectFileName();
+    if (currentFile.isEmpty()) {
+        QMessageBox::warning(this, tr("Warning"), tr("Please select a media file first!"));
+        return;
+    }
+
+    // Check if file exists
+    if (!QFile::exists(currentFile)) {
+        QMessageBox::warning(this, tr("Warning"), tr("Selected file does not exist:\n%1").arg(currentFile));
+        return;
+    }
+
+    // Handle player menu items
+    if (action == ui->actionVLC) {
+        handlePlayerAction(PLAYER_VLC, currentFile);
+    } else if (action == ui->actionMPV) {
+        handlePlayerAction(PLAYER_MPV, currentFile);
+    } else if (action == ui->actionFFplay) {
+        handlePlayerAction(PLAYER_FFPLAY, currentFile);
+    } else if (action == ui->actionSMPlayer) {
+        handlePlayerAction(PLAYER_SMPLAYER, currentFile);
+    } else if (action == ui->actionTotem) {
+        handlePlayerAction(PLAYER_TOTEM, currentFile);
+    } else if (action == ui->actionGNOME_MPlayer) {
+        handlePlayerAction(PLAYER_GNOME_MPLAYER, currentFile);
+    } else if (action == ui->actionKMPlayer) {
+        handlePlayerAction(PLAYER_KMPLAYER, currentFile);
+    } else if (action == ui->actionXine) {
+        handlePlayerAction(PLAYER_XINE, currentFile);
+    } else if (action == ui->actionInstall_Players) {
+        slotShowInstallPlayersDialog();
+    }
 }
 
 void MainWindow::slotMenuViewTriggered(QAction *action)
@@ -704,4 +745,86 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     saveLayoutSettings();
     QMainWindow::closeEvent(event);
+}
+
+void MainWindow::handlePlayerAction(const QString& playerKey, const QString& filePath)
+{
+    if (!m_playerManager->isPlayerInstalled(playerKey)) {
+        ZMediaPlayerInfo playerInfo = m_playerManager->getPlayerInfo(playerKey);
+        QMessageBox::StandardButton reply = QMessageBox::question(
+            this,
+            tr("Player Not Installed"),
+            tr("%1 is not installed.\n\nInstall now?\n\nDescription: %2")
+            .arg(playerInfo.name)
+            .arg(playerInfo.description),
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::Yes
+        );
+        
+        if (reply == QMessageBox::Yes) {
+            m_playerManager->installPlayer(playerKey, this);
+        }
+        return;
+    }
+
+    // Play file
+    if (!m_playerManager->playWithPlayer(playerKey, filePath)) {
+        ZMediaPlayerInfo playerInfo = m_playerManager->getPlayerInfo(playerKey);
+        QMessageBox::warning(this, tr("Playback Failed"),
+                         tr("Cannot play file with %1:\n%2")
+                         .arg(playerInfo.name)
+                         .arg(filePath));
+    }
+}
+
+void MainWindow::slotPlayerInstallationChanged(const QString& playerKey, bool installed)
+{
+    Q_UNUSED(playerKey);
+    Q_UNUSED(installed);
+    
+    // Can update menu status here, such as enabling/disabling menu items
+    // Use timer delay here to ensure UI response
+    QTimer::singleShot(100, [this]() {
+        updatePlayerMenuStates();
+    });
+}
+
+void MainWindow::slotShowInstallPlayersDialog()
+{
+    // Create a dialog to show installation status of all players
+    QMessageBox dialog(this);
+    dialog.setMinimumSize(200, 150);
+    dialog.setWindowTitle(tr("Player Installation Status"));
+    dialog.setText(tr("Current player installation status:"));
+    dialog.setStandardButtons(QMessageBox::Ok);
+    
+    QString detailedText;
+    QStringList allPlayers = m_playerManager->getAllPlayers();
+    QStringList installedPlayers = m_playerManager->getInstalledPlayers();
+    
+    for (const QString& playerKey : allPlayers) {
+        ZMediaPlayerInfo playerInfo = m_playerManager->getPlayerInfo(playerKey);
+        QString status = installedPlayers.contains(playerKey) ? tr("Installed") : tr("Not Installed");
+        detailedText += tr("• %1: %2\n").arg(playerInfo.name, status);
+    }
+    
+    detailedText += tr("\nClick on uninstalled player menu items to install.");
+    dialog.setDetailedText(detailedText);
+    
+    dialog.exec();
+}
+
+void MainWindow::updatePlayerMenuStates()
+{
+    // Update status of player menu items
+    QStringList installedPlayers = m_playerManager->getInstalledPlayers();
+    
+    ui->actionVLC->setEnabled(installedPlayers.contains(PLAYER_VLC) || true); // Always enabled to trigger installation
+    ui->actionMPV->setEnabled(installedPlayers.contains(PLAYER_MPV) || true);
+    ui->actionFFplay->setEnabled(installedPlayers.contains(PLAYER_FFPLAY) || true);
+    ui->actionSMPlayer->setEnabled(installedPlayers.contains(PLAYER_SMPLAYER) || true);
+    ui->actionTotem->setEnabled(installedPlayers.contains(PLAYER_TOTEM) || true);
+    ui->actionGNOME_MPlayer->setEnabled(installedPlayers.contains(PLAYER_GNOME_MPLAYER) || true);
+    ui->actionKMPlayer->setEnabled(installedPlayers.contains(PLAYER_KMPLAYER) || true);
+    ui->actionXine->setEnabled(installedPlayers.contains(PLAYER_XINE) || true);
 }

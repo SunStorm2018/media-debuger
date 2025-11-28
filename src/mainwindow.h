@@ -18,6 +18,7 @@
 #include "common/zwindowhelper.h"
 #include "common/common.h"
 #include "common/zlogger.h"
+#include "common/zmediaplayermanager.h"
 
 #include "widgets/infotablewg.h"
 #include "widgets/jsonfmtwg.h"
@@ -78,6 +79,10 @@ private slots:
     void slotMenuViewTriggered(QAction *action);
 
     void slotMenuViewAboutToShow();
+    
+    // Player related slot functions
+    void slotPlayerInstallationChanged(const QString& playerKey, bool installed);
+    void slotShowInstallPlayersDialog();
 
 private:
     void getMenuAllActions(QMenu* menu, QList<QAction*>& actionList);
@@ -87,9 +92,22 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
+    /**
+     * @brief Handle player action
+     * @param playerKey Player key name
+     * @param filePath Media file path
+     */
+    void handlePlayerAction(const QString& playerKey, const QString& filePath);
+    
+    /**
+     * @brief Update player menu states
+     */
+    void updatePlayerMenuStates();
+
     Ui::MainWindow *ui;
 
     ZFfprobe m_probe;
+    ZMediaPlayerManager* m_playerManager;
 
     FilesWG &m_filesWG = FilesWG::instance();
     PlayerWG &m_playerWG = PlayerWG::instance();

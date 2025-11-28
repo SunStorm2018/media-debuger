@@ -22,6 +22,8 @@ INCLUDEPATH += src
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/common/zmediaplayerconfig.cpp \
+    src/common/zmediaplayermanager.cpp \
     src/common/zcommandexecutor.cpp \
     src/common/common.cpp \
     src/common/zflowlayout.cpp \
@@ -59,6 +61,8 @@ SOURCES += \
     src/widgets/mediapropswg.cpp
 
 HEADERS += \
+    src/common/zmediaplayerconfig.h \
+    src/common/zmediaplayermanager.h \
     src/common/zcommandexecutor.h \
     src/common/common.h \
     src/common/zflowlayout.h \
