@@ -35,9 +35,12 @@ MainWindow::MainWindow(QWidget *parent)
     // Set window title
     setWindowTitle(APPLICATION_NAME);
 
-    m_filesWG.addActions(getFilesAvailableAction());
     m_filesWG.addSubActions("Media Info", getMediaInfoAvailableActions());
     m_filesWG.addMenus(getMediaInfoAvailableMenus());
+    m_filesWG.addSeparator();
+
+    m_filesWG.addActions(getFilesAvailableAction());
+    m_filesWG.addSeparator();
     
     // If no file is selected in FilesWG, try to get from config
     QString currentFile = m_filesWG.getCurrentSelectFileName();
@@ -169,7 +172,7 @@ void MainWindow::InitConnectation()
         m_playerWG.setMediaFile(filePair.second);
         
         // Update media properties dock if exists
-        loadMediaProperties(filePair.second);
+        loadMediaPropertiesAsync(filePair.second);
     });
 }
 
@@ -248,6 +251,58 @@ void MainWindow::loadMediaProperties(const QString &fileName)
             QString streamsInfo = m_probe.getMediaInfoJsonFormat(SHOW_STREAMS, fileName);
             streamsWidget->loadData(streamsInfo.toUtf8());
         }
+    }
+}
+
+void MainWindow::loadMediaPropertiesAsync(const QString &fileName)
+{
+    if (!fileName.isEmpty() && m_mediaPropsWidget) {
+        // Check if file exists before processing
+        if (!QFile::exists(fileName)) {
+            qWarning() << "Media file does not exist:" << fileName;
+            return;
+        }
+        
+        // Create and show progress dialog
+        ProgressDialog *progressDlg = new ProgressDialog(this);
+        progressDlg->setWindowTitle(tr("Loading Media Properties"));
+        progressDlg->setProgressMode(ProgressDialog::Indeterminate);
+        progressDlg->setMessage(tr("Loading media properties..."));
+        progressDlg->setAutoClose(false);
+        progressDlg->setCancelButtonVisible(false);
+        progressDlg->show();
+        
+        // Update dock title immediately
+        m_mediaPropsWGDock->setWindowTitle(tr("Properties: %1").arg(QFileInfo(fileName).fileName()));
+        
+        // Run the loading operation in a separate thread
+        QtConcurrent::run([=](){
+            // Get format info
+            QString formatInfo = m_probe.getMediaInfoJsonFormat(SHOW_FORMAT, fileName);
+            
+            // Get streams info
+            QString streamsInfo = m_probe.getMediaInfoJsonFormat(SHOW_STREAMS, fileName);
+            
+            // Update both widgets in a single main thread invocation
+            QMetaObject::invokeMethod(this, [this, formatInfo, streamsInfo, progressDlg]() {
+                // Update format widget
+                JsonFormatWG *formatWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(0));
+                if (formatWidget) {
+                    formatWidget->loadData(formatInfo.toUtf8());
+                }
+                
+                // Update streams widget
+                JsonFormatWG *streamsWidget = qobject_cast<JsonFormatWG*>(m_mediaPropsWidget->widget(1));
+                if (streamsWidget) {
+                    streamsWidget->loadData(streamsInfo.toUtf8());
+                }
+                
+                // Finish progress dialog
+                progressDlg->finish();
+                // Clean up progress dialog immediately
+                progressDlg->deleteLater();
+            }, Qt::QueuedConnection);
+        });
     }
 }
 

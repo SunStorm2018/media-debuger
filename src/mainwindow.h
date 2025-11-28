@@ -62,6 +62,7 @@ private slots:
     void PopMediaInfoWindow(QString title, const QString &info, const QString &format_key = FORMAT_JSON);
     void PopMediaPropsWindow(const QString &fileName);
     void loadMediaProperties(const QString &fileName);
+    void loadMediaPropertiesAsync(const QString &fileName);
 
     void createDockWidgets();
     void saveLayoutSettings();

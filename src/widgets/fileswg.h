@@ -35,6 +35,7 @@ public:
     void addActions(const QList<QAction*> actions);
     void addSubActions(const QString& menu, const QList<QAction*>& actions);
     void addMenus(const QList<QMenu*> menus);
+    void addSeparator();
 
 signals:
     void currentFileActived(QPair<QString, QString> filePair);

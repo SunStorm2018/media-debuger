@@ -84,6 +84,11 @@ void FilesWG::addMenus(const QList<QMenu *> menus)
     }
 }
 
+void FilesWG::addSeparator()
+{
+    m_contextMenu->addSeparator();
+}
+
 void FilesWG::addFileToHistory(const QString &filePath)
 {
     m_model->addFile(filePath);
@@ -176,6 +181,8 @@ void FilesWG::createContextMenu()
         }
     });
     m_contextMenu->addAction(m_playAction);
+
+    m_contextMenu->addSeparator();
 }
 
 void FilesWG::onFilesDropped(const QStringList &filePaths)
