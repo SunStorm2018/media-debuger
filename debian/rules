@@ -1,29 +1,45 @@
 #!/usr/bin/make -f
 include /usr/share/dpkg/default.mk
 
-# Build Qt5 and Qt6 versions
+# Detect available Qt versions
+QT5_AVAILABLE := $(shell QT_SELECT=5 qmake --version 2>/dev/null && echo yes)
+QT6_AVAILABLE := $(shell qmake6 --version 2>/dev/null && echo yes)
+
+# Build available Qt versions
 %:
 	dh $@ --buildsystem=qmake
 
 override_dh_auto_configure:
-	# Build Qt5 version
+	# Build Qt5 version if available
+ifneq ($(QT5_AVAILABLE),)
 	mkdir -p build-qt5
-	cd build-qt5 && qmake PREFIX=/usr ../media-debuger.pro
-	# Build Qt6 version
+	cd build-qt5 && QT_SELECT=5 qmake PREFIX=/usr ../media-debuger.pro
+endif
+	# Build Qt6 version if available
+ifneq ($(QT6_AVAILABLE),)
 	mkdir -p build-qt6
 	cd build-qt6 && qmake6 PREFIX=/usr ../media-debuger.pro
+endif
 
 override_dh_auto_build:
-	# Build Qt5 version
+	# Build Qt5 version if available
+ifneq ($(QT5_AVAILABLE),)
 	cd build-qt5 && $(MAKE)
-	# Build Qt6 version
+endif
+	# Build Qt6 version if available
+ifneq ($(QT6_AVAILABLE),)
 	cd build-qt6 && $(MAKE)
+endif
 
 override_dh_auto_install:
-	# Install Qt5 version
+	# Install Qt5 version if available
+ifneq ($(QT5_AVAILABLE),)
 	cd build-qt5 && $(MAKE) INSTALL_ROOT=../debian/media-debuger install
-	# Install Qt6 version
+endif
+	# Install Qt6 version if available
+ifneq ($(QT6_AVAILABLE),)
 	cd build-qt6 && $(MAKE) INSTALL_ROOT=../debian/media-debuger6 install
+endif
 
 override_dh_clean:
 	dh_clean
@@ -32,10 +48,19 @@ override_dh_clean:
 override_dh_install:
 	dh_install
 	
-	# Change mode for Qt5 version
+	# Change mode for Qt5 version if available
+ifneq ($(QT5_AVAILABLE),)
 	chmod 644 debian/dfm-xmenu-media-debuger/usr/share/applications/context-menus/dfm-xmenu-media-debuger.conf
 	chmod 755 debian/nautilus-xmenu-media-debuger/usr/share/nautilus-python/extensions/nautilus-contextmenu.py
+endif
 	
-	# Change mode for Qt6 version
+	# Change mode for Qt6 version if available
+ifneq ($(QT6_AVAILABLE),)
 	chmod 644 debian/dfm-xmenu-media-debuger6/usr/share/applications/context-menus/dfm-xmenu-media-debuger6.conf
 	chmod 755 debian/nautilus-xmenu-media-debuger6/usr/share/nautilus-python/extensions/nautilus-contextmenu6.py
+endif
+
+# Print available Qt versions for debugging
+print-qt-versions:
+	@echo "Qt5 available: $(QT5_AVAILABLE)"
+	@echo "Qt6 available: $(QT6_AVAILABLE)"
