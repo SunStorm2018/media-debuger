@@ -1,3 +1,16 @@
+media-debuger (1.1.0-1) unstable; urgency=medium
+
+  * chore: Update version to 1.1.0-1
+  * feat(build): add Qt version detection and adaptive build system
+  * refactor(player): change media player execution from bash to direct process
+  * feat(player): add comprehensive media player management system
+  * refactor(ui): redesign media properties widget with JsonFormatWG
+  * feat(ui): add async media properties loading with progress dialog
+  * feat(ui): add save image functionality to table widget
+  * refactor(ui): rename FFmpegBuilder to ConfigureBuilder throughout codebase
+
+ -- zhanghongyuan <2063218120@qq.com>  Sat, 29 Nov 2025 23:29:03 +0800
+
 media-debuger (1.0.3-1) unstable; urgency=medium
 
   * chore: Update version to 1.0.3-1
