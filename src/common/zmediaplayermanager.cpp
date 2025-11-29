@@ -8,6 +8,8 @@
 #include <QUrl>
 #include <QFile>
 #include <QDebug>
+#include <QProcessEnvironment>
+#include <QDir>
 
 ZMediaPlayerManager::ZMediaPlayerManager(QObject *parent)
     : QObject(parent)
@@ -106,6 +108,7 @@ void ZMediaPlayerManager::installPlayer(const QString& playerKey, QWidget *paren
     QString installCommand = m_config->getInstallCommand(playerKey);
     emit playerInstallationStarted(playerKey);
     
+    // For installation commands, we still need bash because they may contain complex shell operations
     m_installProcess->start("bash", QStringList() << "-c" << installCommand);
     
     if (!m_installProcess->waitForStarted(3000)) {
@@ -133,24 +136,51 @@ bool ZMediaPlayerManager::playWithPlayer(const QString& playerKey, const QString
         return false;
     }
 
-    // Get play commands
-    QStringList playCommands = m_config->getPlayCommands(playerKey, filePath);
-    if (playCommands.isEmpty()) {
-        qWarning() << "No play command available for player:" << playerKey;
-        return false;
-    }
-
-    // Execute play command
-    QProcess playProcess;
-    QString command = playCommands.first();
+    // Get player info
+    ZMediaPlayerInfo playerInfo = m_config->getPlayerInfo(playerKey);
     
-    // Special handling for some players
-    if (playerKey == PLAYER_FFPLAY) {
-        // FFplay may need some additional parameters
-        command += " -autoexit";
+    // Prepare arguments for the player
+    QStringList arguments;
+    
+    // Special handling for different players to prevent fullscreen
+    if (playerKey == PLAYER_VLC) {
+        // VLC: windowed mode
+    } else if (playerKey == PLAYER_MPV) {
+        // MPV: windowed mode
+    } else if (playerKey == PLAYER_FFPLAY) {
+        // FFplay: windowed mode and autoexit
+        arguments << "-autoexit" << "-window_title" << filePath + "-Media Debuger";
+    } else if (playerKey == PLAYER_SMPLAYER) {
+        // SMPlayer: windowed mode
+    } else if (playerKey == PLAYER_TOTEM) {
+        // Totem: windowed mode
+    } else if (playerKey == PLAYER_KMPLAYER) {
+        // KMPlayer: windowed mode
+    } else if (playerKey == PLAYER_XINE) {
+        // Xine: windowed mode
     }
+    
+    // Add the file path as the last argument
+    arguments << filePath;
 
-    bool success = playProcess.startDetached("bash", QStringList() << "-c" << command);
+    // Get current user environment variables
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+    // Remove some item under a debugger 
+    env.remove("LD_LIBRARY_PATH");
+    env.remove("QTDIR");
+
+    // Create a process to set environment variables and start detached
+    QProcess playProcess;
+    playProcess.setProgram(playerInfo.executable);
+    playProcess.setArguments(arguments);
+    playProcess.setWorkingDirectory(QDir::currentPath());
+    playProcess.setProcessEnvironment(env);
+
+    qDebug() << env.toStringList();
+    
+    // Start the player directly without bash, with user environment
+    bool success = playProcess.startDetached();
     
     if (success) {
         qDebug() << "Started playing with" << playerKey << ":" << filePath;

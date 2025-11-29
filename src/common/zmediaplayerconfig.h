@@ -99,7 +99,6 @@ private:
 #define PLAYER_FFPLAY "ffplay"
 #define PLAYER_SMPLAYER "smplayer"
 #define PLAYER_TOTEM "totem"
-#define PLAYER_GNOME_MPLAYER "gnome-mplayer"
 #define PLAYER_KMPLAYER "kmplayer"
 #define PLAYER_XINE "xine"
 

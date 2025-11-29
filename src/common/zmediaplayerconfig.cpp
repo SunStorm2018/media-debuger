@@ -32,7 +32,7 @@ void ZMediaPlayerConfig::initializePlayerConfigs()
     vlc.executable = "vlc";
     vlc.checkCommand = "which vlc";
     vlc.installCommand = "pkexec apt-get install -y vlc";
-    vlc.playCommands << "vlc \"%1\"";
+    vlc.playCommands << "%1";  // Only file path, executable is handled separately
     vlc.description = "Powerful cross-platform multimedia player";
     vlc.isInstalled = false;
     m_players[PLAYER_VLC] = vlc;
@@ -43,7 +43,7 @@ void ZMediaPlayerConfig::initializePlayerConfigs()
     mpv.executable = "mpv";
     mpv.checkCommand = "which mpv";
     mpv.installCommand = "pkexec apt-get install -y mpv";
-    mpv.playCommands << "mpv \"%1\"";
+    mpv.playCommands << "%1";  // Only file path, executable is handled separately
     mpv.description = "Simple, high-performance media player";
     mpv.isInstalled = false;
     m_players[PLAYER_MPV] = mpv;
@@ -54,7 +54,7 @@ void ZMediaPlayerConfig::initializePlayerConfigs()
     ffplay.executable = "ffplay";
     ffplay.checkCommand = "which ffplay";
     ffplay.installCommand = "pkexec apt-get install -y ffmpeg";
-    ffplay.playCommands << "ffplay \"%1\"";
+    ffplay.playCommands << "%1";  // Only file path, executable is handled separately
     ffplay.description = "Simple media player included with FFmpeg";
     ffplay.isInstalled = false;
     m_players[PLAYER_FFPLAY] = ffplay;
@@ -65,7 +65,7 @@ void ZMediaPlayerConfig::initializePlayerConfigs()
     smplayer.executable = "smplayer";
     smplayer.checkCommand = "which smplayer";
     smplayer.installCommand = "pkexec apt-get install -y smplayer";
-    smplayer.playCommands << "smplayer \"%1\"";
+    smplayer.playCommands << "%1";  // Only file path, executable is handled separately
     smplayer.description = "Feature-rich MPlayer frontend";
     smplayer.isInstalled = false;
     m_players[PLAYER_SMPLAYER] = smplayer;
@@ -76,21 +76,10 @@ void ZMediaPlayerConfig::initializePlayerConfigs()
     totem.executable = "totem";
     totem.checkCommand = "which totem";
     totem.installCommand = "pkexec apt-get install -y totem";
-    totem.playCommands << "totem \"%1\"";
+    totem.playCommands << "%1";  // Only file path, executable is handled separately
     totem.description = "Default media player for GNOME desktop environment";
     totem.isInstalled = false;
     m_players[PLAYER_TOTEM] = totem;
-
-    // GNOME MPlayer
-    ZMediaPlayerInfo gnomeMPlayer;
-    gnomeMPlayer.name = "GNOME MPlayer";
-    gnomeMPlayer.executable = "gnome-mplayer";
-    gnomeMPlayer.checkCommand = "which gnome-mplayer";
-    gnomeMPlayer.installCommand = "pkexec apt-get install -y gnome-mplayer";
-    gnomeMPlayer.playCommands << "gnome-mplayer \"%1\"";
-    gnomeMPlayer.description = "GNOME-style MPlayer frontend";
-    gnomeMPlayer.isInstalled = false;
-    m_players[PLAYER_GNOME_MPLAYER] = gnomeMPlayer;
 
     // KMPlayer
     ZMediaPlayerInfo kmplayer;
@@ -98,7 +87,7 @@ void ZMediaPlayerConfig::initializePlayerConfigs()
     kmplayer.executable = "kmplayer";
     kmplayer.checkCommand = "which kmplayer";
     kmplayer.installCommand = "pkexec apt-get install -y kmplayer";
-    kmplayer.playCommands << "kmplayer \"%1\"";
+    kmplayer.playCommands << "%1";  // Only file path, executable is handled separately
     kmplayer.description = "Media player for KDE desktop environment";
     kmplayer.isInstalled = false;
     m_players[PLAYER_KMPLAYER] = kmplayer;
@@ -108,8 +97,8 @@ void ZMediaPlayerConfig::initializePlayerConfigs()
     xine.name = "Xine";
     xine.executable = "xine";
     xine.checkCommand = "which xine";
-    xine.installCommand = "pkexec apt-get install -y xine";
-    xine.playCommands << "xine \"%1\"";
+    xine.installCommand = "pkexec apt-get install -y xine-ui";
+    xine.playCommands << "%1";  // Only file path, executable is handled separately
     xine.description = "Classic Unix media player";
     xine.isInstalled = false;
     m_players[PLAYER_XINE] = xine;
@@ -137,7 +126,8 @@ bool ZMediaPlayerConfig::isPlayerInstalled(const QString& playerKey)
     }
 
     QProcess process;
-    process.start("bash", QStringList() << "-c" << m_players[playerKey].checkCommand);
+    // Use 'which' command directly to check if executable exists
+    process.start("which", QStringList() << m_players[playerKey].executable);
     process.waitForFinished(3000);
     
     bool installed = (process.exitCode() == 0);

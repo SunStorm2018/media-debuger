@@ -671,8 +671,6 @@ void MainWindow::slotMenuPlayTriggered(QAction *action)
         handlePlayerAction(PLAYER_SMPLAYER, currentFile);
     } else if (action == ui->actionTotem) {
         handlePlayerAction(PLAYER_TOTEM, currentFile);
-    } else if (action == ui->actionGNOME_MPlayer) {
-        handlePlayerAction(PLAYER_GNOME_MPLAYER, currentFile);
     } else if (action == ui->actionKMPlayer) {
         handlePlayerAction(PLAYER_KMPLAYER, currentFile);
     } else if (action == ui->actionXine) {
@@ -793,7 +791,7 @@ void MainWindow::slotShowInstallPlayersDialog()
 {
     // Create a dialog to show installation status of all players
     QMessageBox dialog(this);
-    dialog.setMinimumSize(200, 150);
+    dialog.setMinimumSize(500, 150);
     dialog.setWindowTitle(tr("Player Installation Status"));
     dialog.setText(tr("Current player installation status:"));
     dialog.setStandardButtons(QMessageBox::Ok);
@@ -824,7 +822,6 @@ void MainWindow::updatePlayerMenuStates()
     ui->actionFFplay->setEnabled(installedPlayers.contains(PLAYER_FFPLAY) || true);
     ui->actionSMPlayer->setEnabled(installedPlayers.contains(PLAYER_SMPLAYER) || true);
     ui->actionTotem->setEnabled(installedPlayers.contains(PLAYER_TOTEM) || true);
-    ui->actionGNOME_MPlayer->setEnabled(installedPlayers.contains(PLAYER_GNOME_MPLAYER) || true);
     ui->actionKMPlayer->setEnabled(installedPlayers.contains(PLAYER_KMPLAYER) || true);
     ui->actionXine->setEnabled(installedPlayers.contains(PLAYER_XINE) || true);
 }
