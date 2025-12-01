@@ -178,7 +178,7 @@ void MainWindow::InitConnectation()
 
     connect(&m_filesWG, &FilesWG::currentFileActived, [=](QPair<QString, QString> filePair){
         m_playerWG.setMediaFile(filePair.second);
-        
+
         // Update media properties dock if exists
         loadMediaPropertiesAsync(filePair.second);
     });

@@ -108,7 +108,6 @@
     <addaction name="separator"/>
     <addaction name="actionSMPlayer"/>
     <addaction name="actionTotem"/>
-    <addaction name="actionGNOME_MPlayer"/>
     <addaction name="actionKMPlayer"/>
     <addaction name="actionXine"/>
     <addaction name="separator"/>

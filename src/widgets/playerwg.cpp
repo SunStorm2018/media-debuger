@@ -65,6 +65,8 @@ void PlayerWG::initConnections()
 
 void PlayerWG::setMediaFile(const QString &filePath)
 {
+    if (m_mediaFile == filePath)
+        return;
     m_mediaFile = filePath;
     stop();
 

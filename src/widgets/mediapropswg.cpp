@@ -43,8 +43,10 @@ void MediaPropsWG::setupUI()
 
 void MediaPropsWG::setMediaFile(const QString &fileName)
 {
-    m_mediaFile = fileName;
-    loadMediaInfoAsync();
+    if (m_mediaFile != fileName) {
+        m_mediaFile = fileName;
+        loadMediaInfoAsync();
+    }
 }
 
 void MediaPropsWG::loadMediaInfo()
