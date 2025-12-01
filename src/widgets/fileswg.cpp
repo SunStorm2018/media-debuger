@@ -170,19 +170,6 @@ void FilesWG::createContextMenu()
     m_contextMenu->addAction(m_copyPathAction);
     
     m_contextMenu->addSeparator();
-    
-    // Play file action
-    m_playAction = new QAction(tr("Play"), this);
-    connect(m_playAction, &QAction::triggered, this, [this]() {
-        for (auto index : ui->listView->selectionModel()->selectedIndexes()) {
-            if (index.isValid()) {
-                m_model->playFile(index.row());
-            }
-        }
-    });
-    m_contextMenu->addAction(m_playAction);
-
-    m_contextMenu->addSeparator();
 }
 
 void FilesWG::onFilesDropped(const QStringList &filePaths)
@@ -219,20 +206,6 @@ void FilesWG::dragEnterEvent(QDragEnterEvent *event)
     } else {
         event->ignore();
     }
-
-    // if (event->mimeData()->hasUrls()) {
-    //     // check file type
-    //     QList<QUrl> urls = event->mimeData()->urls();
-    //     for (const QUrl &url : urls) {
-    //         QString filePath = url.toLocalFile();
-    //         if (filePath.endsWith(".mp4") || filePath.endsWith(".avi") ||
-    //             filePath.endsWith(".mkv")) {
-    //             event->acceptProposedAction();
-    //             return;
-    //         }
-    //     }
-    // }
-    // event->ignore();
 }
 
 void FilesWG::dropEvent(QDropEvent *event)

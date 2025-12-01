@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_filesWG.addActions(getFilesAvailableAction());
     m_filesWG.addSeparator();
+
+    m_filesWG.addMenus({ui->menuPlay});
     
     // If no file is selected in FilesWG, try to get from config
     QString currentFile = m_filesWG.getCurrentSelectFileName();
@@ -199,7 +201,6 @@ void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QS
     infoWindow->setHelpInfoKey(format_key.mid(0, format_key.length() - 1).toLower());
 
     qDebug() << title << info;
-
 }
 
 void MainWindow::PopMediaInfoWindow(QString title, const QString &info, const QString &format_key)
@@ -789,27 +790,37 @@ void MainWindow::slotPlayerInstallationChanged(const QString& playerKey, bool in
 
 void MainWindow::slotShowInstallPlayersDialog()
 {
-    // Create a dialog to show installation status of all players
-    QMessageBox dialog(this);
-    dialog.setMinimumSize(500, 150);
-    dialog.setWindowTitle(tr("Player Installation Status"));
-    dialog.setText(tr("Current player installation status:"));
-    dialog.setStandardButtons(QMessageBox::Ok);
+    InfoWidgets *infoWindow = new InfoWidgets;
+    infoWindow->setObjectName("PlayerInstallationStatusWg");
+    infoWindow->setAttribute(Qt::WA_DeleteOnClose);
+
+    QString title = tr("Player Installation Status");
+    infoWindow->setWindowTitle(title);
+    infoWindow->show();
+    ZWindowHelper::centerToParent(infoWindow);
+
+    QStringList headers;
+    headers << tr("Player Name") << tr("Status") << tr("Description");
     
-    QString detailedText;
+    QList<QStringList> playerData;
     QStringList allPlayers = m_playerManager->getAllPlayers();
     QStringList installedPlayers = m_playerManager->getInstalledPlayers();
-    
+
     for (const QString& playerKey : allPlayers) {
         ZMediaPlayerInfo playerInfo = m_playerManager->getPlayerInfo(playerKey);
         QString status = installedPlayers.contains(playerKey) ? tr("Installed") : tr("Not Installed");
-        detailedText += tr("• %1: %2\n").arg(playerInfo.name, status);
+        
+        QStringList rowData;
+        rowData << playerInfo.name << status << playerInfo.description;
+        playerData.append(rowData);
     }
+
+    infoWindow->init_header_detail_tb(headers);
+    infoWindow->update_data_detail_tb(playerData);
+
+    infoWindow->setHelpInfoKey("players");
     
-    detailedText += tr("\nClick on uninstalled player menu items to install.");
-    dialog.setDetailedText(detailedText);
-    
-    dialog.exec();
+    qDebug() << title << "Player installation status displayed in InfoWidgets";
 }
 
 void MainWindow::updatePlayerMenuStates()

@@ -375,32 +375,31 @@ void PlayerWG::sendMouseToFfplay(const QPoint pos, const ZMouseButton button)
 
 void PlayerWG::mousePressEvent(QMouseEvent *event)
 {
-    // Get mouse position and window size
-    QPoint mousePos = event->pos();
-    QSize windowSize = this->size();
+    if (event->button() == Qt::RightButton && m_isPlaying) {
+        QPoint mousePos = ui->videoWidget->mapFromParent(event->pos());
 
-    // Print detailed information
-    // qDebug() << "=== Mouse Click Event ===";
-    // qDebug() << "Mouse Position - X:" << mousePos.x() << "Y:" << mousePos.y();
-    // qDebug() << "Window Size - Width:" << windowSize.width() << "Height:" << windowSize.height();
-    
-    // Calculate relative position percentage
-    double relativePosition = (double)mousePos.x() / windowSize.width();
-    // qDebug() << "Relative Position:" << relativePosition * 100 << "%";
-    
-    // If relative position > 99.5%, set to 100%
-    if (relativePosition > 0.995) {
-        relativePosition = 1.0;
+        if (mousePos.x() >= 0 && mousePos.y() >= 0 &&
+            mousePos.x() < ui->videoWidget->width() &&
+            mousePos.y() < ui->videoWidget->height()) {
+            
+            QSize videoSize = ui->videoWidget->size();
+
+            // Calculate relative position percentage based on videoWidget
+            double relativePosition = (double)mousePos.x() / videoSize.width();
+
+            // If relative position > 99.5%, set to 100%
+            if (relativePosition > 0.995) {
+                relativePosition = 1.0;
+            }
+
+            {
+                QMutexLocker locker(&m_progressMutex);
+                m_currentRelativePosition = relativePosition;
+                int progressValue = static_cast<int>(relativePosition * ui->playProgressbar->maximum() + 0.5);
+                ui->playProgressbar->setValue(progressValue);
+            }
+        }
     }
-    
-    // Save current relative position and update progress bar (thread-safe)
-    {
-        QMutexLocker locker(&m_progressMutex);
-        m_currentRelativePosition = relativePosition;
-        int progressValue = static_cast<int>(relativePosition * ui->playProgressbar->maximum() + 0.5);
-        ui->playProgressbar->setValue(progressValue);
-    }
-    // qDebug() << "Set progress bar value to:" << progressValue;
 }
 
 void PlayerWG::resizeEvent(QResizeEvent *event)
