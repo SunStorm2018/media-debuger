@@ -133,7 +133,7 @@ void ProgressDialog::start()
     m_elapsedTimer->start();
 
     if (m_mode == Indeterminate || m_mode == Busy) {
-        m_animationTimer->start(50); // Update animation every 50ms
+        m_animationTimer->start(25);
     }
 
     show();
@@ -165,7 +165,7 @@ void ProgressDialog::closeEvent(QCloseEvent *event)
     if (m_cancelButton->isVisible()) {
         cancel();
     }
-    event->ignore(); // Prevent direct close, handle via cancel
+    event->ignore();
 }
 
 void ProgressDialog::updateAnimation()
@@ -201,7 +201,7 @@ void ProgressDialog::updateProgressStyle()
         m_progressBar->setVisible(true);
         break;
     case Indeterminate:
-        m_progressBar->setRange(0, 0); // Set to 0 for indeterminate mode
+        m_progressBar->setRange(0, 100);
         m_progressBar->setTextVisible(false);
         m_progressBar->setVisible(true);
         break;
