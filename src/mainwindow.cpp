@@ -167,7 +167,11 @@ void MainWindow::InitConnectation()
     connect(ui->menuView, &QMenu::triggered, this, &MainWindow::slotMenuViewTriggered);
 
     connect(ui->menuView, &QMenu::aboutToShow, this, &MainWindow::slotMenuViewAboutToShow);
-
+    
+    // Connect dynamic menu signals
+    connect(ui->menuFrames, &QMenu::aboutToShow, this, &MainWindow::slotMenuFramesAboutToShow);
+    connect(ui->menuPackets, &QMenu::aboutToShow, this, &MainWindow::slotMenuPacketsAboutToShow);
+    
     // media info
     QList<QAction*> mediaActions;
     getMenuAllActions(ui->menuMedia_Info, mediaActions);
@@ -427,8 +431,10 @@ void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
         return;
     }
 
+    // Note: SHOW_FRAMES_VIDEO, SHOW_FRAMES_AUDIO, SHOW_PACKETS_VIDEO, SHOW_PACKETS_AUDIO
+    // are now handled dynamically by slotDynamicStreamActionTriggered
+    // This section is kept for backward compatibility but should not be reached
     if (QStringList{
-            SHOW_FRAMES, SHOW_PACKETS,
             SHOW_FRAMES_VIDEO, SHOW_FRAMES_AUDIO,
             SHOW_PACKETS_VIDEO, SHOW_PACKETS_AUDIO
         }.contains(function))
@@ -835,4 +841,151 @@ void MainWindow::updatePlayerMenuStates()
     ui->actionTotem->setEnabled(installedPlayers.contains(PLAYER_TOTEM) || true);
     ui->actionKMPlayer->setEnabled(installedPlayers.contains(PLAYER_KMPLAYER) || true);
     ui->actionXine->setEnabled(installedPlayers.contains(PLAYER_XINE) || true);
+}
+
+void MainWindow::slotMenuFramesAboutToShow()
+{
+    updateFramesMenu();
+}
+
+void MainWindow::slotMenuPacketsAboutToShow()
+{
+    updatePacketsMenu();
+}
+
+void MainWindow::slotDynamicStreamActionTriggered()
+{
+    QAction *senderAction = static_cast<QAction*>(QObject::sender());
+    if (!senderAction) {
+        return;
+    }
+    
+    QString fileName = m_filesWG.getCurrentSelectFileName();
+    if (fileName.isEmpty()) {
+        qWarning() << CURRENTFILE << "is empty, please retry";
+        return;
+    }
+    
+    QString objectName = senderAction->objectName();
+    
+    // Handle the original static actions (actionShow_Frames_Video, actionShow_Frames_Audio, etc.)
+    if (objectName.contains("actionShow_Frames_Video") || objectName.contains("actionShow_Frames_Audio") ||
+        objectName.contains("actionShow_Packets_Video") || objectName.contains("actionShow_Packets_Audio")) {
+        
+        QStringList parts = objectName.split('_', QT_SKIP_EMPTY_PARTS);
+        if (parts.size() < 4) {
+            qWarning() << "Invalid action object name:" << objectName;
+            return;
+        }
+        
+        QString type = parts[1]; // "Frames" or "Packets"
+        QString codecType = parts[2]; // "Video" or "Audio"
+        QString streamIndex = parts[3]; // "0"
+        // Build the ffprobe command for default actions (use first stream of type)
+        QString command = QString("%1 %2 %3").arg(SHOW_FRAMES)
+                              .arg(SELECT_STREAMS)
+                              // .arg(0)
+                              .arg(streamIndex);
+        
+        showMediaInfo(fileName, command, senderAction->text(), FORMAT_TABLE);
+        return;
+    }
+}
+
+void MainWindow::updateStreamMenus()
+{
+    updateFramesMenu();
+    updatePacketsMenu();
+}
+
+void MainWindow::updateSubMenu(QMenu* subMenu, const QList<ZFfprobe::StreamInfo>& streams, const QString& menuType, const QString& streamType)
+{
+    // Clear existing actions except separators
+    QList<QAction*> actions = subMenu->actions();
+    for (QAction* action : actions) {
+        if (!action->isSeparator()) {
+            subMenu->removeAction(action);
+            action->deleteLater();
+        }
+    }
+    
+    // Add stream actions
+    if (!streams.isEmpty()) {
+        for (const ZFfprobe::StreamInfo& stream : streams) {
+            QString actionText = QString("Stream %1").arg(stream.index);
+            if (!stream.title.isEmpty()) {
+                actionText += QString(" - %1").arg(stream.title);
+            }
+            if (streamType == "audio" && !stream.language.isEmpty()) {
+                actionText += QString(" [%1]").arg(stream.language.toUpper());
+            }
+            if (!stream.codecName.isEmpty()) {
+                actionText += QString(" (%1)").arg(stream.codecName);
+            }
+            
+            QAction* action = new QAction(actionText, subMenu);
+            action->setObjectName(QString("actionShow_%1_%2_%3").arg(menuType).arg(streamType).arg(stream.index));
+            connect(action, &QAction::triggered, this, &MainWindow::slotDynamicStreamActionTriggered);
+            subMenu->addAction(action);
+        }
+    }
+}
+
+void MainWindow::updateFramesMenu()
+{
+    QString fileName = m_filesWG.getCurrentSelectFileName();
+    if (fileName.isEmpty()) {
+        return;
+    }
+    
+    // Get stream information
+    QList<ZFfprobe::StreamInfo> streams = m_probe.getMediaStreams(fileName);
+    
+    // Group streams by type
+    QList<ZFfprobe::StreamInfo> videoStreams;
+    QList<ZFfprobe::StreamInfo> audioStreams;
+    
+    for (const ZFfprobe::StreamInfo& stream : streams) {
+        if (stream.codecType == "video") {
+            videoStreams.append(stream);
+        } else if (stream.codecType == "audio") {
+            audioStreams.append(stream);
+        }
+    }
+
+
+    // Update Video sub-menu
+    updateSubMenu(ui->menuFramesOfVideo, videoStreams, "Frames", "Video");
+    
+    // // Update Audio sub-menu
+    updateSubMenu(ui->menuFramesOfAudio, audioStreams, "Frames", "Audio");
+}
+
+void MainWindow::updatePacketsMenu()
+{
+    QString fileName = m_filesWG.getCurrentSelectFileName();
+    if (fileName.isEmpty()) {
+        return;
+    }
+    
+    // Get stream information
+    QList<ZFfprobe::StreamInfo> streams = m_probe.getMediaStreams(fileName);
+    
+    // Group streams by type
+    QList<ZFfprobe::StreamInfo> videoStreams;
+    QList<ZFfprobe::StreamInfo> audioStreams;
+    
+    for (const ZFfprobe::StreamInfo& stream : streams) {
+        if (stream.codecType == "video") {
+            videoStreams.append(stream);
+        } else if (stream.codecType == "audio") {
+            audioStreams.append(stream);
+        }
+    }
+    
+    // Update Video sub-menu
+    updateSubMenu(ui->menuPacketsOfVideo, videoStreams, "Packets", "Video");
+    
+    // Update Audio sub-menu
+    updateSubMenu(ui->menuPacketsOfAudio, audioStreams, "Packets", "Audio");
 }

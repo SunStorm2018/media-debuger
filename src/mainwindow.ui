@@ -63,15 +63,35 @@
      <property name="title">
       <string>Frames</string>
      </property>
-     <addaction name="actionShow_Frames_Video"/>
-     <addaction name="actionShow_Frames_Audio"/>
+     <widget class="QMenu" name="menuFramesOfVideo">
+      <property name="title">
+       <string>Video</string>
+      </property>
+     </widget>
+     <widget class="QMenu" name="menuFramesOfAudio">
+      <property name="title">
+       <string>Audio</string>
+      </property>
+     </widget>
+     <addaction name="menuFramesOfVideo"/>
+     <addaction name="menuFramesOfAudio"/>
     </widget>
     <widget class="QMenu" name="menuPackets">
      <property name="title">
       <string>Packets</string>
      </property>
-     <addaction name="actionShow_Packets_Video"/>
-     <addaction name="actionShow_Packets_Audio"/>
+     <widget class="QMenu" name="menuPacketsOfVideo">
+      <property name="title">
+       <string>Video</string>
+      </property>
+     </widget>
+     <widget class="QMenu" name="menuPacketsOfAudio">
+      <property name="title">
+       <string>Audio</string>
+      </property>
+     </widget>
+     <addaction name="menuPacketsOfVideo"/>
+     <addaction name="menuPacketsOfAudio"/>
     </widget>
     <addaction name="actionShow_Streams"/>
     <addaction name="actionShow_Format"/>
@@ -374,26 +394,6 @@
     <string>General</string>
    </property>
   </action>
-  <action name="actionShow_Frames_Video">
-   <property name="text">
-    <string>Video</string>
-   </property>
-  </action>
-  <action name="actionShow_Frames_Audio">
-   <property name="text">
-    <string>Audio</string>
-   </property>
-  </action>
-  <action name="actionShow_Packets_Video">
-   <property name="text">
-    <string>Video</string>
-   </property>
-  </action>
-  <action name="actionShow_Packets_Audio">
-   <property name="text">
-    <string>Audio</string>
-   </property>
-  </action>
   <action name="actionLog">
    <property name="text">
     <string>Log</string>
@@ -535,6 +535,46 @@
   <action name="actionInstall_Players">
    <property name="text">
     <string>Install Players...</string>
+   </property>
+  </action>
+  <action name="actionShow_Frames_Video">
+   <property name="text">
+    <string>Video</string>
+   </property>
+  </action>
+  <action name="actionShow_Frames_Audio">
+   <property name="text">
+    <string>Audio</string>
+   </property>
+  </action>
+  <action name="actionShow_Packets_Video">
+   <property name="text">
+    <string>Video</string>
+   </property>
+  </action>
+  <action name="actionShow_Packets_Audio">
+   <property name="text">
+    <string>Audio</string>
+   </property>
+  </action>
+  <action name="action22">
+   <property name="text">
+    <string>22</string>
+   </property>
+  </action>
+  <action name="action22_2">
+   <property name="text">
+    <string>22</string>
+   </property>
+  </action>
+  <action name="action1">
+   <property name="text">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="action1_2">
+   <property name="text">
+    <string>1</string>
    </property>
   </action>
  </widget>

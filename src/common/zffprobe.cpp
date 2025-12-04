@@ -5,6 +5,10 @@
 #include "qtcompat.h"
 #include "qdebug.h"
 #include "qrgb.h"
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonParseError>
 
 ZFfprobe::ZFfprobe(QObject *parent)
     : QObject{parent}
@@ -177,6 +181,62 @@ QString ZFfprobe::getMediaInfoJsonFormat(const QString& command, const QString& 
     qDebug() << process.arguments().join(" ").prepend(" ").prepend(FFPROBE);
     process.waitForFinished(-1);
     return process.readAll();
+}
+
+QList<ZFfprobe::StreamInfo> ZFfprobe::getMediaStreams(const QString& fileName)
+{
+    QList<StreamInfo> streams;
+    
+    if (fileName.isEmpty()) {
+        return streams;
+    }
+    
+    QString streamsJson = getMediaInfoJsonFormat(SHOW_STREAMS, fileName);
+    if (streamsJson.isEmpty()) {
+        return streams;
+    }
+    
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(streamsJson.toUtf8(), &error);
+    
+    if (error.error != QJsonParseError::NoError) {
+        qWarning() << "Failed to parse streams JSON:" << error.errorString();
+        return streams;
+    }
+    
+    if (!doc.isObject()) {
+        qWarning() << "Streams JSON is not an object";
+        return streams;
+    }
+    
+    QJsonObject rootObj = doc.object();
+    if (!rootObj.contains("streams")) {
+        qWarning() << "Streams JSON does not contain 'streams' field";
+        return streams;
+    }
+    
+    QJsonArray streamsArray = rootObj.value("streams").toArray();
+    for (const QJsonValue& streamValue : streamsArray) {
+        if (!streamValue.isObject()) {
+            continue;
+        }
+        
+        QJsonObject streamObj = streamValue.toObject();
+        StreamInfo streamInfo;
+        
+        streamInfo.index = streamObj.value("index").toInt(-1);
+        streamInfo.codecType = streamObj.value("codec_type").toString();
+        streamInfo.codecName = streamObj.value("codec_name").toString();
+        
+        // Get tags for language and title if available
+        QJsonObject tags = streamObj.value("tags").toObject();
+        streamInfo.language = tags.value("language").toString();
+        streamInfo.title = tags.value("title").toString();
+        qDebug() << streamInfo.index << streamInfo.codecType << streamInfo.codecName;
+        streams.append(streamInfo);
+    }
+    
+    return streams;
 }
 
 QStringList ZFfprobe::getCodecsFromLibav(CodecType type)

@@ -206,6 +206,17 @@ public:
  * Media Info
  */
     Q_INVOKABLE QString getMediaInfoJsonFormat(const QString& command, const QString& fileName);           // show format/container info
+    
+    // Stream info methods
+    struct StreamInfo {
+        int index;
+        QString codecType;
+        QString codecName;
+        QString language;
+        QString title;
+    };
+    
+    QList<StreamInfo> getMediaStreams(const QString& fileName);
 
     QStringList getCodecsFromLibav(CodecType type);
     QStringList getMuxersFromLibav(MuxerType type);

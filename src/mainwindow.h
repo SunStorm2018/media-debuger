@@ -80,6 +80,11 @@ private slots:
 
     void slotMenuViewAboutToShow();
     
+    // Dynamic menu slots
+    void slotMenuFramesAboutToShow();
+    void slotMenuPacketsAboutToShow();
+    void slotDynamicStreamActionTriggered();
+    
     // Player related slot functions
     void slotPlayerInstallationChanged(const QString& playerKey, bool installed);
     void slotShowInstallPlayersDialog();
@@ -103,6 +108,14 @@ private:
      * @brief Update player menu states
      */
     void updatePlayerMenuStates();
+    
+    /**
+     * @brief Update dynamic stream menus
+     */
+    void updateStreamMenus();
+    void updateFramesMenu();
+    void updatePacketsMenu();
+    void updateSubMenu(QMenu* subMenu, const QList<ZFfprobe::StreamInfo>& streams, const QString& menuType, const QString& streamType);
 
     Ui::MainWindow *ui;
 
