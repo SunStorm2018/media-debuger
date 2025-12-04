@@ -29,7 +29,6 @@ SOURCES += \
     src/common/zflowlayout.cpp \
     src/common/zmultiselectmenu.cpp \
     src/common/ztableheadermanager.cpp \
-    src/common/zx11embedhelper.cpp \
     src/common/zffprobe.cpp \
     src/common/zffmpeg.cpp \
     src/common/zffplay.cpp \
@@ -53,7 +52,6 @@ SOURCES += \
     src/widgets/infotablewg.cpp \
     src/widgets/jsonfmtwg.cpp \
     src/widgets/logwg.cpp \
-    src/widgets/playerwg.cpp \
     src/widgets/progressdlg.cpp \
     src/widgets/searchwg.cpp \
     src/widgets/tabconfigwg.cpp \
@@ -70,7 +68,6 @@ HEADERS += \
     src/common/zmultiselectmenu.h \
     src/common/zsingleton.h \
     src/common/ztableheadermanager.h \
-    src/common/zx11embedhelper.h \
     src/common/zffprobe.h \
     src/common/zffmpeg.h \
     src/common/zffplay.h \
@@ -93,7 +90,6 @@ HEADERS += \
     src/widgets/infotablewg.h \
     src/widgets/jsonfmtwg.h \
     src/widgets/logwg.h \
-    src/widgets/playerwg.h \
     src/widgets/progressdlg.h \
     src/widgets/searchwg.h \
     src/widgets/tabconfigwg.h \
@@ -111,7 +107,6 @@ FORMS += \
     src/widgets/infotablewg.ui \
     src/widgets/jsonfmtwg.ui \
     src/widgets/logwg.ui \
-    src/widgets/playerwg.ui \
     src/widgets/searchwg.ui \
     src/widgets/tabconfigwg.ui \
     src/widgets/tabelfmtwg.ui \

@@ -19,10 +19,7 @@ MediaPropsWG::MediaPropsWG(QWidget *parent)
     , m_streamsWidget(nullptr)
 {
     ui->setupUi(this);
-    setupUI();
-    
-    // Connect signals
-    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MediaPropsWG::onTabChanged);
+    InitUI();
 }
 
 MediaPropsWG::~MediaPropsWG()
@@ -30,12 +27,15 @@ MediaPropsWG::~MediaPropsWG()
     delete ui;
 }
 
-void MediaPropsWG::setupUI()
+void MediaPropsWG::InitUI()
 {
     // Create JsonFormatWG for Format and Streams tabs
     m_formatWidget = new JsonFormatWG(this);
     m_streamsWidget = new JsonFormatWG(this);
-    
+
+    m_formatWidget->setControlMargin(0, 0, 0, 0);
+    m_streamsWidget->setControlMargin(0, 0, 0, 0);
+
     // Add widgets to tabs
     ui->formatLayout->addWidget(m_formatWidget);
     ui->streamsLayout->addWidget(m_streamsWidget);
@@ -131,11 +131,4 @@ void MediaPropsWG::loadStreamsInfo()
     if (m_streamsWidget) {
         m_streamsWidget->loadData(streamsData.toUtf8());
     }
-}
-
-
-void MediaPropsWG::onTabChanged(int index)
-{
-    Q_UNUSED(index);
-    // Could be used for lazy loading of tabs
 }

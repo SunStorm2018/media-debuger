@@ -20,9 +20,9 @@ MainWindow::MainWindow(QWidget *parent)
     setAttribute(Qt::WA_QuitOnClose, true);
 
     for (auto it : CONFIG_GROUPS) {
-        auto action = new QAction(it, ui->menuConfig);
+        auto action = new QAction(it, ui->menuSetting);
         action->setObjectName(it);
-        ui->menuConfig->addAction(action);
+        ui->menuSetting->addAction(action);
     }
 
     InitConnectation();
@@ -47,17 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     
     // If no file is selected in FilesWG, try to get from config
     QString currentFile = m_filesWG.getCurrentSelectFileName();
-    if (currentFile.isEmpty()) {
-        currentFile = Common::instance()->getConfigValue(CURRENTFILE).toString();
-        // If we got a file from config, set it in the player
-        if (!currentFile.isEmpty()) {
-            m_playerWG.setMediaFile(currentFile);
-        }
-    } else {
-        // If FilesWG has a selection, set it in the player
-        m_playerWG.setMediaFile(currentFile);
-    }
-    
+
     // Load media properties for the current file on startup
     if (!currentFile.isEmpty() && QFile::exists(currentFile)) {
         loadMediaProperties(currentFile);
@@ -71,7 +61,6 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::slotPlayerInstallationChanged);
 
     m_actionWidgetMap = {
-        {ui->actionPlayer, m_playerWGDock},
         {ui->actionLog, m_logWGDock},
         {ui->actionFiles, m_filesWGDock},
         {ui->actionFolders, m_foldersWGDock},
@@ -161,7 +150,7 @@ void MainWindow::InitConnectation()
     // menu connection
     connect(ui->menuFile, &QMenu::triggered, this, &MainWindow::slotMenuFileTriggered);
     connect(ui->menuBasic_Info, &QMenu::triggered, this, &MainWindow::slotMenuBasic_InfoTriggered);
-    connect(ui->menuConfig, &QMenu::triggered, this, &MainWindow::slotMenuConfigTriggered);
+    connect(ui->menuSetting, &QMenu::triggered, this, &MainWindow::slotMenuConfigTriggered);
     connect(ui->menuHelp, &QMenu::triggered, this, &MainWindow::slotMenuHelpTriggered);
     connect(ui->menuPlay, &QMenu::triggered, this, &MainWindow::slotMenuPlayTriggered);
     connect(ui->menuView, &QMenu::triggered, this, &MainWindow::slotMenuViewTriggered);
@@ -183,8 +172,6 @@ void MainWindow::InitConnectation()
     connect(ZLogger::instance(), &ZLogger::logMessage, &m_logWG, &LogWG::outLog);
 
     connect(&m_filesWG, &FilesWG::currentFileActived, [=](QPair<QString, QString> filePair){
-        m_playerWG.setMediaFile(filePair.second);
-
         // Update media properties dock if exists
         loadMediaPropertiesAsync(filePair.second);
     });
@@ -312,17 +299,10 @@ void MainWindow::createDockWidgets()
     m_mediaPropsWGDock->setWidget(centralWidget);
     setCentralWidget(m_mediaPropsWGDock);
 
-    // Set PlayerWG as dock widget (right side)
-    m_playerWGDock = new QDockWidget(tr("Player"), this);
-    m_playerWGDock->setObjectName("PlayerDock");
-    m_playerWGDock->setWidget(&m_playerWG);
-    addDockWidget(Qt::RightDockWidgetArea, m_playerWGDock);
-
     // Set dock widget sizes
     m_filesWGDock->setMinimumWidth(200);
     m_foldersWGDock->setMinimumWidth(200);
     m_logWGDock->setMinimumHeight(150);
-    m_playerWGDock->setMinimumWidth(400);
     m_mediaPropsWGDock->setMinimumWidth(300);
 }
 
@@ -588,8 +568,7 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
                               "- Multiple format views (JSON, Table)\n"
                               "- Real-time logging\n"
                               "- Customizable layout\n"
-                              "- FFmpeg compilation tool\n\n"
-                              "Version 1.0"));
+                              "- FFmpeg compilation tool\n\n"));
     }
 
     if (ui->actionApp_Dir == action) {
@@ -887,7 +866,9 @@ void MainWindow::slotDynamicStreamActionTriggered()
                               // .arg(0)
                               .arg(streamIndex);
         
-        showMediaInfo(fileName, command, senderAction->text(), FORMAT_TABLE);
+        showMediaInfo(fileName, command,
+                      QString("[%1] - %2 - (%3)").arg(fileName).arg(senderAction->text()).arg(command),
+                      FORMAT_TABLE);
         return;
     }
 }

@@ -40,11 +40,9 @@ public:
     void loadStreamsInfo();
 
     void loadMediaInfoAsync();
-private slots:
-    void onTabChanged(int index);
 
 private:
-    void setupUI();
+    void InitUI();
 
 private:
     Ui::MediaPropsWG *ui;

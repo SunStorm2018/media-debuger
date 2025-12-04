@@ -26,7 +26,6 @@
 #include "widgets/tabelfmtwg.h"
 #include "widgets/logwg.h"
 #include "widgets/fileswg.h"
-#include "widgets/playerwg.h"
 #include "widgets/progressdlg.h"
 #include "widgets/folderswg.h"
 #include "widgets/exportwg.h"
@@ -123,14 +122,12 @@ private:
     ZMediaPlayerManager* m_playerManager;
 
     FilesWG &m_filesWG = FilesWG::instance();
-    PlayerWG &m_playerWG = PlayerWG::instance();
     LogWG &m_logWG = LogWG::instance();
     FoldersWG &m_foldersWG = FoldersWG::instance();
     MediaPropsWG &m_mediaPropsWidget = MediaPropsWG::instance();
 
     QDockWidget *m_filesWGDock = nullptr;
     QDockWidget *m_logWGDock = nullptr;
-    QDockWidget *m_playerWGDock = nullptr;
     QDockWidget *m_foldersWGDock = nullptr;
     QDockWidget *m_mediaPropsWGDock = nullptr;
 

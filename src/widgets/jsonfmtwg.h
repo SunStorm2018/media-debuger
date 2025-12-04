@@ -30,6 +30,7 @@ public:
     explicit JsonFormatWG(QWidget *parent = nullptr);
     ~JsonFormatWG();
 
+    void setControlMargin(const int &top, const int &bottom, const int &left, const int &right);
 private:
     Ui::JsonFormatWG *ui;
 

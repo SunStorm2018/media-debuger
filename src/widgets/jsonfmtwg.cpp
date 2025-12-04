@@ -24,11 +24,11 @@ JsonFormatWG::JsonFormatWG(QWidget *parent)
     
     // Create copy submenu
     QMenu *copyMenu = m_contextMenu->addMenu(tr("Copy"));
-    copyMenu->addAction(tr("Copy Value"), this, &JsonFormatWG::copyValue);
-    copyMenu->addAction(tr("Copy Key-Value"), this, &JsonFormatWG::copyKeyValue);
-    copyMenu->addAction(tr("Copy Key"), this, &JsonFormatWG::copyKey);
+    copyMenu->addAction(tr("Value"), this, &JsonFormatWG::copyValue);
+    copyMenu->addAction(tr("Key"), this, &JsonFormatWG::copyKey);
+    copyMenu->addAction(tr("Key-Value"), this, &JsonFormatWG::copyKeyValue);
     copyMenu->addSeparator();
-    copyMenu->addAction(tr("Copy All Data"), this, &JsonFormatWG::copyAllData);
+    copyMenu->addAction(tr("All Data"), this, &JsonFormatWG::copyAllData);
     
     m_contextMenu->addSeparator();
     m_contextMenu->addAction(tr("Search"), this, &JsonFormatWG::toggleSearch);
@@ -64,6 +64,11 @@ JsonFormatWG::JsonFormatWG(QWidget *parent)
 JsonFormatWG::~JsonFormatWG()
 {
     delete ui;
+}
+
+void JsonFormatWG::setControlMargin(const int &top, const int &bottom, const int &left, const int &right)
+{
+    ui->verticalLayout->setContentsMargins(left, top, right, bottom);
 }
 
 bool JsonFormatWG::loadJson(const QByteArray &json)
