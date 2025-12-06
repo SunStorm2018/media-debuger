@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 #include "jsonfmtwg.h"
+#include "common/common.h"
 #include "ui_jsonfmtwg.h"
 
 JsonFormatWG::JsonFormatWG(QWidget *parent)
@@ -35,11 +36,19 @@ JsonFormatWG::JsonFormatWG(QWidget *parent)
     m_contextMenu->addSeparator();
     m_contextMenu->addAction(tr("Expand All"), this, &JsonFormatWG::expandAll);
     m_contextMenu->addAction(tr("Collapse All"), this, &JsonFormatWG::collapseAll);
+    m_contextMenu->addSeparator();
+    m_contextMenu->addAction(tr("Switch View"), this, &JsonFormatWG::toggleSwitchView);
 
     ui->treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeView, &QTreeView::customContextMenuRequested, this, &JsonFormatWG::showContextMenu);
+
+    ui->textView->addContextSeparator();
+    QAction *foundAction = Common::findActionByText(m_contextMenu, "Switch View");
+    if (foundAction) {
+        ui->textView->addContextAction(foundAction);
+    }
 
     m_searchWG = new SearchWG(this);
     m_searchWG->setWindowTitle(tr("JSON Search"));
@@ -75,6 +84,7 @@ bool JsonFormatWG::loadJson(const QByteArray &json)
 {
     bool res = m_model->loadJson(json);
     ui->treeView->expandAll();
+    ui->textView->setPlainText(json);
     return res;
 }
 
@@ -177,6 +187,11 @@ void JsonFormatWG::toggleSearch()
             m_searchWG->setFocus();
         }
     }
+}
+
+void JsonFormatWG::toggleSwitchView()
+{
+    ui->stackedWidget->setCurrentIndex((ui->stackedWidget->currentIndex() + 1) % ui->stackedWidget->count());
 }
 
 QJsonTreeItem* JsonFormatWG::getItemForIndex(const QModelIndex &proxyIndex)

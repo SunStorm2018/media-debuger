@@ -54,6 +54,7 @@ private slots:
     void expandAll();
     void collapseAll();
     void toggleSearch();
+    void toggleSwitchView();
 
 private:
     void countVisibleAndTotalItems(QAbstractItemModel *model, const QModelIndex &parent, int &visibleCount, int &totalCount);

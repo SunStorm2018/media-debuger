@@ -13,6 +13,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QHeaderView>
+#include <QtConcurrent>
 
 #include <common/common.h>
 #include <common/ztableheadermanager.h>
@@ -24,6 +25,9 @@
 
 #include <widgets/searchwg.h>
 #include <widgets/helpquerywg.h>
+
+// Forward declarations
+class ProgressDialog;
 
 namespace Ui {
 class InfoWidgets;
@@ -77,7 +81,20 @@ public slots:
 
     void copySelectedTextWithHeader();
 
+    void copySelectedRows();
+
+    void copySelectedRowsWithHeader();
+
+    void copySelectedColumns();
+
+    void copySelectedColumnsWithHeader();
+
+    void copyAllData();
+
+    void copyAllDataWithHeader();
+
     void fitTableColumnToContent();
+
 
     void showDetailInfo();
 
@@ -101,6 +118,9 @@ private:
     void createDetailSearchDialog();
     void updateCurrentModel(); // Helper method to update the current active model
     QString getSelectedText(bool includeHeader = false);
+    void setupContextMenu(); // Setup context menu for table
+    void setupCopyMenu(); // Setup copy menu
+    void setupTableModel(); // Setup table model and view
 
 private:
     void format_data(const QString& data, QList<QStringList> &data_tb, QStringList &headers, QString format_key);
@@ -118,8 +138,19 @@ private:
     // Detail search components
     QMenu *m_searchButtonMenu;
     QAction *m_detailSearchAction;
+
+    // Copy
+    QMenu *m_copyMenu;
     QAction *m_copySelectedTextAction;
     QAction *m_copySelectedTextWithHeaderAction;
+    QAction *m_copySelectedRowsAction;
+    QAction *m_copySelectedRowsWithHeaderAction;
+    QAction *m_copySelectedColumnsAction;
+    QAction *m_copySelectedColumnsWithHeaderAction;
+    QAction *m_copyAllDataAction;
+    QAction *m_copyAllDataWithHeaderAction;
+
+    // Detail search
     SearchWG *m_detailSearchDialog;
 
     QMenu *m_tableContextMenu;
@@ -135,6 +166,9 @@ private:
     bool m_isUserAdjusted;
     QTimer *m_resizeTimer;
     int m_lastTableWidth;
+    
+    // Copy operations
+    ProgressDialog *m_copyProgressDialog;
     
     void setupColumnWidthManagement();
     void saveColumnWidthRatios();

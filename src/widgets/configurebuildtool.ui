@@ -19,7 +19,7 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0">
        <item>
         <widget class="QLabel" name="label">
@@ -190,7 +190,7 @@
   <customwidget>
    <class>InfoWidgets</class>
    <extends>QWidget</extends>
-   <header location="global">widgets/infotablewg.h</header>
+   <header>widgets/infotablewg.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

@@ -2,9 +2,14 @@
 // SPDX-License-Identifier: MIT
 
 #include "ztexteditor.h"
+#include "common.h"
 #include <QPainter>
 #include <QTextBlock>
 #include <QResizeEvent>
+#include <QContextMenuEvent>
+#include <QClipboard>
+#include <QApplication>
+#include <QKeyEvent>
 
 // GitHub-style color definitions
 const QColor LINE_NUMBER_BG = QColor(247, 247, 247);       // Line number area background
@@ -16,6 +21,14 @@ const int LINE_NUMBER_RIGHT_MARGIN = 8;                     // Line number right
 
 ZTextEditor::ZTextEditor(QWidget *parent)
     : QPlainTextEdit(parent)
+    , m_contextMenu(nullptr)
+    , m_undoAction(nullptr)
+    , m_redoAction(nullptr)
+    , m_cutAction(nullptr)
+    , m_copyAction(nullptr)
+    , m_pasteAction(nullptr)
+    , m_selectAllAction(nullptr)
+    , m_deleteAction(nullptr)
 {
     lineNumberArea = new ZLineNumberArea(this);
 
@@ -32,6 +45,10 @@ ZTextEditor::ZTextEditor(QWidget *parent)
 
     updateLineNumberAreaWidth();
     highlightCurrentLine();
+    
+    // Setup context menu
+    setContextMenuPolicy(Qt::DefaultContextMenu);
+    setupContextMenu();
 }
 
 int ZTextEditor::lineNumberAreaWidth()
@@ -123,5 +140,169 @@ void ZTextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
         top = bottom;
         bottom = top + blockHeight;
         blockNumber++;
+    }
+}
+
+void ZTextEditor::contextMenuEvent(QContextMenuEvent *event)
+{
+    updateContextMenuActions();
+    m_contextMenu->exec(event->globalPos());
+}
+
+void ZTextEditor::setupContextMenu()
+{
+    m_contextMenu = new QMenu(this);
+    
+    // Undo
+    m_undoAction = new QAction(tr("Undo"), this);
+    m_undoAction->setShortcut(QKeySequence::Undo);
+    connect(m_undoAction, &QAction::triggered, this, &ZTextEditor::undo);
+    m_contextMenu->addAction(m_undoAction);
+    
+    // Redo
+    m_redoAction = new QAction(tr("Redo"), this);
+    m_redoAction->setShortcut(QKeySequence::Redo);
+    connect(m_redoAction, &QAction::triggered, this, &ZTextEditor::redo);
+    m_contextMenu->addAction(m_redoAction);
+    
+    m_contextMenu->addSeparator();
+    
+    // Cut
+    m_cutAction = new QAction(tr("Cut"), this);
+    m_cutAction->setShortcut(QKeySequence::Cut);
+    connect(m_cutAction, &QAction::triggered, this, &ZTextEditor::cut);
+    m_contextMenu->addAction(m_cutAction);
+    
+    // Copy
+    m_copyAction = new QAction(tr("Copy"), this);
+    m_copyAction->setShortcut(QKeySequence::Copy);
+    connect(m_copyAction, &QAction::triggered, this, &ZTextEditor::copy);
+    m_contextMenu->addAction(m_copyAction);
+    
+    // Paste
+    m_pasteAction = new QAction(tr("Paste"), this);
+    m_pasteAction->setShortcut(QKeySequence::Paste);
+    connect(m_pasteAction, &QAction::triggered, this, &ZTextEditor::paste);
+    m_contextMenu->addAction(m_pasteAction);
+    
+    // Delete
+    m_deleteAction = new QAction(tr("Delete"), this);
+    m_deleteAction->setShortcut(QKeySequence::Delete);
+    connect(m_deleteAction, &QAction::triggered, this, &ZTextEditor::deleteSelected);
+    m_contextMenu->addAction(m_deleteAction);
+    
+    m_contextMenu->addSeparator();
+    
+    // Select All
+    m_selectAllAction = new QAction(tr("Select All"), this);
+    m_selectAllAction->setShortcut(QKeySequence::SelectAll);
+    connect(m_selectAllAction, &QAction::triggered, this, &ZTextEditor::selectAll);
+    m_contextMenu->addAction(m_selectAllAction);
+}
+
+void ZTextEditor::updateContextMenuActions()
+{
+    // Update undo/redo status
+    m_undoAction->setEnabled(document()->isUndoAvailable());
+    m_redoAction->setEnabled(document()->isRedoAvailable());
+    
+    // Update cut/copy/delete status
+    bool hasSelection = textCursor().hasSelection();
+    m_cutAction->setEnabled(hasSelection && !isReadOnly());
+    m_copyAction->setEnabled(hasSelection);
+    m_deleteAction->setEnabled(hasSelection && !isReadOnly());
+    
+    // Update paste status
+    m_pasteAction->setEnabled(!isReadOnly() && QApplication::clipboard()->text().length() > 0);
+    
+    // Update select all status
+    m_selectAllAction->setEnabled(document()->characterCount() > 1); // >1 because includes final null character
+}
+
+void ZTextEditor::addContextMenu(QMenu *menu)
+{
+    if (menu && m_contextMenu) {
+        m_contextMenu->addMenu(menu);
+    }
+}
+
+void ZTextEditor::addContextAction(QAction *action)
+{
+    if (action && m_contextMenu) {
+        m_contextMenu->addAction(action);
+    }
+}
+
+void ZTextEditor::addContextSeparator()
+{
+    if (m_contextMenu) {
+        m_contextMenu->addSeparator();
+    }
+}
+
+QAction *ZTextEditor::findContextAction(const QString &objectName)
+{
+    if (!m_contextMenu) {
+        return nullptr;
+    }
+    
+    // Use Common utility function
+    return Common::findActionByObjectName(m_contextMenu, objectName);
+}
+
+QAction *ZTextEditor::findContextActionByText(const QString &actionText)
+{
+    if (!m_contextMenu) {
+        return nullptr;
+    }
+    
+    // Use Common utility function
+    return Common::findActionByText(m_contextMenu, actionText);
+}
+
+QList<QAction *> ZTextEditor::getContextActions()
+{
+    if (!m_contextMenu) {
+        return QList<QAction *>();
+    }
+    
+    // Use Common utility function
+    return Common::getAllActions(m_contextMenu);
+}
+
+void ZTextEditor::undo()
+{
+    QPlainTextEdit::undo();
+}
+
+void ZTextEditor::redo()
+{
+    QPlainTextEdit::redo();
+}
+
+void ZTextEditor::cut()
+{
+    QPlainTextEdit::cut();
+}
+
+void ZTextEditor::copy()
+{
+    QPlainTextEdit::copy();
+}
+
+void ZTextEditor::paste()
+{
+    QPlainTextEdit::paste();
+}
+
+void ZTextEditor::selectAll()
+{
+    QPlainTextEdit::selectAll();
+}
+
+void ZTextEditor::deleteSelected()
+{
+    if (textCursor().hasSelection() && !isReadOnly()) {
+        textCursor().removeSelectedText();
     }
 }

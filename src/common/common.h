@@ -14,6 +14,8 @@
 #include <QMimeDatabase>
 #include <QUrl>
 #include <QFileInfo>
+#include <QMenu>
+#include <QAction>
 
 #define CURRENTFILE "currentFile"
 #define CURRENTFILES "currentFiles"
@@ -108,6 +110,11 @@ public:
 
     // Check if MIME data contains supported media files
     static bool containsSupportedMediaFiles(const QMimeData *mimeData);
+
+    // Menu utility functions
+    static QAction *findActionByObjectName(QMenu *menu, const QString &objectName);
+    static QAction *findActionByText(QMenu *menu, const QString &text);
+    static QList<QAction *> getAllActions(QMenu *menu);
 
 private:
     Common();

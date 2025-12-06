@@ -6,6 +6,11 @@
 #include "ui_infotablewg.h"
 #include <QtGlobal>
 #include <QPoint>
+#include <QApplication>
+#include <QClipboard>
+#include <QMetaObject>
+#include <QItemSelectionRange>
+#include "progressdlg.h"
 
 InfoWidgets::InfoWidgets(QWidget *parent)
     : QWidget(parent)
@@ -14,7 +19,14 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     , m_detailSearchAction(nullptr)
     , m_copySelectedTextAction(nullptr)
     , m_copySelectedTextWithHeaderAction(nullptr)
+    , m_copySelectedRowsAction(nullptr)
+    , m_copySelectedRowsWithHeaderAction(nullptr)
+    , m_copySelectedColumnsAction(nullptr)
+    , m_copySelectedColumnsWithHeaderAction(nullptr)
+    , m_copyAllDataAction(nullptr)
+    , m_copyAllDataWithHeaderAction(nullptr)
     , m_detailSearchDialog(nullptr)
+    , m_copyProgressDialog(nullptr)
     , m_tableContextMenu(new QMenu(this))
     , m_isUserAdjusted(false)
     , m_resizeTimer(new QTimer(this))
@@ -23,78 +35,11 @@ InfoWidgets::InfoWidgets(QWidget *parent)
     ui->setupUi(this);
     ui->detail_raw_pte->setVisible(false);
 
-    // Enable context menu for table
-    ui->detail_tb->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->detail_tb, &QTableView::customContextMenuRequested, [this](const QPoint &pos) {
-        m_detailAction->setVisible(HELP_OPTION_FORMATS.contains(m_helpKey));
-
-        QModelIndex index = ui->detail_tb->indexAt(pos);
-        if (index.isValid()) {
-            m_currentRow = index.row();
-            m_currentColumn = index.column();
-            m_tableContextMenu->exec(ui->detail_tb->viewport()->mapToGlobal(pos));
-        }
-    });
-
-    // detail info action
-    m_detailAction = new QAction("Detail Info", this);
-    connect(m_detailAction, &QAction::triggered, this, &InfoWidgets::showDetailInfo);
-    m_tableContextMenu->addAction(m_detailAction);
-
-    // restore order action
-    m_restoreOrderAction = new QAction("Restore Order", this);
-    connect(m_restoreOrderAction, &QAction::triggered, [=](){
-        QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->detail_tb->model());
-        if (!proxyModel) return;
-        proxyModel->sort(-1, Qt::AscendingOrder);
-        // multiColumnSearchModel->sort(-1, Qt::AscendingOrder); // both two could satisify
-        ui->detail_tb->horizontalHeader()->setSortIndicator(-1, Qt::AscendingOrder);
-        ui->detail_tb->horizontalHeader()->setSortIndicatorShown(false);
-    });
-    m_tableContextMenu->addAction(m_restoreOrderAction);
-
-    m_tableContextMenu->addSeparator();
-
-    // copy selected text action
-    m_copySelectedTextAction = new QAction("Coyp Select Text", this);
-    connect(m_copySelectedTextAction, &QAction::triggered, this, &InfoWidgets::copySelectedText);
-    m_tableContextMenu->addAction(m_copySelectedTextAction);
-
-    // copy selected text with header action
-    m_copySelectedTextWithHeaderAction = new QAction("Coyp Select Text With Header", this);
-    connect(m_copySelectedTextWithHeaderAction, &QAction::triggered, this, &InfoWidgets::copySelectedTextWithHeader);
-    m_tableContextMenu->addAction(m_copySelectedTextWithHeaderAction);
-
-    m_tableContextMenu->addSeparator();
-
-    // copy selected text with header action
-    m_fitTableColumnAction = new QAction("Fit Column Width", this);
-    connect(m_fitTableColumnAction, &QAction::triggered, this, &InfoWidgets::fitTableColumnToContent);
-    m_tableContextMenu->addAction(m_fitTableColumnAction);
-
-    // model
-    m_model = new MediaInfoTabelModel(this);
-
-    multiColumnSearchModel = new MultiColumnSearchProxyModel(this);
-    multiColumnSearchModel->setSourceModel(m_model);
-    ui->detail_tb->setModel(multiColumnSearchModel);
-
-    ui->detail_tb->horizontalHeader()->setSectionsMovable(true);
-    ui->detail_tb->verticalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    ui->detail_tb->verticalHeader()->setDefaultSectionSize(25);
-    ui->detail_tb->verticalHeader()->setVisible(true);
-    ui->detail_tb->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    ui->detail_tb->setSortingEnabled(true);
-
-    // header manager
-    m_headerManager = new ZTableHeaderManager(ui->detail_tb->horizontalHeader(), ui->detail_tb->verticalHeader(), this);
-    m_headerManager->setObjectName(this->objectName());
-    m_headerManager->setTotalCountVisible(false);
-    m_headerManager->restoreState();
-
-    connect(m_headerManager, &ZTableHeaderManager::headerToggleVisiable, [=]() {
-        fitTableColumnToContent();
-    });
+    // Setup context menu for table
+    setupContextMenu();
+    
+    // Setup table model and view
+    setupTableModel();
     
     // Setup column width management
     setupColumnWidthManagement();
@@ -106,15 +51,15 @@ InfoWidgets::InfoWidgets(QWidget *parent)
 
     connect(m_model, &QAbstractItemModel::dataChanged, this,
             [=](const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles) {
-
-        emit dataChanged(m_data_tb.at(topLeft.row()));
-    });
+                emit dataChanged(m_data_tb.at(topLeft.row()));
+            });
 }
 
 InfoWidgets::~InfoWidgets()
 {
     delete m_headerManager;
     delete m_detailSearchDialog;
+    delete m_copyProgressDialog;
     delete ui;
 }
 
@@ -681,7 +626,16 @@ QString InfoWidgets::getSelectedText(bool includeHeader)
     if (includeHeader) {
         QStringList headerContents;
         for (int j = range.left(); j <= range.right(); ++j) {
-            headerContents << ui->detail_tb->model()->headerData(j, Qt::Horizontal).toString();
+            int sourceColumn = j;
+            if (ui->detail_tb->model() == multiColumnSearchModel) {
+                sourceColumn = j;
+            }
+            
+            if (sourceColumn >= 0 && sourceColumn < m_headers.size()) {
+                headerContents << m_headers.at(sourceColumn);
+            } else {
+                headerContents << ui->detail_tb->model()->headerData(j, Qt::Horizontal).toString();
+            }
         }
         text += headerContents.join("\t") + "\n";
     }
@@ -708,7 +662,33 @@ void InfoWidgets::copySelectedText()
 {
     QString text = getSelectedText(false);
     if (!text.isEmpty()) {
-        QApplication::clipboard()->setText(text);
+        // Create progress dialog for consistency
+        m_copyProgressDialog = new ProgressDialog(this);
+        m_copyProgressDialog->setWindowTitle(tr("Copying Data"));
+        m_copyProgressDialog->setMessage(tr("Preparing to copy selected text..."));
+        m_copyProgressDialog->setProgressMode(ProgressDialog::Indeterminate);
+        m_copyProgressDialog->setAutoClose(true);
+        m_copyProgressDialog->setCancelButtonVisible(true);
+
+        m_copyProgressDialog->start();
+        
+        // Use QtConcurrent::run for non-blocking operation
+        QtConcurrent::run([this, text]() {
+            // Copy text directly
+            QApplication::clipboard()->setText(text);
+
+            // Update progress and finish in main thread
+            QMetaObject::invokeMethod(this, [this]() {
+                if (m_copyProgressDialog) {
+                    m_copyProgressDialog->messageChanged(tr("Copy completed"));
+                    m_copyProgressDialog->toFinish();
+                    m_copyProgressDialog->deleteLater();
+                    m_copyProgressDialog = nullptr;
+                }
+            }, Qt::QueuedConnection);
+        });
+
+        m_copyProgressDialog->exec();
     }
 }
 
@@ -716,8 +696,395 @@ void InfoWidgets::copySelectedTextWithHeader()
 {
     QString text = getSelectedText(true);
     if (!text.isEmpty()) {
-        QApplication::clipboard()->setText(text);
+        // Create progress dialog for consistency
+        m_copyProgressDialog = new ProgressDialog(this);
+        m_copyProgressDialog->setWindowTitle(tr("Copying Data"));
+        m_copyProgressDialog->setMessage(tr("Preparing to copy selected text with header..."));
+        m_copyProgressDialog->setProgressMode(ProgressDialog::Indeterminate);
+        m_copyProgressDialog->setAutoClose(true);
+        m_copyProgressDialog->setCancelButtonVisible(true);
+
+        m_copyProgressDialog->start();
+        
+        // Use QtConcurrent::run for non-blocking operation
+        QtConcurrent::run([this, text]() {
+            // Copy text directly
+            QApplication::clipboard()->setText(text);
+
+            // Update progress and finish in main thread
+            QMetaObject::invokeMethod(this, [this]() {
+                if (m_copyProgressDialog) {
+                    m_copyProgressDialog->messageChanged(tr("Copy completed"));
+                    m_copyProgressDialog->toFinish();
+                    m_copyProgressDialog->deleteLater();
+                    m_copyProgressDialog = nullptr;
+                }
+            }, Qt::QueuedConnection);
+        });
+
+        m_copyProgressDialog->exec();
     }
+}
+
+void InfoWidgets::copySelectedRows()
+{
+    QSet<int> availableRows;
+    QModelIndexList selectedIndexes = ui->detail_tb->selectionModel()->selectedIndexes();
+
+    foreach (const QModelIndex &index, selectedIndexes) {
+        auto sourceIndex = multiColumnSearchModel->mapToSource(index);
+        availableRows.insert(sourceIndex.row());
+    }
+    
+    if (availableRows.isEmpty()) {
+        return;
+    }
+    
+    QList<int> sortedRows = availableRows.values();
+    std::sort(sortedRows.begin(), sortedRows.end());
+    
+    // Create progress dialog
+    m_copyProgressDialog = new ProgressDialog(this);
+    m_copyProgressDialog->setWindowTitle(tr("Copying Data"));
+    m_copyProgressDialog->setMessage(tr("Preparing to copy selected rows..."));
+    m_copyProgressDialog->setProgressMode(ProgressDialog::Indeterminate);
+    m_copyProgressDialog->setAutoClose(true);
+    m_copyProgressDialog->setCancelButtonVisible(true);
+
+    m_copyProgressDialog->start();
+    
+    // Use QtConcurrent::run for non-blocking operation
+    QtConcurrent::run([this, sortedRows]() {
+        // Prepare text
+        QString text;
+        text.reserve(sortedRows.size() * m_headers.size() * 20); // Pre-allocate memory
+        
+        foreach (int row, sortedRows) {
+            if (row >= 0 && row < m_data_tb.size()) {
+                text += m_data_tb.at(row).join("\t") + "\n";
+            }
+        }
+
+        // Copy text directly
+        QApplication::clipboard()->setText(text);
+
+        // Update progress and finish in main thread
+        QMetaObject::invokeMethod(this, [this]() {
+            if (m_copyProgressDialog) {
+                m_copyProgressDialog->messageChanged(tr("Copy completed"));
+                m_copyProgressDialog->toFinish();
+                m_copyProgressDialog->deleteLater();
+                m_copyProgressDialog = nullptr;
+            }
+        }, Qt::QueuedConnection);
+    });
+
+    m_copyProgressDialog->exec();
+}
+
+void InfoWidgets::copySelectedRowsWithHeader()
+{
+    QSet<int> availableRows;
+    QModelIndexList selectedIndexes = ui->detail_tb->selectionModel()->selectedIndexes();
+    
+    // Get all selected row indexes
+    foreach (const QModelIndex &index, selectedIndexes) {
+        auto sourceIndex = multiColumnSearchModel->mapToSource(index);
+        availableRows.insert(sourceIndex.row());
+    }
+    
+    if (availableRows.isEmpty()) {
+        return;
+    }
+    
+    QList<int> sortedRows = availableRows.values();
+    std::sort(sortedRows.begin(), sortedRows.end());
+    
+    // Create progress dialog
+    m_copyProgressDialog = new ProgressDialog(this);
+    m_copyProgressDialog->setWindowTitle(tr("Copying Data"));
+    m_copyProgressDialog->setMessage(tr("Preparing to copy selected rows with headers..."));
+    m_copyProgressDialog->setProgressMode(ProgressDialog::Indeterminate);
+    m_copyProgressDialog->setAutoClose(true);
+    m_copyProgressDialog->setCancelButtonVisible(true);
+
+    m_copyProgressDialog->start();
+    
+    // Use QtConcurrent::run for non-blocking operation
+    QtConcurrent::run([this, sortedRows]() {
+        // Prepare text
+        QString text;
+        text.reserve((sortedRows.size() + 1) * m_headers.size() * 20); // Pre-allocate memory
+        
+        // Add headers
+        if (!m_headers.isEmpty()) {
+            text += m_headers.join("\t") + "\n";
+        }
+        
+        // Copy data in row order
+        foreach (int row, sortedRows) {
+            if (row >= 0 && row < m_data_tb.size()) {
+                text += m_data_tb.at(row).join("\t") + "\n";
+            }
+        }
+
+        // Copy text directly
+        QApplication::clipboard()->setText(text);
+
+        // Update progress and finish in main thread
+        QMetaObject::invokeMethod(this, [this]() {
+            if (m_copyProgressDialog) {
+                m_copyProgressDialog->messageChanged(tr("Copy completed"));
+                m_copyProgressDialog->toFinish();
+                m_copyProgressDialog->deleteLater();
+                m_copyProgressDialog = nullptr;
+            }
+        }, Qt::QueuedConnection);
+    });
+
+    m_copyProgressDialog->exec();
+}
+
+void InfoWidgets::copySelectedColumns()
+{
+    // Get all selected indexes
+    QModelIndexList selectedIndexes = ui->detail_tb->selectionModel()->selectedIndexes();
+    if (selectedIndexes.isEmpty()) {
+        return;
+    }
+    
+    // Get all unique selected columns
+    QSet<int> selectedColumns;
+    foreach (const QModelIndex &index, selectedIndexes) {
+        auto sourceIndex = multiColumnSearchModel->mapToSource(index);
+        selectedColumns.insert(sourceIndex.column());
+    }
+    
+    if (selectedColumns.isEmpty()) {
+        return;
+    }
+    
+    // Sort columns for consistent order
+    QList<int> sortedColumns = selectedColumns.values();
+    std::sort(sortedColumns.begin(), sortedColumns.end());
+    
+    // Create progress dialog
+    m_copyProgressDialog = new ProgressDialog(this);
+    m_copyProgressDialog->setWindowTitle(tr("Copying Data"));
+    m_copyProgressDialog->setMessage(tr("Preparing to copy selected columns..."));
+    m_copyProgressDialog->setProgressMode(ProgressDialog::Indeterminate);
+    m_copyProgressDialog->setAutoClose(true);
+    m_copyProgressDialog->setCancelButtonVisible(true);
+
+    m_copyProgressDialog->start();
+    
+    // Use QtConcurrent::run for non-blocking operation
+    QtConcurrent::run([this, sortedColumns]() {
+        // Prepare text
+        QString text;
+        text.reserve(m_data_tb.size() * sortedColumns.size() * 20); // Pre-allocate memory
+        
+        // Copy data for each selected column - optimized version
+        for (int row = 0; row < m_data_tb.size(); ++row) {
+            const QStringList &rowData = m_data_tb.at(row); // Use reference to avoid copying
+            for (int i = 0; i < sortedColumns.size(); ++i) {
+                if (i > 0) {
+                    text += '\t';
+                }
+                int column = sortedColumns.at(i);
+                if (column < rowData.size()) {
+                    text += rowData.at(column);
+                }
+            }
+            if (row < m_data_tb.size() - 1) {
+                text += '\n';
+            }
+        }
+        
+        // Copy text directly
+        QApplication::clipboard()->setText(text);
+
+        // Update progress and finish in main thread
+        QMetaObject::invokeMethod(this, [this]() {
+            if (m_copyProgressDialog) {
+                m_copyProgressDialog->messageChanged(tr("Copy completed"));
+                m_copyProgressDialog->toFinish();
+                m_copyProgressDialog->deleteLater();
+                m_copyProgressDialog = nullptr;
+            }
+        }, Qt::QueuedConnection);
+    });
+
+    m_copyProgressDialog->exec();
+}
+
+void InfoWidgets::copySelectedColumnsWithHeader()
+{
+    // Get all selected indexes
+    QModelIndexList selectedIndexes = ui->detail_tb->selectionModel()->selectedIndexes();
+    if (selectedIndexes.isEmpty()) {
+        return;
+    }
+    
+    // Get all unique selected columns
+    QSet<int> selectedColumns;
+    foreach (const QModelIndex &index, selectedIndexes) {
+        auto sourceIndex = multiColumnSearchModel->mapToSource(index);
+        selectedColumns.insert(sourceIndex.column());
+    }
+    
+    if (selectedColumns.isEmpty()) {
+        return;
+    }
+    
+    // Sort columns for consistent order
+    QList<int> sortedColumns = selectedColumns.values();
+    std::sort(sortedColumns.begin(), sortedColumns.end());
+    
+    // Create progress dialog
+    m_copyProgressDialog = new ProgressDialog(this);
+    m_copyProgressDialog->setWindowTitle(tr("Copying Data"));
+    m_copyProgressDialog->setMessage(tr("Preparing to copy selected columns with headers..."));
+    m_copyProgressDialog->setProgressMode(ProgressDialog::Indeterminate);
+    m_copyProgressDialog->setAutoClose(true);
+    m_copyProgressDialog->setCancelButtonVisible(true);
+
+    m_copyProgressDialog->start();
+    
+    // Use QtConcurrent::run for non-blocking operation
+    QtConcurrent::run([this, sortedColumns]() {
+        // Prepare text
+        QString text;
+        text.reserve(m_headers.size() + m_data_tb.size() * sortedColumns.size() * 20); // Pre-allocate memory
+        
+        // Add headers for selected columns - optimized version
+        for (int i = 0; i < sortedColumns.size(); ++i) {
+            if (i > 0) {
+                text += '\t';
+            }
+            int column = sortedColumns.at(i);
+            if (column < m_headers.size()) {
+                text += m_headers.at(column);
+            }
+        }
+        text += '\n';
+        
+        // Copy data for each selected column - optimized version
+        for (int row = 0; row < m_data_tb.size(); ++row) {
+            const QStringList &rowData = m_data_tb.at(row); // Use reference
+            for (int i = 0; i < sortedColumns.size(); ++i) {
+                if (i > 0) {
+                    text += '\t';
+                }
+                int column = sortedColumns.at(i);
+                if (column < rowData.size()) {
+                    text += rowData.at(column);
+                }
+            }
+            if (row < m_data_tb.size() - 1) {
+                text += '\n';
+            }
+        }
+        
+        // Copy text directly
+        QApplication::clipboard()->setText(text);
+
+        // Update progress and finish in main thread
+        QMetaObject::invokeMethod(this, [this]() {
+            if (m_copyProgressDialog) {
+                m_copyProgressDialog->messageChanged(tr("Copy completed"));
+                m_copyProgressDialog->toFinish();
+                m_copyProgressDialog->deleteLater();
+                m_copyProgressDialog = nullptr;
+            }
+        }, Qt::QueuedConnection);
+    });
+
+    m_copyProgressDialog->exec();
+}
+
+void InfoWidgets::copyAllData()
+{
+    // Create progress dialog
+    m_copyProgressDialog = new ProgressDialog(this);
+    m_copyProgressDialog->setWindowTitle(tr("Copying Data"));
+    m_copyProgressDialog->setMessage(tr("Preparing to copy all data..."));
+    m_copyProgressDialog->setProgressMode(ProgressDialog::Indeterminate);
+    m_copyProgressDialog->setAutoClose(true);
+    m_copyProgressDialog->setCancelButtonVisible(true);
+
+    m_copyProgressDialog->start();
+    
+    // Use QtConcurrent::run for non-blocking operation
+    QtConcurrent::run([this]() {
+        // Prepare text
+        QString text;
+        text.reserve(m_data_tb.size() * m_headers.size() * 20); // Pre-allocate memory
+        
+        for (const QStringList &row : m_data_tb) {
+            text += row.join("\t") + "\n";
+        }
+
+        // Copy text directly
+        QApplication::clipboard()->setText(text);
+
+        // Update progress and finish in main thread
+        QMetaObject::invokeMethod(this, [this]() {
+            if (m_copyProgressDialog) {
+                m_copyProgressDialog->messageChanged(tr("Copy completed"));
+                m_copyProgressDialog->toFinish();
+                m_copyProgressDialog->deleteLater();
+                m_copyProgressDialog = nullptr;
+            }
+        }, Qt::QueuedConnection);
+    });
+
+    m_copyProgressDialog->exec();
+}
+
+void InfoWidgets::copyAllDataWithHeader()
+{
+    // Create progress dialog
+    m_copyProgressDialog = new ProgressDialog(this);
+    m_copyProgressDialog->setWindowTitle(tr("Copying Data"));
+    m_copyProgressDialog->setMessage(tr("Preparing to copy all data with headers..."));
+    m_copyProgressDialog->setProgressMode(ProgressDialog::Indeterminate);
+    m_copyProgressDialog->setAutoClose(true);
+    m_copyProgressDialog->setCancelButtonVisible(true);
+
+    m_copyProgressDialog->start();
+    
+    // Use QtConcurrent::run for non-blocking operation
+    QtConcurrent::run([this]() {
+        // Prepare text
+        QString text;
+        text.reserve((m_data_tb.size() + 1) * m_headers.size() * 20); // Pre-allocate memory
+
+        // Add headers
+        if (!m_headers.isEmpty()) {
+            text += m_headers.join("\t") + "\n";
+        }
+
+        // Add all data
+        for (const QStringList &row : m_data_tb) {
+            text += row.join("\t") + "\n";
+        }
+
+        // Copy text directly
+        QApplication::clipboard()->setText(text);
+
+        // Update progress and finish in main thread
+        QMetaObject::invokeMethod(this, [this]() {
+            if (m_copyProgressDialog) {
+                m_copyProgressDialog->messageChanged(tr("Copy completed"));
+                m_copyProgressDialog->toFinish();
+                m_copyProgressDialog->deleteLater();
+                m_copyProgressDialog = nullptr;
+            }
+        });
+    });
+
+    m_copyProgressDialog->exec();
 }
 
 void InfoWidgets::fitTableColumnToContent()
@@ -905,5 +1272,130 @@ bool InfoWidgets::eventFilter(QObject *obj, QEvent *event)
     }
     
     return QWidget::eventFilter(obj, event);
+}
+
+
+void InfoWidgets::setupContextMenu()
+{
+    // Enable context menu for table
+    ui->detail_tb->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->detail_tb, &QTableView::customContextMenuRequested, [this](const QPoint &pos) {
+        m_detailAction->setVisible(HELP_OPTION_FORMATS.contains(m_helpKey));
+
+        QModelIndex index = ui->detail_tb->indexAt(pos);
+        if (index.isValid()) {
+            m_currentRow = index.row();
+            m_currentColumn = index.column();
+            m_tableContextMenu->exec(ui->detail_tb->viewport()->mapToGlobal(pos));
+        }
+    });
+
+    // detail info action
+    m_detailAction = new QAction("Detail Info", this);
+    connect(m_detailAction, &QAction::triggered, this, &InfoWidgets::showDetailInfo);
+    m_tableContextMenu->addAction(m_detailAction);
+
+    // restore order action
+    m_restoreOrderAction = new QAction("Restore Order", this);
+    connect(m_restoreOrderAction, &QAction::triggered, [=](){
+        QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->detail_tb->model());
+        if (!proxyModel) return;
+        proxyModel->sort(-1, Qt::AscendingOrder);
+        // multiColumnSearchModel->sort(-1, Qt::AscendingOrder); // both two could satisify
+        ui->detail_tb->horizontalHeader()->setSortIndicator(-1, Qt::AscendingOrder);
+        ui->detail_tb->horizontalHeader()->setSortIndicatorShown(false);
+    });
+    m_tableContextMenu->addAction(m_restoreOrderAction);
+
+    m_tableContextMenu->addSeparator();
+
+    // Setup copy menu
+    setupCopyMenu();
+
+    m_tableContextMenu->addSeparator();
+
+    // copy selected text with header action
+    m_fitTableColumnAction = new QAction("Fit Column Width", this);
+    connect(m_fitTableColumnAction, &QAction::triggered, this, &InfoWidgets::fitTableColumnToContent);
+    m_tableContextMenu->addAction(m_fitTableColumnAction);
+}
+
+void InfoWidgets::setupCopyMenu()
+{
+    // copy selected text action
+    m_copyMenu = new QMenu("Copy", this);
+    m_copySelectedTextAction = new QAction("Select Text", this);
+    connect(m_copySelectedTextAction, &QAction::triggered, this, &InfoWidgets::copySelectedText);
+    m_copyMenu->addAction(m_copySelectedTextAction);
+
+    // copy selected text with header action
+    m_copySelectedTextWithHeaderAction = new QAction("Select Text With Header", this);
+    connect(m_copySelectedTextWithHeaderAction, &QAction::triggered, this, &InfoWidgets::copySelectedTextWithHeader);
+    m_copyMenu->addAction(m_copySelectedTextWithHeaderAction);
+
+    m_copyMenu->addSeparator();
+
+    // copy selected rows action
+    m_copySelectedRowsAction = new QAction("Selected Rows", this);
+    connect(m_copySelectedRowsAction, &QAction::triggered, this, &InfoWidgets::copySelectedRows);
+    m_copyMenu->addAction(m_copySelectedRowsAction);
+
+    // copy selected rows with header action
+    m_copySelectedRowsWithHeaderAction = new QAction("Selected Rows With Header", this);
+    connect(m_copySelectedRowsWithHeaderAction, &QAction::triggered, this, &InfoWidgets::copySelectedRowsWithHeader);
+    m_copyMenu->addAction(m_copySelectedRowsWithHeaderAction);
+
+    m_copyMenu->addSeparator();
+
+    // copy selected columns action
+    m_copySelectedColumnsAction = new QAction("Selected Columns", this);
+    connect(m_copySelectedColumnsAction, &QAction::triggered, this, &InfoWidgets::copySelectedColumns);
+    m_copyMenu->addAction(m_copySelectedColumnsAction);
+
+    // copy selected columns with header action
+    m_copySelectedColumnsWithHeaderAction = new QAction("Selected Columns With Header", this);
+    connect(m_copySelectedColumnsWithHeaderAction, &QAction::triggered, this, &InfoWidgets::copySelectedColumnsWithHeader);
+    m_copyMenu->addAction(m_copySelectedColumnsWithHeaderAction);
+
+    m_copyMenu->addSeparator();
+
+    // copy all data action
+    m_copyAllDataAction = new QAction("All Data", this);
+    connect(m_copyAllDataAction, &QAction::triggered, this, &InfoWidgets::copyAllData);
+    m_copyMenu->addAction(m_copyAllDataAction);
+
+    // copy all data with header action
+    m_copyAllDataWithHeaderAction = new QAction("All Data With Header", this);
+    connect(m_copyAllDataWithHeaderAction, &QAction::triggered, this, &InfoWidgets::copyAllDataWithHeader);
+    m_copyMenu->addAction(m_copyAllDataWithHeaderAction);
+
+    m_tableContextMenu->addMenu(m_copyMenu);
+}
+
+void InfoWidgets::setupTableModel()
+{
+    // model
+    m_model = new MediaInfoTabelModel(this);
+
+    multiColumnSearchModel = new MultiColumnSearchProxyModel(this);
+    multiColumnSearchModel->setSourceModel(m_model);
+    ui->detail_tb->setModel(multiColumnSearchModel);
+
+    ui->detail_tb->horizontalHeader()->setSectionsMovable(true);
+    ui->detail_tb->verticalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    ui->detail_tb->verticalHeader()->setDefaultSectionSize(25);
+    ui->detail_tb->verticalHeader()->setVisible(true);
+    ui->detail_tb->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    ui->detail_tb->setSortingEnabled(true);
+
+    // header manager
+    m_headerManager = new ZTableHeaderManager(ui->detail_tb->horizontalHeader(), ui->detail_tb->verticalHeader(), this);
+    m_headerManager->setObjectName(this->objectName());
+    m_headerManager->setTotalCountVisible(false);
+    m_headerManager->restoreState();
+
+    connect(m_headerManager, &ZTableHeaderManager::headerToggleVisiable, [=]() {
+        fitTableColumnToContent();
+    });
 }
 

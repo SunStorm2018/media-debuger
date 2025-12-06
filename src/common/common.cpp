@@ -210,3 +210,78 @@ const QSet<QString> &Common::getSupportedVideoExtensions()
     return supportedExtensions;
 }
 
+QAction *Common::findActionByObjectName(QMenu *menu, const QString &objectName)
+{
+    if (!menu) {
+        return nullptr;
+    }
+    
+    // Search through all actions in the menu
+    QList<QAction *> actions = menu->actions();
+    for (QAction *action : actions) {
+        if (action && action->objectName() == objectName) {
+            return action;
+        }
+        
+        // Also check sub-menus recursively
+        if (action && action->menu()) {
+            QAction *foundAction = findActionByObjectName(action->menu(), objectName);
+            if (foundAction) {
+                return foundAction;
+            }
+        }
+    }
+    
+    return nullptr;
+}
+
+QAction *Common::findActionByText(QMenu *menu, const QString &text)
+{
+    if (!menu) {
+        return nullptr;
+    }
+    
+    // Search through all actions in the menu
+    QList<QAction *> actions = menu->actions();
+    for (QAction *action : actions) {
+        if (action && action->text() == text) {
+            return action;
+        }
+        
+        // Also check sub-menus recursively
+        if (action && action->menu()) {
+            QAction *foundAction = findActionByText(action->menu(), text);
+            if (foundAction) {
+                return foundAction;
+            }
+        }
+    }
+    
+    return nullptr;
+}
+
+QList<QAction *> Common::getAllActions(QMenu *menu)
+{
+    if (!menu) {
+        return QList<QAction *>();
+    }
+    
+    QList<QAction *> allActions;
+    
+    // Get all actions from the menu
+    QList<QAction *> actions = menu->actions();
+    for (QAction *action : actions) {
+        if (action) {
+            allActions.append(action);
+            
+            // Recursively get actions from sub-menus
+            if (action->menu()) {
+                QList<QAction *> subActions = getAllActions(action->menu());
+                allActions.append(subActions);
+            }
+        }
+    }
+    
+    return allActions;
+}
+
