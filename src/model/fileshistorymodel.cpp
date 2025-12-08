@@ -126,10 +126,24 @@ void FilesHistoryModel::loadSettings()
 
     QStringList validFilePaths;
     for (const QString &filePath : m_filePaths) {
-        if (QFileInfo::exists(filePath)) {
-            validFilePaths.append(filePath);
+        QString fixedPath = filePath;
+        
+        // If the path contains garbled characters, try to fix it
+        if (filePath.contains("\\u0081") || filePath.contains("\\u0091")) {
+            // Try to convert from local encoding to UTF-8
+            QByteArray localData = filePath.toLocal8Bit();
+            QString convertedPath = QString::fromUtf8(localData);
+            
+            // If conversion worked and file exists, use the converted path
+            if (QFileInfo::exists(convertedPath)) {
+                fixedPath = convertedPath;
+            }
+        }
+        
+        if (QFileInfo::exists(fixedPath)) {
+            validFilePaths.append(fixedPath);
         } else {
-            qWarning() << "The file not exist, which will be removed: " << filePath;
+            qWarning() << "The file not exist, which will be removed: " << fixedPath;
         }
     }
     
@@ -145,6 +159,7 @@ void FilesHistoryModel::saveSettings()
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_settings.setIniCodec("UTF-8");
 #endif
+    
     m_settings.beginGroup(RECENTFILES_SETTINGS_GROUP);
     m_settings.setValue(FILES_KEY, m_filePaths);
     m_settings.endGroup();

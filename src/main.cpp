@@ -9,6 +9,9 @@
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 #include <QDebug>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QTextCodec>
+#endif
 
 #include "common/common.h"
 #include "common/zlogger.h"
@@ -34,6 +37,11 @@ void translateConfig(const QApplication& app);
 
 int main(int argc, char *argv[])
 {
+    // Set UTF-8 encoding for Qt5 to handle Chinese paths correctly in debug mode
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
+#endif
+
     QCoreApplication::setOrganizationName(ORGANIZATION_NAME);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(APPLICATION_VERSION);

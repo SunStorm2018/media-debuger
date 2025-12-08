@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "qdebug": "cpp",
+        "qtime": "cpp",
+        "cmath": "cpp"
+    }
+}
