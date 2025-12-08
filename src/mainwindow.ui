@@ -147,13 +147,19 @@
     <property name="title">
      <string>Help</string>
     </property>
+    <widget class="QMenu" name="menuSetting_2">
+     <property name="title">
+      <string>Setting</string>
+     </property>
+     <addaction name="actionSetting_Dir"/>
+     <addaction name="actionSetting_File"/>
+    </widget>
     <addaction name="actionAbout"/>
     <addaction name="actionDocs_Viewer"/>
     <addaction name="separator"/>
-    <addaction name="actionApp_Dir"/>
-    <addaction name="actionSetting_Dir"/>
-    <addaction name="actionSetting_File"/>
+    <addaction name="menuSetting_2"/>
     <addaction name="separator"/>
+    <addaction name="actionApp_Dir"/>
     <addaction name="actionHelp"/>
     <addaction name="separator"/>
     <addaction name="actionFFmpeg_Builder"/>

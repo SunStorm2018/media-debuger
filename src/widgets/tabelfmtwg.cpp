@@ -46,13 +46,13 @@ TabelFormatWG::TabelFormatWG(QWidget *parent)
     // image menu
     m_imageMenu = new QMenu("Image", m_tableFormatWg);
 
-    // Add Show Image action
-    m_previewImageAction = new QAction(tr("Show Image"), m_imageMenu);
+    // Add Preview Image action
+    m_previewImageAction = new QAction(tr("Preview"), m_imageMenu);
     connect(m_previewImageAction, &QAction::triggered, this, &TabelFormatWG::previewImage);
     m_imageMenu->addAction(m_previewImageAction);
 
     // Add Save Image action
-    m_saveImageAction = new QAction(tr("Save Image"), m_imageMenu);
+    m_saveImageAction = new QAction(tr("Save"), m_imageMenu);
     connect(m_saveImageAction, &QAction::triggered, this, &TabelFormatWG::saveImage);
     m_imageMenu->addAction(m_saveImageAction);
 
