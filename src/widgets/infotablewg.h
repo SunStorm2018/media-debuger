@@ -47,6 +47,8 @@ public:
 
     void addContextMenu(QMenu *menu);
 
+    void removeContextMenu(QMenu *menu);
+
     void addContextAction(QAction *action);
 
     void addContextSeparator();
@@ -59,6 +61,7 @@ public:
 
 signals:
     void dataChanged(QStringList line);
+    void contextMenuAboutToShow();
 
 public slots:
     void init_detail_tb(const QString& data, const QString &format_key);

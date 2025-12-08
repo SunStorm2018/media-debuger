@@ -12,6 +12,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    // Register ZExtraInfo type with Qt's meta-object system
+    qRegisterMetaType<ZExtraInfo>("ZExtraInfo");
+    
     ui->setupUi(this);
 
     setWindowTitle("FFprobe Viewer");
@@ -106,7 +109,7 @@ QList<QMenu *> MainWindow::getMediaInfoAvailableMenus()
     return tmpMenus;
 }
 
-void MainWindow::showBasicInfo(const QString &function, const QString &windwowTitle, const QString &formatKey)
+void MainWindow::showBasicInfo(const QString &function, const QString &windwowTitle, const ZExtraInfo &extrainfo)
 {
     bool sucess = false;
     QString retVal = m_probe.getBasicInfo(function, &sucess);
@@ -115,12 +118,12 @@ void MainWindow::showBasicInfo(const QString &function, const QString &windwowTi
         qWarning() << tr("Basic info get error");
         return;
     }
-    PopBasicInfoWindow(windwowTitle,
+    popBasicInfoWindow(windwowTitle,
                        retVal,
-                       formatKey);
+                       extrainfo);
 }
 
-void MainWindow::showMediaInfo(const QString fileName, const QString &function, const QString &windwowTitle, const QString &formatKey)
+void MainWindow::showMediaInfo(const QString fileName, const QString &function, const QString &windwowTitle, const ZExtraInfo &extrainfo)
 {
     ProgressDialog *progressDlg = new ProgressDialog;
     progressDlg->setWindowTitle(tr("Parse Media: %1").arg(fileName));
@@ -131,11 +134,11 @@ void MainWindow::showMediaInfo(const QString fileName, const QString &function, 
     progressDlg->start();
     QtConcurrent::run([=](){
         QString formats = m_probe.getMediaInfoJsonFormat(function, fileName);
-        bool ok = QMetaObject::invokeMethod(this, "PopMediaInfoWindow",
+        bool ok = QMetaObject::invokeMethod(this, "popMediaInfoWindow",
                                   Qt::QueuedConnection,
                                   Q_ARG(QString, windwowTitle),
                                   Q_ARG(QString, formats),
-                                  Q_ARG(QString, formatKey)
+                                  Q_ARG(ZExtraInfo, extrainfo)
                                   );
         qDebug() << "Media info query: " << ok;
         emit progressDlg->messageChanged("Finsh parse");
@@ -177,7 +180,7 @@ void MainWindow::InitConnectation()
     });
 }
 
-void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QString& format_key)
+void MainWindow::popBasicInfoWindow(QString title, const QString &info, const ZExtraInfo &extrainfo)
 {
     InfoWidgets *infoWindow = new InfoWidgets;
     infoWindow->setObjectName(title.replace(" ", "") + "Wg");
@@ -186,25 +189,27 @@ void MainWindow::PopBasicInfoWindow(QString title, const QString &info, const QS
     infoWindow->setWindowTitle(title);
     infoWindow->show();
     ZWindowHelper::centerToParent(infoWindow);
-    infoWindow->init_detail_tb(info, format_key.toLower());
+    infoWindow->init_detail_tb(info, extrainfo.formatKey.toLower());
 
     // fit help option
-    infoWindow->setHelpInfoKey(format_key.mid(0, format_key.length() - 1).toLower());
+    infoWindow->setHelpInfoKey(extrainfo.formatKey.mid(0, extrainfo.formatKey.length() - 1).toLower());
 
     qDebug() << title << info;
 }
 
-void MainWindow::PopMediaInfoWindow(QString title, const QString &info, const QString &format_key)
+void MainWindow::popMediaInfoWindow(QString title, const QString &info, const ZExtraInfo &extrainfo)
 {
     BaseFormatWG *mediaInfoWindow = nullptr;
-    if (format_key == FORMAT_JSON) {
+    if (extrainfo.formatKey == FORMAT_JSON) {
         mediaInfoWindow = new JsonFormatWG;
-    } else if (format_key == FORMAT_TABLE) {
+    } else if (extrainfo.formatKey == FORMAT_TABLE) {
         mediaInfoWindow = new TabelFormatWG;
     }
 
     if (mediaInfoWindow == nullptr)
         return;
+
+    mediaInfoWindow->setExtraInfo(extrainfo);
 
     mediaInfoWindow->setWindowTitle(title);
     mediaInfoWindow->setAttribute(Qt::WA_DeleteOnClose);
@@ -215,7 +220,7 @@ void MainWindow::PopMediaInfoWindow(QString title, const QString &info, const QS
     qDebug() << title << info.size();
 }
 
-void MainWindow::PopMediaPropsWindow(const QString &fileName)
+void MainWindow::popMediaPropsWindow(const QString &fileName)
 {
     // Update content if a valid file is provided
     if (!fileName.isEmpty() && &m_mediaPropsWidget) {
@@ -361,7 +366,7 @@ void MainWindow::slotMenuBasic_InfoTriggered(QAction *action)
 
     showBasicInfo(function,
                   action->objectName().replace("action", "Detail Info : ") + m_filesWG.getCurrentSelectFileName(),
-                  action->objectName().replace("action", ""));
+                  ZExtraInfo(function, action->objectName().replace("action", "")));
 }
 
 void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
@@ -390,8 +395,9 @@ void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
         QString fileName = m_filesWG.getCurrentSelectFileName();
         if (!fileName.isEmpty()) {
             QString formats = m_probe.getMediaInfoJsonFormat(function, fileName);
-            PopMediaInfoWindow(senderAction->objectName().replace("action", "Detail Info : ") + m_filesWG.getCurrentSelectFileName(),
-                               formats);
+            ZExtraInfo extrainfo(function, FORMAT_JSON);
+            popMediaInfoWindow(senderAction->objectName().replace("action", "Detail Info : ") + m_filesWG.getCurrentSelectFileName(),
+                               formats, extrainfo);
         } else {
             qWarning() << CURRENTFILE << "is empty, please retray";
         }
@@ -404,7 +410,7 @@ void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
         QString fileName = m_filesWG.getCurrentSelectFileName();
         if (!fileName.isEmpty()) {
             // Just make the dock widget visible and update its content
-            PopMediaPropsWindow(fileName);
+            popMediaPropsWindow(fileName);
         } else {
             qWarning() << CURRENTFILE << "is empty, please retry";
         }
@@ -431,7 +437,7 @@ void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
         QString fileName = m_filesWG.getCurrentSelectFileName();
 
         if (!fileName.isEmpty()) {
-            showMediaInfo(fileName, tmpFunction, senderAction->objectName().replace("action", "Detail Info : "), FORMAT_TABLE);
+            showMediaInfo(fileName, tmpFunction, senderAction->objectName().replace("action", "Detail Info : "), ZExtraInfo(tmpFunction, FORMAT_TABLE));
         } else {
             qWarning() << CURRENTFILE << fileName  << "is empty, please retray";
         }
@@ -456,7 +462,7 @@ void MainWindow::slotMenuMedia_InfoTriggered(bool checked)
         QString fileName = m_filesWG.getCurrentSelectFileName();
 
         if (!fileName.isEmpty()) {
-            showMediaInfo(fileName, tmpFunction, senderAction->objectName().replace("action", "Detail Info : "), FORMAT_JSON);
+            showMediaInfo(fileName, tmpFunction, senderAction->objectName().replace("action", "Detail Info : "), ZExtraInfo(tmpFunction, FORMAT_JSON));
         } else {
             qWarning() << CURRENTFILE << fileName  << "is empty, please retray";
         }
@@ -868,7 +874,7 @@ void MainWindow::slotDynamicStreamActionTriggered()
         
         showMediaInfo(fileName, command,
                       QString("[%1] - %2 - (%3)").arg(fileName).arg(senderAction->text()).arg(command),
-                      FORMAT_TABLE);
+                      ZExtraInfo(command, FORMAT_TABLE));
         return;
     }
 }

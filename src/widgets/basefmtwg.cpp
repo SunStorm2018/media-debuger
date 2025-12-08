@@ -10,3 +10,13 @@ BaseFormatWG::BaseFormatWG(QWidget *parent)
 bool BaseFormatWG::loadData(const QByteArray &jsonData) {
     return loadJson(jsonData);
 }
+
+void BaseFormatWG::setExtraInfo(const ZExtraInfo &info)
+{
+    m_extraInfo = info;
+}
+
+ZExtraInfo BaseFormatWG::getExtraInfo()
+{
+    return m_extraInfo;
+}

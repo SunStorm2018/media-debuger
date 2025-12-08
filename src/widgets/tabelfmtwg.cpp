@@ -43,21 +43,35 @@ TabelFormatWG::TabelFormatWG(QWidget *parent)
         resize(width, height);
     }
 
-    // copy selected text with header action
-    m_tableFormatWg->addContextSeparator();
-    m_previewImageAction = new QAction("Show Image", m_tableFormatWg);
+    // image menu
+    m_imageMenu = new QMenu("Image", m_tableFormatWg);
+
+    // Add Show Image action
+    m_previewImageAction = new QAction(tr("Show Image"), m_imageMenu);
     connect(m_previewImageAction, &QAction::triggered, this, &TabelFormatWG::previewImage);
-    m_tableFormatWg->addContextAction(m_previewImageAction);
-    
+    m_imageMenu->addAction(m_previewImageAction);
+
     // Add Save Image action
-    m_saveImageAction = new QAction("Save Image", m_tableFormatWg);
+    m_saveImageAction = new QAction(tr("Save Image"), m_imageMenu);
     connect(m_saveImageAction, &QAction::triggered, this, &TabelFormatWG::saveImage);
-    m_tableFormatWg->addContextAction(m_saveImageAction);
+    m_imageMenu->addAction(m_saveImageAction);
+
+    m_tableFormatWg->addContextSeparator();
+    m_tableFormatWg->addContextMenu(m_imageMenu);
+    
+    // Connect context menu about to show signal
+    connect(m_tableFormatWg, &InfoWidgets::contextMenuAboutToShow,
+            this, &TabelFormatWG::onContextMenuAboutToShow);
 }
 
 TabelFormatWG::~TabelFormatWG()
 {
     delete ui;
+}
+
+void TabelFormatWG::enableImageContextMenu(const bool &enable)
+{
+    m_enableImageContextMenu = enable;
 }
 
 bool TabelFormatWG::loadJson(const QByteArray &json)
@@ -248,7 +262,7 @@ void TabelFormatWG::previewImage()
     // Get the current media file from settings
     Common *common = Common::instance();
     QString currentFile = common->getConfigValue(CURRENTFILE).toString();
-    
+
     if (currentFile.isEmpty()) {
         QMessageBox::warning(this, "Preview Error", "No media file selected for preview.");
         return;
@@ -257,7 +271,7 @@ void TabelFormatWG::previewImage()
     // Get the image save path from settings
     QString savePath = common->getConfigValue(IMAGE_PREVIEW_PATH_KEY,
                                           QString(DEFAULT_IMAGE_PREVIEW_PATH)).toString();
-    
+
     // Ensure the save directory exists
     QDir saveDir(savePath);
     if (!saveDir.exists()) {
@@ -270,7 +284,7 @@ void TabelFormatWG::previewImage()
 
     // Get selected rows using InfoWidgets::getSelectRows()
     QList<int> selectedRows = m_tableFormatWg->getSelectRows();
-    
+
     // If no rows selected, use the first row
     if (selectedRows.isEmpty()) {
         if (m_data_tb.isEmpty()) {
@@ -296,7 +310,7 @@ void TabelFormatWG::previewImage()
     // Process each selected row
     for (int i = 0; i < selectedRows.size(); ++i) {
         int selectedRow = selectedRows[i];
-        
+
         if (selectedRow < 0 || selectedRow >= m_data_tb.size()) {
             qWarning() << "Invalid row index:" << selectedRow;
             continue;
@@ -312,7 +326,7 @@ void TabelFormatWG::previewImage()
         // Generate output filename with timestamp for unique identification
         QFileInfo fileInfo(currentFile);
         QString baseName = fileInfo.baseName();
-        
+
         // Create a subdirectory for the video file
         QDir videoDir(saveDir.absoluteFilePath(baseName));
         if (!videoDir.exists()) {
@@ -322,7 +336,7 @@ void TabelFormatWG::previewImage()
                 continue;
             }
         }
-        
+
         QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_zzz");
         QString outputFileName = QString("%1_frame_%2_%3.jpg").arg(baseName).arg(frameNumber).arg(timestamp);
         QString outputFilePath = videoDir.absoluteFilePath(outputFileName);
@@ -352,7 +366,7 @@ void TabelFormatWG::previewImage()
         connect(ffplay, &ZFFplay::playbackFinished, [ffplay]() {
             ffplay->deleteLater();
         });
-        
+
         connect(ffplay, &ZFFplay::errorOccurred, [ffplay](const QString &error) {
             qWarning() << "ZFFplay error:" << error;
             ffplay->deleteLater();
@@ -367,7 +381,7 @@ void TabelFormatWG::previewImage()
     progressDialog->setValue(totalCount);
     progressDialog->setMessage(tr("Completed. Extracted %1 of %2 images for preview.").arg(successCount).arg(totalCount));
     progressDialog->finish();
-    
+
     // Clean up progress dialog after a short delay
     QTimer::singleShot(2000, [progressDialog]() {
         progressDialog->deleteLater();
@@ -379,7 +393,7 @@ void TabelFormatWG::saveImage()
     // Get the current media file from settings
     Common *common = Common::instance();
     QString currentFile = common->getConfigValue(CURRENTFILE).toString();
-    
+
     if (currentFile.isEmpty()) {
         QMessageBox::warning(this, "Save Image Error", "No media file selected for saving.");
         return;
@@ -387,7 +401,7 @@ void TabelFormatWG::saveImage()
 
     // Get selected rows using InfoWidgets::getSelectRows()
     QList<int> selectedRows = m_tableFormatWg->getSelectRows();
-    
+
     // If no rows selected, use the first row
     if (selectedRows.isEmpty()) {
         if (m_data_tb.isEmpty()) {
@@ -403,7 +417,7 @@ void TabelFormatWG::saveImage()
                                                        tr("Select Directory to Save Images"),
                                                        QDir::homePath(),
                                                        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    
+
     if (saveDir.isEmpty()) {
         // User cancelled the dialog
         return;
@@ -434,11 +448,11 @@ void TabelFormatWG::saveImage()
 
     int successCount = 0;
     int totalCount = selectedRows.size();
-    
+
     // Process each selected row
     for (int i = 0; i < selectedRows.size(); ++i) {
         int selectedRow = selectedRows[i];
-        
+
         if (selectedRow < 0 || selectedRow >= m_data_tb.size()) {
             qWarning() << "Invalid row index:" << selectedRow;
             continue;
@@ -450,7 +464,7 @@ void TabelFormatWG::saveImage()
         QApplication::processEvents(); // Ensure UI updates
 
         int frameNumber = selectedRow;
-        
+
         // Generate output filename
         QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_zzz");
         QString outputFileName = QString("%1_frame_%2_%3.jpg").arg(baseName).arg(frameNumber).arg(timestamp);
@@ -478,7 +492,7 @@ void TabelFormatWG::saveImage()
     progressDialog->setValue(totalCount);
     progressDialog->setMessage(tr("Completed. Saved %1 of %2 images.").arg(successCount).arg(totalCount));
     progressDialog->finish();
-    
+
     // Show completion message and ask if user wants to open folder
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, tr("Save Complete"),
@@ -487,14 +501,87 @@ void TabelFormatWG::saveImage()
                                 .arg(totalCount)
                                 .arg(videoDir.absolutePath()),
                                 QMessageBox::Yes | QMessageBox::No);
-    
+
     if (reply == QMessageBox::Yes) {
         // Open the directory containing the saved images
         QDesktopServices::openUrl(QUrl::fromLocalFile(videoDir.absolutePath()));
     }
-    
+
     // Clean up progress dialog
     progressDialog->deleteLater();
+}
+
+// Get media types from selected rows
+QStringList TabelFormatWG::getSelectedMediaTypes()
+{
+    QStringList mediaTypes;
+
+    if (m_data_tb.isEmpty() || m_headers.isEmpty()) {
+        return mediaTypes;
+    }
+
+    // Find the media_type column index
+    int mediaTypeColumn = -1;
+    for (int i = 0; i < m_headers.size(); ++i) {
+        if (m_headers[i] == "media_type") {
+            mediaTypeColumn = i;
+            break;
+        }
+    }
+
+    if (mediaTypeColumn == -1) {
+        return mediaTypes; // media_type column not found
+    }
+
+    // Get selected rows from InfoWidgets
+    QList<int> selectedRows = m_tableFormatWg->getSelectRows();
+
+    if (selectedRows.isEmpty()) {
+        // If no rows selected, check the first row
+        if (!m_data_tb.isEmpty()) {
+            selectedRows.append(0);
+        }
+    }
+
+    // Extract media_type values from selected rows
+    QSet<QString> uniqueTypes;
+    for (int row : selectedRows) {
+        if (row >= 0 && row < m_data_tb.size()) {
+            const QStringList &rowData = m_data_tb[row];
+            if (mediaTypeColumn < rowData.size()) {
+                QString mediaType = rowData[mediaTypeColumn].trimmed();
+                if (!mediaType.isEmpty()) {
+                    uniqueTypes.insert(mediaType);
+                }
+            }
+        }
+    }
+
+    mediaTypes = uniqueTypes.values();
+    return mediaTypes;
+}
+
+// Update image menu visibility based on media types
+void TabelFormatWG::updateImageMenuVisibility()
+{
+    if (!m_imageMenu)
+        return;
+
+    QStringList mediaTypes = getSelectedMediaTypes();
+
+    bool hasVideo = mediaTypes.contains("video") || mediaTypes.isEmpty();
+
+    if (hasVideo) {
+        m_tableFormatWg->addContextMenu(m_imageMenu);
+    } else {
+        m_tableFormatWg->removeContextMenu(m_imageMenu);
+    }
+}
+
+// Handle context menu about to show
+void TabelFormatWG::onContextMenuAboutToShow()
+{
+    updateImageMenuVisibility();
 }
 
 QString TabelFormatWG::valueToString(const QJsonValue &value)

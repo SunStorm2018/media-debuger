@@ -78,6 +78,11 @@ void InfoWidgets::addContextMenu(QMenu *menu)
     m_tableContextMenu->addMenu(menu);
 }
 
+void InfoWidgets::removeContextMenu(QMenu *menu)
+{
+    m_tableContextMenu->removeAction(menu->menuAction());
+}
+
 void InfoWidgets::addContextAction(QAction *action)
 {
     m_tableContextMenu->addAction(action);
@@ -1283,11 +1288,18 @@ void InfoWidgets::setupContextMenu()
         m_detailAction->setVisible(HELP_OPTION_FORMATS.contains(m_helpKey));
 
         QModelIndex index = ui->detail_tb->indexAt(pos);
+        
         if (index.isValid()) {
             m_currentRow = index.row();
             m_currentColumn = index.column();
+            
             m_tableContextMenu->exec(ui->detail_tb->viewport()->mapToGlobal(pos));
         }
+    });
+
+    connect(m_tableContextMenu, &QMenu::aboutToShow, [=](){
+        // Emit signal before showing context menu
+        emit contextMenuAboutToShow();
     });
 
     // detail info action

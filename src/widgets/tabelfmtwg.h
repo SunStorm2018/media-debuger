@@ -9,6 +9,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
+#include <QSet>
 
 #include <widgets/infotablewg.h>
 #include <widgets/basefmtwg.h>
@@ -27,23 +28,36 @@ public:
     explicit TabelFormatWG(QWidget *parent = nullptr);
     ~TabelFormatWG();
 
+public slots:
+    void enableImageContextMenu(const bool &enable);
+
 private:
     Ui::TabelFormatWG *ui;
 
-    InfoWidgets *m_tableFormatWg;
+    InfoWidgets *m_tableFormatWg = nullptr;
 
     QList<QStringList> m_data_tb;
     QList<QString> m_headers;
 
-    QAction *m_previewImageAction;
-    QAction *m_saveImageAction;
+    // image menu
+    QMenu *m_imageMenu = nullptr;
+    QAction *m_previewImageAction = nullptr;
+    QAction *m_saveImageAction = nullptr;
+    
+    // Enable image context menu flag
+    bool m_enableImageContextMenu = true;
 
     QString valueToString(const QJsonValue &value);
     QString extractSideData(const QJsonObject &frameObj, const QString &key);
+    
+    QStringList getSelectedMediaTypes();
+    
+    void updateImageMenuVisibility();
 
 private slots:
     void previewImage();
     void saveImage();
+    void onContextMenuAboutToShow();
 
 protected:
     bool loadJson(const QByteArray &json);

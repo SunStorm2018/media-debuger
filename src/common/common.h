@@ -69,6 +69,21 @@ constexpr auto DEFAULT_FILE_NAME_PATTERN = "app_%1.log"; // %1 will be replaced 
 constexpr auto DEFAULT_LOG_FORMAT = "[%{time yyyy-MM-dd hh:mm:ss.zzz}] [%{type}] [%{file}:%{line}] %{message}";
 } // namespace LoggerConfig
 
+typedef struct ZExtraInfo
+{
+    ZExtraInfo(QString command, QString format) {
+        commandKey = command;
+        formatKey = format;
+    }
+
+    ZExtraInfo(){}
+
+    QString commandKey = "";
+    QString formatKey = "json";
+} ZExtraInfo;
+
+Q_DECLARE_METATYPE(ZExtraInfo)
+
 class Common
 {
     // Q_OBJECT

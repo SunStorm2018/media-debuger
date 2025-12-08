@@ -54,14 +54,14 @@ public:
     QList<QAction *> getFilesAvailableAction();
     QList<QMenu *> getMediaInfoAvailableMenus();
 
-    void showBasicInfo(const QString& function, const QString& windwowTitle, const QString& formatKey);
-    void showMediaInfo(const QString fileName, const QString& function, const QString& windwowTitle, const QString& formatKey);
+    void showBasicInfo(const QString& function, const QString& windwowTitle, const ZExtraInfo &extrainfo);
+    void showMediaInfo(const QString fileName, const QString& function, const QString& windwowTitle, const ZExtraInfo &extrainfo);
 
 private slots:
     void InitConnectation();
-    void PopBasicInfoWindow(QString title, const QString &info, const QString &format_key);
-    void PopMediaInfoWindow(QString title, const QString &info, const QString &format_key = FORMAT_JSON);
-    void PopMediaPropsWindow(const QString &fileName);
+    void popBasicInfoWindow(QString title, const QString &info, const ZExtraInfo &extrainfo);
+    void popMediaInfoWindow(QString title, const QString &info, const ZExtraInfo &extrainfo);
+    void popMediaPropsWindow(const QString &fileName);
     void loadMediaProperties(const QString &fileName);
     void loadMediaPropertiesAsync(const QString &fileName);
 

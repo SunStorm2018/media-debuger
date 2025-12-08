@@ -219,19 +219,19 @@ int commandConfig(const QApplication& app) {
         parser.isSet(mediaInfoFrameTypeOption)) {
         QString filePath = parser.value(mediaInfoOption);
 
-        w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), FORMAT_TABLE);
+        w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), ZExtraInfo(mediaCmd, FORMAT_TABLE));
     }
 
     if (parser.isSet(mediaInfoFormatOption) || parser.isSet(mediaInfoStreamsOption)) {
         QString filePath = parser.value(mediaInfoOption);
 
-        w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), FORMAT_JSON);
+        w.showMediaInfo(filePath, mediaCmd, QString("%1").arg(mediaCmd), ZExtraInfo(mediaCmd, FORMAT_JSON));
     }
 
     if (parser.isSet(basicInfoOption)) {
         QString function = parser.value(basicInfoOption);
 
-        w.showBasicInfo(function, function, function);
+        w.showBasicInfo(function, function, ZExtraInfo(function, function));
     }
 
     if (parser.isSet(cliOption) || parser.isSet(mediaInfoOption) || parser.isSet(basicInfoOption)) {
