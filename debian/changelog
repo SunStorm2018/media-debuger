@@ -1,3 +1,18 @@
+media-debuger (1.2.0-1) unstable; urgency=medium
+
+  * chore: Update version to 1.2.0-1
+  * refactor(ui): reorganize Help menu and simplify image action labels
+  * fix(i18n): handle Chinese file path encoding in Qt5
+  * refactor(ui): introduce ZExtraInfo struct for enhanced command and format handling
+  * feat(ui): add context menu support and enhanced copy functionality
+  * feat: remove player component and X11 embedding functionality
+  * fix(ui): modify the progressdlg in progress style
+  * feat(ui): implement dynamic stream menus for frames and packets
+  * feat(ui): reorganize play controls and improve player status display
+  * perf(player): prevent redundant media file operations
+
+ -- zhanghongyuan <2063218120@qq.com>  Tue, 09 Dec 2025 19:38:58 +0800
+
 media-debuger (1.1.0-1) unstable; urgency=medium
 
   * chore: Update version to 1.1.0-1
