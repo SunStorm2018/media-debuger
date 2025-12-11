@@ -734,6 +734,10 @@ QList<QAction *> MainWindow::getMenuAllActions(QMenu *menu)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     saveLayoutSettings();
+    
+    // Clean up image preview directory
+    Common::cleanupDirectory(DEFAULT_IMAGE_PREVIEW_PATH);
+    
     QMainWindow::closeEvent(event);
 }
 

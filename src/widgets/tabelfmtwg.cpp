@@ -268,19 +268,14 @@ void TabelFormatWG::previewImage()
         return;
     }
 
-    // Get the image save path from settings
-    QString savePath = common->getConfigValue(IMAGE_PREVIEW_PATH_KEY,
-                                          QString(DEFAULT_IMAGE_PREVIEW_PATH)).toString();
-
-    // Ensure the save directory exists
-    QDir saveDir(savePath);
-    if (!saveDir.exists()) {
-        if (!saveDir.mkpath(".")) {
-            QMessageBox::warning(this, "Preview Error",
-                             QString("Failed to create preview directory: %1").arg(savePath));
-            return;
-        }
+    // Ensure the save directory exists using Common class method
+    if (!Common::ensureDirectory(DEFAULT_IMAGE_PREVIEW_PATH)) {
+        QMessageBox::warning(this, "Preview Error",
+                         QString("Failed to create preview directory: %1").arg(DEFAULT_IMAGE_PREVIEW_PATH));
+        return;
     }
+    
+    QDir saveDir(DEFAULT_IMAGE_PREVIEW_PATH);
 
     // Get selected rows using InfoWidgets::getSelectRows()
     QList<int> selectedRows = m_tableFormatWg->getSelectRows();

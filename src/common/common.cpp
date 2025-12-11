@@ -285,3 +285,31 @@ QList<QAction *> Common::getAllActions(QMenu *menu)
     return allActions;
 }
 
+bool Common::ensureDirectory(const QString& dirPath)
+{
+    QDir dir(dirPath);
+    
+    if (!dir.exists()) {
+        if (!dir.mkpath(".")) {
+            qWarning() << "Failed to create directory:" << dirPath;
+            return false;
+        }
+        qDebug() << "Created directory:" << dirPath;
+    }
+    
+    return true;
+}
+
+void Common::cleanupDirectory(const QString& dirPath)
+{
+    QDir dir(dirPath);
+    
+    if (dir.exists()) {
+        bool success = dir.removeRecursively();
+        if (success) {
+            qDebug() << "Successfully cleaned up directory:" << dirPath;
+        } else {
+            qWarning() << "Failed to clean up directory:" << dirPath;
+        }
+    }
+}

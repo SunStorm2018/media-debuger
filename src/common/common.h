@@ -16,6 +16,7 @@
 #include <QFileInfo>
 #include <QMenu>
 #include <QAction>
+#include <QDir>
 
 #define CURRENTFILE "currentFile"
 #define CURRENTFILES "currentFiles"
@@ -38,7 +39,7 @@ constexpr auto CONFIGURE_BUILDER_RECENTFOLDERS_KEY = "RecentFolders";
 
 // Image preview settings
 constexpr auto IMAGE_PREVIEW_PATH_KEY = "ImagePreviewPath";
-constexpr auto DEFAULT_IMAGE_PREVIEW_PATH = "./preview_images";
+constexpr auto DEFAULT_IMAGE_PREVIEW_PATH = "/tmp/media_debuger_preview_images";
 
 // config
 /**
@@ -130,6 +131,10 @@ public:
     static QAction *findActionByObjectName(QMenu *menu, const QString &objectName);
     static QAction *findActionByText(QMenu *menu, const QString &text);
     static QList<QAction *> getAllActions(QMenu *menu);
+
+    // Directory management utility functions
+    static bool ensureDirectory(const QString& dirPath);
+    static void cleanupDirectory(const QString& dirPath);
 
 private:
     Common();
