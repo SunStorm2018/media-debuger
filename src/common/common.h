@@ -136,6 +136,10 @@ public:
     static bool ensureDirectory(const QString& dirPath);
     static void cleanupDirectory(const QString& dirPath);
 
+    // Package version utility functions
+    static QString getPackageVersion(const QString& packageName);
+    static QString getCurrentPackageVersion();
+
 private:
     Common();
     ~Common();

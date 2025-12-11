@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 #include "common.h"
+#include <QProcess>
+#include <QStandardPaths>
 
 QList<QStringList> Common::logLevels = {
     {"quiet", "-8", "Show nothing at all; be silent."},
@@ -311,5 +313,38 @@ void Common::cleanupDirectory(const QString& dirPath)
         } else {
             qWarning() << "Failed to clean up directory:" << dirPath;
         }
+    }
+}
+
+
+QString Common::getPackageVersion(const QString& packageName)
+{
+    QProcess process;
+    QString command = QString("dpkg -s %1 | grep Version | awk '{print $2}'").arg(packageName);
+
+    process.start("bash", QStringList() << "-c" << command);
+    process.waitForFinished(3000); // Wait up to 3 seconds
+
+    QString output = process.readAllStandardOutput().trimmed();
+    QString error = process.readAllStandardError().trimmed();
+
+    if (!error.isEmpty()) {
+        qWarning() << "Error getting package version for" << packageName << ":" << error;
+        return QString();
+    }
+
+    return output;
+}
+
+QString Common::getCurrentPackageVersion()
+{
+    // Try to determine which package is currently running
+    QString appPath = QCoreApplication::applicationFilePath();
+
+    // Check if we're running media-debuger or media-debuger6
+    if (appPath.contains("media-debuger6")) {
+        return getPackageVersion("media-debuger6");
+    } else {
+        return getPackageVersion("media-debuger");
     }
 }

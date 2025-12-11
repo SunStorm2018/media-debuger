@@ -3,6 +3,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "common/common.h"
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QTabWidget>
@@ -566,15 +567,19 @@ void MainWindow::slotMenuHelpTriggered(QAction *action)
     }
 
     if (ui->actionAbout == action) {
+        QString packageVersion = Common::getCurrentPackageVersion();
+        QString versionText = packageVersion.isEmpty() ? tr("Unknown") : packageVersion;
+        
         QMessageBox::about(this,
                            tr("About MediaDebuger"),
-                           tr("MediaDebuger\n\n"
+                           tr("MediaDebuger\n"
+                              "Version: %1\n"
                               "A powerful media file analysis tool that provides:\n"
                               "- Detailed media information display\n"
                               "- Multiple format views (JSON, Table)\n"
                               "- Real-time logging\n"
                               "- Customizable layout\n"
-                              "- FFmpeg compilation tool\n\n"));
+                              "- FFmpeg compilation tool\n\n").arg(versionText));
     }
 
     if (ui->actionApp_Dir == action) {
